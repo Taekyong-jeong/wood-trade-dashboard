@@ -59,7 +59,23 @@ FATAL_CODES = {
 
 
 class FatalAPIError(Exception):
-    pass
+    """더 호출해도 소용없는 오류 (인증키·한도 등) → 실행 중단."""
+
+
+class CountryError(Exception):
+    """특정 국가 호출만 실패 (잘못된 국가코드 등) → 그 국가만 건너뜀."""
+
+
+SKIP_FILE = STATE_DIR / "skip_countries.json"
+
+
+def load_skip() -> dict:
+    return json.loads(SKIP_FILE.read_text(encoding="utf-8")) if SKIP_FILE.exists() else {}
+
+
+def save_skip(skip: dict) -> None:
+    STATE_DIR.mkdir(parents=True, exist_ok=True)
+    SKIP_FILE.write_text(json.dumps(skip, ensure_ascii=False, indent=1, sort_keys=True), encoding="utf-8")
 
 
 # ── 유틸 ──────────────────────────────────────────────────────
@@ -161,14 +177,16 @@ def call_api(key: str, yyyymm: str, cnty: str, session: requests.Session) -> lis
             if code == "03" or "NODATA" in msg.upper():   # 자료 없음
                 return []
             last_err = f"resultCode {code} {msg}"
-            time.sleep(2 ** attempt)
+            if attempt >= 2:                             # 파라미터 오류는 반복해도 같음
+                raise CountryError(last_err)
+            time.sleep(2)
             continue
 
         items = []
         for it in root.iter("item"):
             items.append({c.tag: (c.text or "").strip() for c in it})
         return items
-    raise RuntimeError(f"{yyyymm} {cnty} 재시도 실패: {last_err}")
+    raise CountryError(f"재시도 실패: {last_err}")
 
 
 def split_items(items: list[dict], yyyymm: str, cnty: str, cnty_name: str):
@@ -241,21 +259,44 @@ def fetch_month(key, yyyymm, countries, progress, budget, session) -> int:
     st["target_n"] = len(countries)
     PARTIAL_DIR.mkdir(parents=True, exist_ok=True)
     if not done and partial_path(yyyymm).exists():
-        partial_path(yyyymm).unlink()             # 이전에 버려진 임시 파일 정리
+        # 이전 실행이 중간에 멈췄으면 임시 파일에서 이어받는다
+        with partial_path(yyyymm).open(encoding="utf-8") as pf:
+            for line in pf:
+                try:
+                    done.add(json.loads(line)["cnty"])
+                except (ValueError, KeyError):
+                    pass
+        if done:
+            log(f"{yyyymm} 이어받기: {len(done)}개국 완료분 복구")
+    skip = load_skip()
     used = 0
-    with partial_path(yyyymm).open("a", encoding="utf-8") as f:
-        for code, name in countries:
-            if code in done:
-                continue
-            if used >= budget or time.time() > DEADLINE[0]:
-                break
-            items = call_api(key, yyyymm, code, session)
-            used += 1
-            rows, total = split_items(items, yyyymm, code, name)
-            f.write(json.dumps({"cnty": code, "rows": rows, "total": total}, ensure_ascii=False) + "\n")
-            done.add(code)
-            time.sleep(SETTINGS["delay_sec"])
-    st["done"] = sorted(done)
+    try:
+        with partial_path(yyyymm).open("a", encoding="utf-8") as f:
+            for code, name in countries:
+                if code in done:
+                    continue
+                if code in skip:
+                    done.add(code)
+                    continue
+                if used >= budget or time.time() > DEADLINE[0]:
+                    break
+                used += 1
+                try:
+                    items = call_api(key, yyyymm, code, session)
+                except CountryError as e:
+                    log(f"{yyyymm} {code}({name}) 건너뜀: {e}")
+                    skip[code] = {"name": name, "reason": str(e), "first_seen": yyyymm}
+                    save_skip(skip)
+                    done.add(code)
+                    continue
+                rows, total = split_items(items, yyyymm, code, name)
+                f.write(json.dumps({"cnty": code, "rows": rows, "total": total}, ensure_ascii=False) + "\n")
+                f.flush()
+                done.add(code)
+                time.sleep(SETTINGS["delay_sec"])
+    finally:
+        st["done"] = sorted(done)
+        save_progress(progress)
     if len(done) >= len(countries):
         st.pop("done", None)
         finalize_month(yyyymm, progress)
@@ -340,6 +381,10 @@ def main() -> int:
         save_progress(progress)
         log(f"중단: {e}")
         return 3
+    except Exception as e:                              # 예상 못 한 오류도 진행 상태는 저장
+        save_progress(progress)
+        log(f"예기치 않은 오류로 중단: {type(e).__name__}: {e}")
+        return 4
 
     complete = sum(1 for m in month_list(SETTINGS["start_month"], latest) if progress.get(m, {}).get("complete"))
     target = len(month_list(SETTINGS["start_month"], latest))
