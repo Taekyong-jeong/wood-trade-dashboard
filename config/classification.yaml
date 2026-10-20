@@ -156,4 +156,4 @@ alerts:
   share_change_pp: 5        # 국가 점유율 전월 대비 ±5%p
   price_change_pct: 20      # 수입 단가 전년 동월 대비 ±20%
   new_supplier_share: 1     # 신규 공급국 점유율 1% 이상
-  min_import_usd: 100000    # 이보다 작은 월 수입액은 알림에서 제외 (노이즈 방지)
+  min_import_usd: 1000000   # 월 수입액이 100만 달러 미만인 분류는 알림 제외 (CLT 등 소량 품목의 선적 단위 변동 노이즈 방지)
