@@ -1,0 +1,276 @@
+{
+ "202307": {
+  "complete": false,
+  "done": [
+   "AD",
+   "AE",
+   "AF",
+   "AG",
+   "AI",
+   "AL",
+   "AM",
+   "AN",
+   "AO",
+   "AQ",
+   "AR",
+   "AT",
+   "AU",
+   "AW",
+   "AZ",
+   "BA",
+   "BB",
+   "BD",
+   "BE",
+   "BF",
+   "BG",
+   "BH",
+   "BI",
+   "BJ",
+   "BL",
+   "BM",
+   "BN",
+   "BO",
+   "BQ",
+   "BR",
+   "BS",
+   "BT",
+   "BW",
+   "BY",
+   "BZ",
+   "CA",
+   "CC",
+   "CD",
+   "CF",
+   "CG"
+  ],
+  "target_n": 243
+ },
+ "202308": {
+  "complete": true,
+  "countries": 243,
+  "fetched_at": "2026-10-21T04:20:38+09:00",
+  "rows": 1092
+ },
+ "202309": {
+  "complete": true,
+  "countries": 243,
+  "fetched_at": "2026-10-21T04:19:24+09:00",
+  "rows": 1104
+ },
+ "202310": {
+  "complete": true,
+  "countries": 243,
+  "fetched_at": "2026-10-21T04:18:10+09:00",
+  "rows": 1087
+ },
+ "202311": {
+  "complete": true,
+  "countries": 243,
+  "fetched_at": "2026-10-21T04:16:55+09:00",
+  "rows": 1119
+ },
+ "202312": {
+  "complete": true,
+  "countries": 243,
+  "fetched_at": "2026-10-21T04:15:39+09:00",
+  "rows": 1071
+ },
+ "202401": {
+  "complete": true,
+  "countries": 243,
+  "fetched_at": "2026-10-21T04:14:25+09:00",
+  "rows": 1107
+ },
+ "202402": {
+  "complete": true,
+  "countries": 243,
+  "fetched_at": "2026-10-21T04:13:11+09:00",
+  "rows": 1061
+ },
+ "202403": {
+  "complete": true,
+  "countries": 243,
+  "fetched_at": "2026-10-21T04:11:56+09:00",
+  "rows": 1126
+ },
+ "202404": {
+  "complete": true,
+  "countries": 243,
+  "fetched_at": "2026-10-21T04:10:41+09:00",
+  "rows": 1103
+ },
+ "202405": {
+  "complete": true,
+  "countries": 243,
+  "fetched_at": "2026-10-21T04:09:26+09:00",
+  "rows": 1133
+ },
+ "202406": {
+  "complete": true,
+  "countries": 243,
+  "fetched_at": "2026-10-21T04:08:11+09:00",
+  "rows": 1069
+ },
+ "202407": {
+  "complete": true,
+  "countries": 243,
+  "fetched_at": "2026-10-21T04:06:57+09:00",
+  "rows": 1134
+ },
+ "202408": {
+  "complete": true,
+  "countries": 243,
+  "fetched_at": "2026-10-21T04:05:42+09:00",
+  "rows": 1039
+ },
+ "202409": {
+  "complete": true,
+  "countries": 243,
+  "fetched_at": "2026-10-21T04:04:28+09:00",
+  "rows": 1060
+ },
+ "202410": {
+  "complete": true,
+  "countries": 243,
+  "fetched_at": "2026-10-21T04:03:13+09:00",
+  "rows": 1108
+ },
+ "202411": {
+  "complete": true,
+  "countries": 243,
+  "fetched_at": "2026-10-21T04:01:57+09:00",
+  "rows": 1083
+ },
+ "202412": {
+  "complete": true,
+  "countries": 243,
+  "fetched_at": "2026-10-21T04:00:43+09:00",
+  "rows": 1089
+ },
+ "202501": {
+  "complete": true,
+  "countries": 243,
+  "fetched_at": "2026-10-21T03:59:27+09:00",
+  "rows": 1038
+ },
+ "202502": {
+  "complete": true,
+  "countries": 243,
+  "fetched_at": "2026-10-21T03:58:13+09:00",
+  "rows": 1059
+ },
+ "202503": {
+  "complete": true,
+  "countries": 243,
+  "fetched_at": "2026-10-21T03:56:59+09:00",
+  "rows": 1059
+ },
+ "202504": {
+  "complete": true,
+  "countries": 243,
+  "fetched_at": "2026-10-21T03:55:44+09:00",
+  "rows": 1132
+ },
+ "202505": {
+  "complete": true,
+  "countries": 243,
+  "fetched_at": "2026-10-21T03:54:29+09:00",
+  "rows": 1040
+ },
+ "202506": {
+  "complete": true,
+  "countries": 243,
+  "fetched_at": "2026-10-21T03:53:15+09:00",
+  "rows": 1056
+ },
+ "202507": {
+  "complete": true,
+  "countries": 243,
+  "fetched_at": "2026-10-21T03:52:00+09:00",
+  "rows": 1116
+ },
+ "202508": {
+  "complete": true,
+  "countries": 243,
+  "fetched_at": "2026-10-21T03:50:45+09:00",
+  "rows": 1021
+ },
+ "202509": {
+  "complete": true,
+  "countries": 243,
+  "fetched_at": "2026-10-21T03:49:30+09:00",
+  "rows": 1105
+ },
+ "202510": {
+  "complete": true,
+  "countries": 243,
+  "fetched_at": "2026-10-21T03:48:14+09:00",
+  "rows": 1055
+ },
+ "202511": {
+  "complete": true,
+  "countries": 243,
+  "fetched_at": "2026-10-21T03:47:00+09:00",
+  "rows": 1072
+ },
+ "202512": {
+  "complete": true,
+  "countries": 243,
+  "fetched_at": "2026-10-21T03:45:45+09:00",
+  "rows": 1082
+ },
+ "202601": {
+  "complete": true,
+  "countries": 243,
+  "fetched_at": "2026-10-21T03:44:30+09:00",
+  "rows": 1011
+ },
+ "202602": {
+  "complete": true,
+  "countries": 243,
+  "fetched_at": "2026-10-21T03:43:15+09:00",
+  "rows": 993
+ },
+ "202603": {
+  "complete": true,
+  "countries": 243,
+  "fetched_at": "2026-10-21T03:42:01+09:00",
+  "rows": 1055
+ },
+ "202604": {
+  "complete": true,
+  "countries": 243,
+  "fetched_at": "2026-10-21T03:40:45+09:00",
+  "rows": 1106
+ },
+ "202605": {
+  "complete": true,
+  "countries": 243,
+  "fetched_at": "2026-10-21T03:39:30+09:00",
+  "rows": 1052
+ },
+ "202606": {
+  "complete": true,
+  "countries": 243,
+  "fetched_at": "2026-10-21T03:38:16+09:00",
+  "rows": 1134
+ },
+ "202607": {
+  "complete": true,
+  "countries": 243,
+  "fetched_at": "2026-10-21T03:37:01+09:00",
+  "rows": 1068
+ },
+ "202608": {
+  "complete": true,
+  "countries": 243,
+  "fetched_at": "2026-10-21T03:35:45+09:00",
+  "rows": 1070
+ },
+ "202609": {
+  "complete": true,
+  "countries": 243,
+  "fetched_at": "2026-10-21T03:34:31+09:00",
+  "rows": 1057
+ }
+}
