@@ -230,6 +230,9 @@ def finalize_month(yyyymm: str, progress: dict) -> None:
     log(f"{yyyymm} 완료: 44류 {len(rows)}행, 총계 {len(totals)}개국")
 
 
+DEADLINE = [float("inf")]   # 실행 시간 예산 (time.time() 기준)
+
+
 def fetch_month(key, yyyymm, countries, progress, budget, session) -> int:
     """한 달을 수집. 사용한 호출 수를 반환. 예산이 다하면 중간 저장 후 반환."""
     st = progress.setdefault(yyyymm, {})
@@ -244,7 +247,7 @@ def fetch_month(key, yyyymm, countries, progress, budget, session) -> int:
         for code, name in countries:
             if code in done:
                 continue
-            if used >= budget:
+            if used >= budget or time.time() > DEADLINE[0]:
                 break
             items = call_api(key, yyyymm, code, session)
             used += 1
@@ -276,7 +279,9 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--mode", choices=["probe", "backfill", "monthly"], required=True)
     ap.add_argument("--max-calls", type=int, default=SETTINGS["max_calls_per_run"])
+    ap.add_argument("--max-minutes", type=float, default=SETTINGS["max_minutes_per_run"])
     args = ap.parse_args()
+    DEADLINE[0] = time.time() + args.max_minutes * 60
 
     key = os.environ.get("DATA_GO_KR_KEY", "").strip()
     if not key:
@@ -309,7 +314,7 @@ def main() -> int:
             refresh = all_months[-SETTINGS["refresh_months"]:]
             act = active_countries(countries)
             for m in reversed(all_months):
-                if budget - used_total <= 0:
+                if budget - used_total <= 0 or time.time() > DEADLINE[0]:
                     break
                 st = progress.get(m, {})
                 if m == latest and not st.get("complete"):
@@ -325,7 +330,7 @@ def main() -> int:
 
         # backfill (monthly 모드에서도 남은 예산으로 계속 채움)
         for m in reversed(all_months):
-            if budget - used_total <= 0:
+            if budget - used_total <= 0 or time.time() > DEADLINE[0]:
                 break
             if progress.get(m, {}).get("complete"):
                 continue

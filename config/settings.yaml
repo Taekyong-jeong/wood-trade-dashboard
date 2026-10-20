@@ -5,7 +5,8 @@ publish_day: 16              # 이 날짜 이후면 전월 통계가 공표된 �
 refresh_months: 12           # 매월 다시 받아 덮어쓰는 최근 개월 수 (잠정치→확정치)
 
 max_calls_per_run: 9000      # 1회 실행 최대 호출 수 (개발계정 일일 한도 10,000)
-delay_sec: 0.15              # 호출 간 대기
+max_minutes_per_run: 240     # 1회 실행 시간 예산(분). GitHub 작업 한도 안에서 저장 후 종료
+delay_sec: 0.05              # 호출 간 대기
 timeout_sec: 60
 retry_max: 4
 
