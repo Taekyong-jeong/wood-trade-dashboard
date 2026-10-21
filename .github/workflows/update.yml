@@ -58,12 +58,12 @@ jobs:
 
       - name: 분석 + 검증
         id: analyze
-        if: steps.mode.outputs.mode != 'probe'
+        if: always() && steps.mode.outputs.mode != 'probe'
         continue-on-error: true
         run: python scripts/analyze.py
 
       - name: 글꼴 내려받기 (에스코어드림, 최초 1회)
-        if: steps.mode.outputs.mode != 'probe'
+        if: always() && steps.mode.outputs.mode != 'probe'
         run: |
           mkdir -p docs/fonts
           for w in 3Light 4Regular 5Medium 6Bold; do
@@ -72,7 +72,7 @@ jobs:
           done
 
       - name: 페이지 생성
-        if: steps.mode.outputs.mode != 'probe'
+        if: always() && steps.mode.outputs.mode != 'probe'
         run: python scripts/build.py
 
       - name: 결과 커밋

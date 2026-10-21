@@ -257,6 +257,7 @@ def build_insights(months, series, long, names):
         v0 = e["imp_usd"][i0] or 0
         if v0 < a["min_import_usd"]:
             continue
+        weight = float(np.log10(max(v0, 1e5) / 1e5)) + 1   # 품목 규모가 클수록 가중
         c0 = cur[(cur.axis == axis) & (cur.key == key)].groupby("cnty")["imp_usd"].sum()
         sh0 = c0 / c0.sum() * 100 if c0.sum() else c0
         # 점유율 변동
@@ -269,6 +270,8 @@ def build_insights(months, series, long, names):
                     if abs(dv) >= a["share_change_pp"]:
                         out["alerts"].append({"type": "share", "cat": lab, "axis": axis, "key": key,
                             "cnty": c, "cnty_name": names.get(c, c), "value": round(float(dv), 1),
+                            "size": v0, "score": abs(float(dv)) / a["share_change_pp"] * weight,
+                            "from": round(float(sh1.get(c, 0)), 1), "to": round(float(sh0.get(c, 0)), 1),
                             "text": f"{lab}: {names.get(c, c)} 점유율 {sh1.get(c, 0):.1f}% → {sh0.get(c, 0):.1f}% ({dv:+.1f}%p, 전월 대비)"})
         # 단가 변동 (전년 동월)
         if i0 >= 12:
@@ -278,6 +281,8 @@ def build_insights(months, series, long, names):
                 ch = pct(p0, p12)
                 if abs(ch) >= a["price_change_pct"]:
                     out["alerts"].append({"type": "price", "cat": lab, "axis": axis, "key": key, "value": round(ch, 1),
+                        "size": v0, "score": abs(ch) / a["price_change_pct"] * weight,
+                        "from": round(p12, 2), "to": round(p0, 2),
                         "text": f"{lab}: 수입 단가 {p12:,.2f} → {p0:,.2f} USD/kg ({ch:+.1f}%, 전년 동월 대비)"})
         # 신규 공급국
         hc = hist[(hist.axis == axis) & (hist.key == key)].groupby("cnty")["imp_usd"].sum()
@@ -285,9 +290,10 @@ def build_insights(months, series, long, names):
             if s >= a["new_supplier_share"] and hc.get(c, 0) <= 0 and len(months) >= 13:
                 out["alerts"].append({"type": "new", "cat": lab, "axis": axis, "key": key, "cnty": c,
                     "cnty_name": names.get(c, c), "value": round(float(s), 1),
+                    "size": v0, "score": float(s) / a["new_supplier_share"] * weight * 1.5,
                     "text": f"{lab}: 신규 공급국 {names.get(c, c)} 등장 (점유율 {s:.1f}%, 직전 12개월 수입 없음)"})
 
-    out["alerts"].sort(key=lambda x: -abs(x["value"]))
+    out["alerts"].sort(key=lambda x: -x["score"])
     out["alerts"] = out["alerts"][:20]
     n = len(out["alerts"])
     out["summary"].append(f"이번 달 주의 표시 항목은 {n}건임." if n else "이번 달 주의 표시 항목은 없음.")
@@ -363,6 +369,17 @@ def main() -> int:
     write_json("countries.json", countries)
     write_json("insights.json", insights)
     write_json("hs_names.json", hs_names)
+    sup = ROOT / "data" / "external" / "kosis_wood_supply.csv"
+    if sup.exists():
+        t = pd.read_csv(sup)
+        val = lambda col: [None if pd.isna(v) else float(v) for v in t[col]]
+        write_json("supply.json", {
+            "years": [str(y) for y in t["year"]],
+            "wood_supply_1000m3": val("wood_supply_1000m3"),
+            "log_ssr": val("log_self_sufficiency_pct"),
+            "wood_ssr": val("wood_self_sufficiency_pct"),
+            "source": "산림청 목재수급통계 (KOSIS·e-나라지표)",
+        })
 
     # 다운로드용 CSV
     agg = long.groupby(["axis", "key", "month"], as_index=False)[MEASURES].sum()

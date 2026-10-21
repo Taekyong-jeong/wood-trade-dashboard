@@ -62,6 +62,10 @@ class FatalAPIError(Exception):
     """더 호출해도 소용없는 오류 (인증키·한도 등) → 실행 중단."""
 
 
+class QuotaExceeded(FatalAPIError):
+    """일일 호출 한도 도달 → 정상 종료 (다음 날 이어서 수집)."""
+
+
 class CountryError(Exception):
     """특정 국가 호출만 실패 (잘못된 국가코드 등) → 그 국가만 건너뜀."""
 
@@ -166,11 +170,15 @@ def call_api(key: str, yyyymm: str, cnty: str, session: requests.Session) -> lis
 
         # 게이트웨이 공통 오류 형식 (OpenAPI_ServiceResponse)
         reason = root.findtext(".//returnReasonCode")
+        if reason == "22":
+            raise QuotaExceeded("일일 호출 한도 도달")
         if reason and reason != "00":
             raise FatalAPIError(f"게이트웨이 오류 {reason}: {FATAL_CODES.get(reason, root.findtext('.//returnAuthMsg'))}")
 
         code = (root.findtext(".//resultCode") or "").strip()
         msg = (root.findtext(".//resultMsg") or "").strip()
+        if code == "22":
+            raise QuotaExceeded("일일 호출 한도 도달")
         if code in FATAL_CODES:
             raise FatalAPIError(f"오류 {code}: {FATAL_CODES[code]} ({msg})")
         if code not in ("00", "0", ""):
@@ -377,6 +385,9 @@ def main() -> int:
                 continue
             used_total += fetch_month(key, m, countries, progress, budget - used_total, session)
 
+    except QuotaExceeded:
+        save_progress(progress)
+        log("일일 호출 한도 도달 — 저장 후 종료, 다음 실행에서 이어서 수집")
     except FatalAPIError as e:
         save_progress(progress)
         log(f"중단: {e}")
