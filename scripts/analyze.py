@@ -190,6 +190,19 @@ def fmt_usd(v):
     return f"{v:,.0f}달러"
 
 
+UNITS = yaml.safe_load((ROOT / "config" / "units.yaml").read_text(encoding="utf-8"))
+
+
+def unit_price(axis, key, usd, kg):
+    """config/units.yaml 기준 단가와 단위 (m3=밀도 환산 추정, t=톤, 그 외 kg)."""
+    it = (UNITS.get("items") or {}).get(f"{axis}:{key}", {})
+    if it.get("unit") == "m3":
+        return usd * it["density"] * 1000 / kg, "USD/㎥(추정)", 0
+    if it.get("unit") == "t":
+        return usd * 1000 / kg, "USD/t", 0
+    return usd / kg, "USD/kg", 2
+
+
 def build_insights(months, series, long, names):
     a = CFG["alerts"]
     m0 = months[-1]
@@ -277,13 +290,14 @@ def build_insights(months, series, long, names):
         if i0 >= 12:
             k0, u12, k12 = e["imp_kg"][i0], e["imp_usd"][i0 - 12], e["imp_kg"][i0 - 12]
             if k0 and k12 and u12 and u12 >= a["min_import_usd"]:
-                p0, p12 = v0 / k0, u12 / k12
+                p0, unit, nd = unit_price(axis, key, v0, k0)
+                p12, _, _ = unit_price(axis, key, u12, k12)
                 ch = pct(p0, p12)
                 if abs(ch) >= a["price_change_pct"]:
                     out["alerts"].append({"type": "price", "cat": lab, "axis": axis, "key": key, "value": round(ch, 1),
                         "size": v0, "score": abs(ch) / a["price_change_pct"] * weight,
-                        "from": round(p12, 2), "to": round(p0, 2),
-                        "text": f"{lab}: 수입 단가 {p12:,.2f} → {p0:,.2f} USD/kg ({ch:+.1f}%, 전년 동월 대비)"})
+                        "from": round(p12, nd), "to": round(p0, nd), "unit": unit,
+                        "text": f"{lab}: 수입 단가 {p12:,.{nd}f} → {p0:,.{nd}f} {unit} ({ch:+.1f}%, 전년 동월 대비)"})
         # 신규 공급국
         hc = hist[(hist.axis == axis) & (hist.key == key)].groupby("cnty")["imp_usd"].sum()
         for c, s in sh0.items():
@@ -356,6 +370,7 @@ def main() -> int:
         "headings": HEADING_NAMES,
         "processing_stages": CFG["processing_stages"],
         "countries": names,
+        "units": yaml.safe_load((ROOT / "config" / "units.yaml").read_text(encoding="utf-8")),
     }
 
     if not ok:

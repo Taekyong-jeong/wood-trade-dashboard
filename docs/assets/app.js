@@ -26,6 +26,21 @@
     return nf(kg / 1e3, 0) + "톤";
   }
   const price = (u, k) => (k ? u / k : null);
+  // 품목별 단가 단위 (config/units.yaml): m3=밀도 환산 추정, t=톤, 그 외 kg
+  function unitOf(axis, key) {
+    const U = (D.meta && D.meta.units) || {};
+    const it = (U.items || {})[`${axis}:${key}`];
+    return it ? { ...it, provisional: U.status !== "confirmed" } : { unit: "kg" };
+  }
+  function pconv(axis, key) {
+    const u = unitOf(axis, key);
+    if (u.unit === "m3") return (usd, kg) => (kg ? (usd * u.density * 1000) / kg : null);
+    if (u.unit === "t") return (usd, kg) => (kg ? (usd * 1000) / kg : null);
+    return (usd, kg) => (kg ? usd / kg : null);
+  }
+  const plabel = (axis, key) => ({ m3: "USD/㎥", t: "USD/t", kg: "USD/kg" }[unitOf(axis, key).unit]);
+  const pfmt = (axis, key) => (v) => (unitOf(axis, key).unit === "kg" ? nf(v, 2) : nf(v, 0));
+  const pest = (axis, key) => (unitOf(axis, key).unit === "m3" ? ` <span class="badge" title="중량을 기준 밀도 ${unitOf(axis, key).density} t/㎥로 환산한 추정값">추정</span>` : "");
   function delta(cur, prev, unit = "%") {
     if (!prev || cur == null) return `<span class="delta">비교 불가</span>`;
     const p = (cur / prev - 1) * 100;
@@ -54,7 +69,7 @@
   const cname = (c) => (D.meta.countries || {})[c] || c;
 
   /** 측정값·집계 방식에 따른 시계열. dir: 'imp' | 'exp' */
-  function seriesOf(e, dir, measure, agg, since) {
+  function seriesOf(e, dir, measure, agg, since, ak) {
     const ms = months();
     let u = e[dir + "_usd"].slice(), k = e[dir + "_kg"].slice();
     if (since) ms.forEach((m, i) => { if (m < since) { u[i] = null; k[i] = null; } });
@@ -73,7 +88,7 @@
     let vals;
     if (measure === "imp_usd") vals = U.map((v) => (v == null ? null : v / 1e6));
     else if (measure === "imp_kg") vals = K.map((v) => (v == null ? null : v / 1e6));
-    else vals = U.map((v, i) => (v == null || !K[i] ? null : v / K[i]));
+    else { const cv = ak ? pconv(ak[0], ak[1]) : (a, b) => a / b; vals = U.map((v, i) => (v == null || !K[i] ? null : cv(v, K[i]))); }
     // 기간 필터
     if (S.start) {
       const keep = x.map((lab) => lab.slice(0, 4) >= S.start);
@@ -110,7 +125,7 @@
     hhi: "공급국별 수입 점유율(%)을 제곱해 더한 값. 한 나라가 100% 공급하면 10,000, 10개국이 10%씩 나누면 1,000. 1,500 미만 분산 · 1,500~2,500 보통 · 2,500 이상 집중 (미국 법무부 시장집중도 기준).",
     dep: "공급국 의존도: 수입이 특정 국가에 얼마나 몰려 있는지. 최대 공급국 점유율 50% 이상 또는 HHI 2,500 이상이면 '높음', HHI 1,500~2,500이면 '보통', 그 미만이면 '낮음'.",
     logdep: "원목 수입의존도 = 100 − 원목자급률. 국내에서 쓰는 원목(㎥) 중 수입산의 비율. 산림청 목재수급통계(연 1회 공표).",
-    price: "수입 단가 = 수입액 ÷ 순중량 (USD/kg). 운임·보험료가 포함된 도착 가격(CIF). 같은 품목도 수종·규격 구성이 바뀌면 달라짐.",
+    price: "수입 단가 = 수입액 ÷ 수입량. 운임·보험료가 포함된 도착 가격(CIF). 목재제품은 USD/㎥(중량을 기준 밀도로 환산한 추정값), 연료형은 USD/t, 혼합 분류는 USD/kg. 같은 품목도 수종·규격 구성이 바뀌면 달라짐.",
     r12: "12개월 누적: 해당 월까지 최근 12개월 합계. 계절에 따른 들쭉날쭉함을 없애고 추세를 볼 때 씀.",
     share: "점유율: 해당 품목 전체 수입액 중 그 나라가 차지하는 비율.",
     gap: "무역수지 = 수출액 − 수입액. 음수면 수입이 더 많음. 수입은 CIF, 수출은 FOB 기준.",
@@ -127,9 +142,10 @@
   function kpi(label, value, sub) {
     return `<div class="card kpi"><div class="label one-line">${label}</div><div class="value one-line num">${value}</div><div class="delta one-line">${sub || "&nbsp;"}</div></div>`;
   }
-  function trendTitle(dir) {
+  function trendTitle(ak) {
     const a = { month: "월별", year: "연간", r12: "12개월 누적" }[S.agg];
-    return `${a} ${MLABEL[S.measure]} (${UNIT[S.measure]})`;
+    const u = S.measure === "price" && ak ? plabel(ak[0], ak[1]) : UNIT[S.measure];
+    return `${a} ${MLABEL[S.measure]} (${u})`;
   }
 
   function renderHeader() {
@@ -175,7 +191,7 @@
     const head = (a) => a.type === "price" ? `${a.cat} · 수입 단가 ${a.value > 0 ? "급등" : "급락"}`
       : a.type === "new" ? `${a.cat} · 신규 공급국 ${a.cnty_name}`
       : `${a.cat} · ${a.cnty_name} 점유율 ${a.value > 0 ? "급증" : "급감"}`;
-    const det = (a) => a.type === "price" ? `${nf(a.from, 2)} → ${nf(a.to, 2)} USD/kg (전년 동월 대비 ${a.value > 0 ? "+" : ""}${nf(a.value, 1)}%)`
+    const det = (a) => a.type === "price" ? `${nf(a.from, a.unit && a.unit !== "USD/kg" ? 0 : 2)} → ${nf(a.to, a.unit && a.unit !== "USD/kg" ? 0 : 2)} ${a.unit || "USD/kg"} (전년 동월 대비 ${a.value > 0 ? "+" : ""}${nf(a.value, 1)}%)`
       : a.type === "new" ? `점유율 ${nf(a.value, 1)}% · 직전 12개월 수입 없음`
       : `${nf(a.from, 1)}% → ${nf(a.to, 1)}% (전월 대비 ${a.value > 0 ? "+" : ""}${nf(a.value, 1)}%p)`;
     const rest = ins.alerts.filter((a) => !picks.includes(a));
@@ -231,7 +247,8 @@
     const r12p = (e) => ms.map((_, i) => { if (i < 11) return null; const u = sum(e.imp_usd.slice(i - 11, i + 1)), k = sum(e.imp_kg.slice(i - 11, i + 1)); return k ? u / k : null; });
     const pser = pitems.map(([a, k, n]) => { const v = r12p(entry(a, k)); const b = v.find((x) => x != null);
       return { name: n, raw: v, values: v.map((x) => (x == null || !b ? null : (x / b) * 100)) }; });
-    const yoyP = pser.map((p) => { const i = ms.length - 1; const a = p.raw[i], b = p.raw[i - 12]; return { name: p.name, now: a, p: a && b ? (a / b - 1) * 100 : null }; });
+    const yoyP = pser.map((p, j) => { const i = ms.length - 1; const a = p.raw[i], b = p.raw[i - 12]; const [ax, ky] = pitems[j];
+      return { name: p.name, now: a == null ? null : pconv(ax, ky)(a, 1), unit: plabel(ax, ky), fmt: pfmt(ax, ky), p: a && b ? (a / b - 1) * 100 : null }; });
     const upMost = [...yoyP].filter((x) => x.p != null).sort((a, b) => b.p - a.p)[0];
     // 6) 수입의존도
     const sup = D.supply;
@@ -265,7 +282,7 @@
       card(`증감 품목 ${q("r12")}`, "최근 12개월 vs 직전 12개월", `<div id="st-chg"></div>` + foot(per), "",
         chg.length ? `증가 1위 ${chg[0].name} ${chg[0].p > 0 ? "+" : ""}${nf(chg[0].p, 1)}% <span class="sub">감소 1위 ${chg[chg.length - 1].name} ${nf(chg[chg.length - 1].p, 1)}%</span>` : "직전 12개월 비교에 24개월 이상 데이터 필요") +
       card(`수입 단가 추이 ${q("idx")}`, "12개월 평균 단가 지수 (시작=100)", `<div id="st-price"></div>` + foot("단가 = 수입액÷순중량(CIF)"), "",
-        upMost ? `전년 대비 상승 폭 최대 ${upMost.name} ${upMost.p > 0 ? "+" : ""}${nf(upMost.p, 1)}% <span class="sub">${nf(upMost.now, 2)} USD/kg</span>` : "") +
+        upMost ? `전년 대비 상승 폭 최대 ${upMost.name} ${upMost.p > 0 ? "+" : ""}${nf(upMost.p, 1)}% <span class="sub">${upMost.fmt(upMost.now)} ${upMost.unit}</span>` : "") +
       card(`원목 수입의존도 ${q("logdep")}`, "연간 · %", `<div id="st-log"></div>` +
         `<div class="foot">${logNote ? logNote + " · " : ""}출처: 산림청 목재수급통계</div>`, "", logLead) +
       card(`공급국 의존도 ${q("dep")}${q("hhi")}`, "주요 품목 · 최근 12개월",
@@ -329,7 +346,8 @@
     }
     const i = iLast(), L = l12(e), Lk = l12(e, "imp_kg");
     const tops = topSuppliers(axis, key, 10);
-    const p0 = price(L.cur, Lk.cur), pp = price(L.prev, Lk.prev);
+    const cv = pconv(axis, key), pl = plabel(axis, key), pf = pfmt(axis, key);
+    const p0 = L.cur && Lk.cur ? cv(L.cur, Lk.cur) : null, pp = L.prev && Lk.prev ? cv(L.prev, Lk.prev) : null;
     const note = [grp && grp.desc, prod && prod.note, since && `${ym(since)} 이전에는 별도 HS 코드가 없어 값을 표시하지 않음`, extraNote].filter(Boolean);
     host.innerHTML =
       `<div class="detail-head"><h2 class="one-line">${labelOf(axis, key)}</h2>${prod ? `<span class="badge">목재제품 ${prod.num}</span>` : ""}</div>` +
@@ -338,23 +356,23 @@
       kpi(`${ym(months()[i])} 수입액`, usd(e.imp_usd[i]), `전년 동월 ${delta(e.imp_usd[i], i >= 12 ? e.imp_usd[i - 12] : null)}`) +
       kpi("최근 12개월 수입액", usd(L.cur), `직전 대비 ${delta(L.cur, L.prev)}`) +
       kpi("최근 12개월 수입량", ton(Lk.cur), `직전 대비 ${delta(Lk.cur, Lk.prev)}`) +
-      kpi("평균 수입 단가", p0 ? `${nf(p0, 2)} <small>USD/kg</small>` : "–", `직전 대비 ${delta(p0, pp)}`) +
+      kpi(`평균 수입 단가${pest(axis, key)}`, p0 ? `${pf(p0)} <small>${pl}</small>` : "–", `직전 대비 ${delta(p0, pp)}`) +
       kpi("최대 공급국", tops[0] ? `${cname(tops[0].c)} <small>${nf(tops[0].share, 1)}%</small>` : "–", e.hhi[i] != null ? `HHI ${nf(e.hhi[i], 0)}` : "") +
       `</div><div class="grid g-2" style="margin-top:12px">` +
-      card(`수입·수출 추이`, trendTitle(), `<div id="d-trend"></div>`, "span-2",
+      card(`수입·수출 추이`, trendTitle([axis, key]), `<div id="d-trend"></div>`, "span-2",
         L.prev ? `최근 12개월 수입 ${usd(L.cur)} <span class="sub">직전 12개월 대비 ${delta(L.cur, L.prev)}</span>` : `최근 12개월 수입 ${usd(L.cur)}`) +
       card(`주요 공급국 ${q("share")}`, "최근 12개월 · 점유율 · 전년 대비", `<div id="d-sup"></div>`, "",
         tops[0] ? `1위 ${cname(tops[0].c)} ${nf(tops[0].share, 1)}% <span class="sub">상위 3개국 ${nf(sum(tops.slice(0, 3).map((t) => t.share)), 0)}%</span>` : "") +
-      card(`공급국별 수입 단가 ${q("price")}`, "연간 · 상위 5개국 · USD/kg", `<div id="d-price"></div>`, "", "<span id='d-price-lead'></span>") +
+      card(`공급국별 수입 단가 ${q("price")}`, `연간 · 상위 5개국 · ${pl}`, `<div id="d-price"></div>`, "", "<span id='d-price-lead'></span>") +
       card(`공급국 집중도 HHI ${q("hhi")}`, "12개월 누적", `<div id="d-hhi"></div>`, "",
         e.hhi[i] != null ? `HHI ${nf(e.hhi[i], 0)} <span class="sub">${e.hhi[i] >= 2500 ? "집중" : e.hhi[i] >= 1500 ? "보통" : "분산"} · 의존도 ${depGrade(tops[0] ? tops[0].share : 0, e.hhi[i]).label}</span>` : "") +
       card("상위 3개국 점유율", "12개월 누적 · %", `<div id="d-top3"></div>`, "",
         e.top3[i] != null ? `상위 3개국이 ${nf(e.top3[i], 0)}% 공급` : "") +
       `</div>`;
 
-    const a = seriesOf(e, "imp", S.measure, S.agg, since), b = seriesOf(e, "exp", S.measure, S.agg, since);
+    const a = seriesOf(e, "imp", S.measure, S.agg, since, [axis, key]), b = seriesOf(e, "exp", S.measure, S.agg, since, [axis, key]);
     C.lineChart($("#d-trend"), { x: a.x, series: [{ name: "수입", values: a.v }, { name: "수출", values: b.v }],
-      yFmt: yFmt(S.measure), markers: S.agg === "year" ? [] : revMarkers(a.x), xLabelFmt: xFmt, height: 260 });
+      yFmt: S.measure === "price" ? pf : yFmt(S.measure), markers: S.agg === "year" ? [] : revMarkers(a.x), xLabelFmt: xFmt, height: 260 });
     C.hbars($("#d-sup"), tops.map((t) => ({ label: cname(t.c), value: t.imp,
       text: `${usd(t.imp)} · ${nf(t.share, 1)}% · ${t.prev ? ((t.imp / t.prev - 1) * 100 >= 0 ? "▲" : "▼") + nf(Math.abs((t.imp / t.prev - 1) * 100), 0) + "%" : "신규"}`,
       onClick: () => { S.country = t.c; go("country"); } })));
@@ -363,10 +381,10 @@
     const top5 = tops.slice(0, 5).map((t) => t.c);
     const years = [...new Set(months().map((m) => m.slice(0, 4)))].filter((y) => !S.start || y >= S.start);
     const pSeries = top5.map((c) => ({ name: cname(c),
-      values: years.map((y) => { const r = rows[c] && rows[c].y[y]; return r && r[1] ? r[0] / r[1] : null; }) }));
-    C.lineChart($("#d-price"), { x: years, series: pSeries, yFmt: (v) => nf(v, 2), height: 220, yMin0: false });
+      values: years.map((y) => { const r = rows[c] && rows[c].y[y]; return r && r[1] ? cv(r[0], r[1]) : null; }) }));
+    C.lineChart($("#d-price"), { x: years, series: pSeries, yFmt: pf, height: 220, yMin0: false });
     const lastP = pSeries.map((p) => ({ n: p.name, v: p.values[p.values.length - 1] })).filter((x) => x.v != null).sort((a, b) => b.v - a.v);
-    if (lastP.length > 1) $("#d-price-lead").innerHTML = `${years[years.length - 1]}년 최고 ${lastP[0].n} ${nf(lastP[0].v, 2)} <span class="sub">최저 ${lastP[lastP.length - 1].n} ${nf(lastP[lastP.length - 1].v, 2)} USD/kg</span>`;
+    if (lastP.length > 1) $("#d-price-lead").innerHTML = `${years[years.length - 1]}년 최고 ${lastP[0].n} ${pf(lastP[0].v)} <span class="sub">최저 ${lastP[lastP.length - 1].n} ${pf(lastP[lastP.length - 1].v)} ${pl}</span>`;
     const ms = months(), keep = ms.map((m) => !S.start || m.slice(0, 4) >= S.start);
     const fx = ms.filter((_, j) => keep[j]);
     C.lineChart($("#d-hhi"), { x: fx, series: [{ name: "HHI", values: e.hhi.filter((_, j) => keep[j]) }], yFmt: (v) => nf(v, 0), height: 180, xLabelFmt: xFmt, area: true });
@@ -442,7 +460,9 @@
         const L = l12(e);
         const since = p.since;
         const vals = e.imp_usd.map((v, i) => (since && months()[i] < since ? null : v));
-        body = `<div class="pv num">${usd(L.cur)}</div><div class="pd">최근 12개월 · ${delta(L.cur, L.prev)}</div>${C.sparkline(vals.slice(-60))}`;
+        const K = l12(e, "imp_kg").cur, pv = K ? pconv("product", p.key)(L.cur, K) : null;
+        body = `<div class="pv num">${usd(L.cur)}</div><div class="pd">최근 12개월 · ${delta(L.cur, L.prev)}</div>` +
+          `<div class="pd">단가 ${pv ? pfmt("product", p.key)(pv) + " " + plabel("product", p.key) : "–"}${unitOf("product", p.key).unit === "m3" ? " (추정)" : ""}</div>${C.sparkline(vals.slice(-60))}`;
       }
       const badge = p.status === "partial" ? `<span class="badge">일부</span>` : p.since ? `<span class="badge">${p.since.slice(0, 4)}~</span>` : "";
       return `<button class="pcard ${disabled ? "disabled" : ""}" data-k="${p.key}" aria-pressed="${p.key === S.product}">` +
@@ -511,8 +531,8 @@
       const r = rows[S.country];
       return { p, imp: r ? r.l12[0] : 0, kg: r ? r.l12[1] : 0, share: tot && r ? (r.l12[0] / tot) * 100 : 0 };
     }).filter((x) => x.imp > 0).sort((a, b) => b.imp - a.imp);
-    $("#c-prod").innerHTML = prow.length ? `<table><thead><tr><th>제품</th><th>수입액</th><th>수입량</th><th>단가(USD/kg)</th><th>점유율</th></tr></thead><tbody>` +
-      prow.map((x) => `<tr class="click" data-k="${x.p.key}"><td>${x.p.num}. ${x.p.name}</td><td>${usd(x.imp)}</td><td>${ton(x.kg)}</td><td>${x.kg ? nf(x.imp / x.kg, 2) : "–"}</td><td>${nf(x.share, 1)}%</td></tr>`).join("") + `</tbody></table>`
+    $("#c-prod").innerHTML = prow.length ? `<table><thead><tr><th>제품</th><th>수입액</th><th>수입량</th><th>단가</th><th>점유율</th></tr></thead><tbody>` +
+      prow.map((x) => `<tr class="click" data-k="${x.p.key}"><td>${x.p.num}. ${x.p.name}</td><td>${usd(x.imp)}</td><td>${ton(x.kg)}</td><td>${x.kg ? pfmt("product", x.p.key)(pconv("product", x.p.key)(x.imp, x.kg)) + " " + plabel("product", x.p.key) : "–"}</td><td>${nf(x.share, 1)}%</td></tr>`).join("") + `</tbody></table>`
       : `<div class="empty">목재제품 수입 실적 없음</div>`;
     $("#c-prod").querySelectorAll("tr[data-k]").forEach((tr) => tr.onclick = () => { S.product = tr.dataset.k; go("product"); });
   }
@@ -528,11 +548,19 @@
       card("용어", "", `<div class="note" style="line-height:1.8">
         <b>HHI(허핀달-허쉬만 지수)</b>: 공급국별 점유율(%) 제곱의 합. 1,500 미만 분산, 1,500~2,500 중간 집중, 2,500 이상 고집중.<br>
         <b>상위 3개국 점유율</b>: 수입액 상위 3개 공급국의 합계 비중.<br>
-        <b>수입 단가</b>: 수입액 ÷ 순중량 (USD/kg). 품목 구성이 바뀌면 단가도 바뀌므로 해석에 주의.<br>
+        <b>수입 단가</b>: 수입액 ÷ 수입량. 목재제품은 USD/㎥(추정), 연료형은 USD/t, 혼합 분류는 USD/kg. 품목 구성이 바뀌면 단가도 바뀌므로 해석에 주의.<br>
         <b>12개월 누적</b>: 해당 월을 포함한 직전 12개월 합계. 계절성을 없애고 추세를 볼 때 사용.<br>
         <b>HS 개정</b>: ${(m.hs_revisions || []).map((r) => `${r.name}(${ym(r.month)})`).join(", ")} — 개정 시점에 일부 품목의 코드가 나뉘거나 합쳐져 시계열이 끊길 수 있음.</div>`) +
       card("목재제품 분류 기준", "목재이용법 15종 + CLT + LVL", `<div class="tbl-wrap"><table><thead><tr><th>No.</th><th class="l">제품</th><th class="l">HS/HSK 코드</th><th class="l">비고</th></tr></thead><tbody>` +
         m.products.map((p) => `<tr><td>${p.num}</td><td class="l">${p.name}</td><td class="l">${(p.prefixes || []).join(", ") || "–"}</td><td class="l" style="white-space:normal">${p.note || ""}</td></tr>`).join("") + `</tbody></table></div>`, "span-2") +
+      (() => { const U = m.units || { items: {} }; const nameOf = (k) => { const [ax, ky] = k.split(":");
+          return ax === "heading" ? `${ky} ${m.headings[ky] || ""}` : ax === "product" ? (m.products.find((p) => p.key === ky) || {}).name : ax === "group" ? (m.groups.find((g) => g.key === ky) || {}).name : k; };
+        const rows = Object.entries(U.items || {});
+        return card("단가 단위와 기준 밀도", U.status === "confirmed" ? "확정" : "잠정값 · 검증 예정",
+          `<div class="note" style="margin-bottom:8px">관세청 자료는 중량(kg)만 있어, ㎥ 단가는 <b>수입액 ÷ (중량 ÷ 기준 밀도)</b>로 환산한 추정값임. 밀도가 실제와 10% 다르면 ㎥ 단가도 약 10% 달라지지만, 오르내림(추세)은 그대로 유지됨. 출처: ${U.source || ""}</div>` +
+          `<div class="tbl-wrap"><table><thead><tr><th class="l">분류</th><th>단위</th><th>기준 밀도(t/㎥)</th><th class="l">기준 상태</th></tr></thead><tbody>` +
+          rows.map(([k, v]) => `<tr><td class="l">${nameOf(k)}</td><td>${{ m3: "USD/㎥", t: "USD/t", kg: "USD/kg" }[v.unit]}</td><td>${v.density != null ? nf(v.density, 2) : "–"}</td><td class="l" style="white-space:normal">${v.basis || (v.unit === "t" ? "중량 그대로 (환산 없음)" : "")}</td></tr>`).join("") +
+          `</tbody></table></div><div class="foot">표에 없는 품목군·수종 등 혼합 분류는 USD/kg로 표시 (원목 생재와 제품 기건이 섞여 밀도 하나로 환산하면 왜곡됨)</div>`, "span-2"); })() +
       card("품목군 분류 기준", "HS 코드 접두어 · 긴 코드 우선", `<div class="tbl-wrap"><table><thead><tr><th class="l">품목군</th><th class="l">HS 코드</th><th class="l">설명</th></tr></thead><tbody>` +
         m.groups.map((g) => `<tr><td class="l">${g.name}</td><td class="l" style="white-space:normal">${(g.prefixes || []).join(", ")}</td><td class="l" style="white-space:normal">${g.desc}</td></tr>`).join("") + `</tbody></table></div>`, "span-2") +
       `</div>`;

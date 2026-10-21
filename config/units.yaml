@@ -1,0 +1,47 @@
+# ─────────────────────────────────────────────────────────────
+# 품목별 단가 표시 단위
+# ─────────────────────────────────────────────────────────────
+# 관세청 API는 중량(kg)만 제공함. 부피 단가(USD/㎥)는 아래 기준 밀도로 환산한 "추정값"임.
+#   USD/㎥ = 수입액 ÷ (순중량 kg ÷ 1,000 ÷ 밀도 t/㎥)
+#   USD/t  = 수입액 ÷ (순중량 kg ÷ 1,000)
+#
+# 밀도는 수입 신고 상태(원목=생재, 제품=기건)의 대표값으로 잡은 "잠정값"임.
+# FAO·ITTO·UNECE「Forest product conversion factors」(2020) 표와 대조해 확정 예정.
+# 값을 고치면 다음 갱신 때 화면에 반영됨. 수정 시 README 변경 이력에 남길 것.
+#
+# unit: m3 | t | kg
+# key 형식: "축:키"  (heading=HS 4단위, product=목재제품, group=품목군)
+# ─────────────────────────────────────────────────────────────
+
+status: provisional       # provisional(잠정) → confirmed(확정)으로 바꾸면 화면의 '잠정' 표시가 빠짐
+source: "잠정 대표값 (FAO·ITTO·UNECE Forest product conversion factors 2020 대조 예정)"
+
+items:
+  # 원자재·1차 가공재
+  "heading:4403": { unit: m3, density: 0.80, basis: "원목, 생재 상태 (수입 침엽수 원목 중심)" }
+  "heading:4407": { unit: m3, density: 0.55, basis: "제재목, 기건 상태 (침엽수 중심, 열대재 일부)" }
+  "heading:4408": { unit: m3, density: 0.60, basis: "단판" }
+  "product:p01":  { unit: m3, density: 0.55, basis: "제재목, 기건" }
+  "product:p02":  { unit: m3, density: 0.60, basis: "방부목재 (약제 처리분 포함)" }
+  "product:p03":  { unit: m3, density: 0.60, basis: "난연목재 (약제 처리분 포함)" }
+  # 보드·패널
+  "product:p06":  { unit: m3, density: 0.60, basis: "합판" }
+  "product:p07":  { unit: m3, density: 0.65, basis: "파티클보드" }
+  "product:p08":  { unit: m3, density: 0.75, basis: "섬유판 (MDF 중심)" }
+  "product:p09":  { unit: m3, density: 0.62, basis: "OSB" }
+  "product:p10":  { unit: m3, density: 0.70, basis: "목질바닥재 (성형목재·조립 마루판)" }
+  # 구조용 공학목재
+  "product:p05":  { unit: m3, density: 0.50, basis: "집성재 (침엽수)" }
+  "product:p16":  { unit: m3, density: 0.48, basis: "CLT (침엽수)" }
+  "product:p17":  { unit: m3, density: 0.55, basis: "LVL" }
+  # 연료형 — 톤 단위 (환산 없음, 정확값)
+  "heading:4401": { unit: t }
+  "heading:4402": { unit: t }
+  "product:p11":  { unit: t }
+  "product:p12":  { unit: t }
+  "product:p13":  { unit: t }
+  "product:p14":  { unit: t }
+  "product:p15":  { unit: t }
+  "group:bioenergy": { unit: t }
+# 여기 없는 분류(품목군·수종·혼합 품목)는 USD/kg로 표시함.
+# 혼합 분류는 원목(생재)·제품(기건)이 섞여 밀도 하나로 환산하면 왜곡되기 때문.
