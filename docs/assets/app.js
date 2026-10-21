@@ -4,7 +4,7 @@
   const $ = (s, r = document) => r.querySelector(s);
   const D = {};
   const S = {
-    tab: "overview", measure: "imp_usd", agg: "r12", start: null,
+    tab: "group", measure: "imp_usd", agg: "r12", start: null,
     group: "raw", product: "p01", sp1: null, sp2: null, country: null,
   };
   const UNIT = { imp_usd: "백만 달러", imp_kg: "천 톤", price: "USD/kg" };
@@ -165,161 +165,173 @@
     b.innerHTML = msgs.join("");
   }
 
-  function renderTop() {
-    const e = entry("total", "all"), i = iLast(), ms = months();
-    const v0 = e.imp_usd[i], vy = i >= 12 ? e.imp_usd[i - 12] : null;
-    const L = l12(e);
-    const top = topSuppliers("total", "all", 1)[0];
-    const h = e.hhi[i], t3 = e.top3[i];
-    const g = depGrade(top ? top.share : 0, h || 0);
-    $("#kpis").innerHTML =
-      kpi(`${ym(ms[i])} 수입액`, usd(v0), `전년 동월 ${delta(v0, vy)}`) +
-      kpi("최근 12개월 수입액", usd(L.cur), `직전 12개월 ${delta(L.cur, L.prev)}`) +
-      kpi("최대 수입국", top ? `${cname(top.c)} <small>${nf(top.share, 1)}%</small>` : "–", top ? `최근 12개월 ${usd(top.imp)}` : "") +
-      `<div class="card kpi"><div class="label one-line">공급국 의존도 ${q("dep")}</div><div class="value one-line">${h != null ? g.label : "–"}</div>` +
-      `<div class="delta one-line">${h != null ? `HHI ${nf(h, 0)} · 상위 3개국 ${nf(t3, 0)}%` : "12개월 이상 데이터 필요"}</div></div>`;
-
-    const ins = D.insights;
-    // 눈여겨볼 3가지: 점수순, 같은 국가·같은 사건 중복 제거
-    const seen = new Set(), picks = [];
-    for (const a of ins.alerts) {
-      const k = a.type === "price" ? `p:${a.cat}` : `${a.type}:${a.cnty}:${Math.sign(a.value)}`;
-      if (seen.has(k)) continue;
-      seen.add(k); picks.push(a);
-      if (picks.length === 3) break;
-    }
-    const head = (a) => a.type === "price" ? `${a.cat} · 수입 단가 ${a.value > 0 ? "급등" : "급락"}`
-      : a.type === "new" ? `${a.cat} · 신규 공급국 ${a.cnty_name}`
-      : `${a.cat} · ${a.cnty_name} 점유율 ${a.value > 0 ? "급증" : "급감"}`;
-    const det = (a) => a.type === "price" ? `${nf(a.from, a.unit && a.unit !== "USD/kg" ? 0 : 2)} → ${nf(a.to, a.unit && a.unit !== "USD/kg" ? 0 : 2)} ${a.unit || "USD/kg"} (전년 동월 대비 ${a.value > 0 ? "+" : ""}${nf(a.value, 1)}%)`
-      : a.type === "new" ? `점유율 ${nf(a.value, 1)}% · 직전 12개월 수입 없음`
-      : `${nf(a.from, 1)}% → ${nf(a.to, 1)}% (전월 대비 ${a.value > 0 ? "+" : ""}${nf(a.value, 1)}%p)`;
-    const rest = ins.alerts.filter((a) => !picks.includes(a));
-    $("#summary").innerHTML =
-      card(`이번 달 요약 <span class="badge" style="margin-left:6px">${ym(ins.month)}</span>`, "자동 작성",
-        `<ol>${ins.summary.filter((t) => !t.startsWith("이번 달 주의")).map((t) => `<li>${t}</li>`).join("")}</ol>` +
-        `<div class="foot">출처: ${SRC} · 원인 판단은 포함하지 않음</div>`) +
-      card("이번 달 눈여겨볼 3가지", `${ym(ins.month)} 기준`,
-        picks.length ? `<div class="notables">${picks.map((a, j) =>
-          `<button class="notable" data-axis="${a.axis}" data-key="${a.key}"><span class="n">${j + 1}</span>` +
-          `<span class="h">${head(a)}</span><span class="d">${det(a)}</span></button>`).join("")}</div>` +
-          (rest.length ? `<details class="more"><summary>나머지 ${rest.length}건 보기</summary><ul class="alerts">${rest.map((a) =>
-            `<li><span class="tag">${{ share: "점유율", price: "단가", new: "신규국" }[a.type]}</span><span>${a.text}</span></li>`).join("")}</ul></details>` : "")
-          : `<div class="empty">기준(점유율 ±5%p, 단가 ±20%, 신규 공급국 1%↑)을 넘는 변화 없음</div>`);
-    $("#summary").querySelectorAll(".notable").forEach((b) => b.onclick = () => openDetail(b.dataset.axis, b.dataset.key));
-  }
-
   function openDetail(axis, key) {
     if (axis === "group") { S.group = key; go("group"); }
     else if (axis === "product") { S.product = key; go("product"); }
     else if (axis === "species2") { S.sp2 = key; go("species"); }
-    else go("overview");
+    else if (axis === "heading") { S.group = key === "4403" ? "raw" : "primary"; go("group"); }
   }
 
-  // ── 한눈에 보기 ─────────────────────────────────────────
-  function renderStory() {
-    const per = periodL12();
-    const foot = (extra = "") => `<div class="foot">${extra ? extra + " · " : ""}출처: ${SRC}</div>`;
-    const tot = entry("total", "all");
-    const Ltot = l12(tot);
+  // ── 레퍼런스 짧은 표기 ─────────────────────────────────
+  const REF = { motie2023: "산업부(2023) 산업 공급망 3050 전략", doj2010: "미국 DOJ·FTC(2010)", doj2023: "DOJ·FTC(2023)",
+    oecd_stan: "OECD STAN", mann1945: "Mann(1945)", kendall1975: "Kendall(1975)", fao_ifpa: "FAO IFPA(SDG 2.c.1)", ang2005: "Ang(2005) LMDI" };
+  const refs = (ks) => (ks || []).filter((k) => k !== "doj2023").map((k) => REF[k] || k).join(" · ");
+  const GRADE_CLS = { "취약": "hi", "주의": "mid", "안정": "lo", "판정 제외": "ex", "비정상 상승": "hi", "다소 높음": "mid", "정상": "lo",
+    "다소 낮음": "mid", "비정상 하락": "hi", "판정 보류": "na" };
+  const badge = (t) => `<span class="grade ${GRADE_CLS[t] || "lo"}">${t}</span>`;
+  const rule = (html) => `<div class="rule">${html}</div>`;
 
-    // 1) 최대 수입국
-    const tops = topSuppliers("total", "all", 8);
-    const top3 = sum(tops.slice(0, 3).map((t) => t.share));
-    // 2) 최대 수입 품목 (HS 4단위)
-    const heads = Object.entries(D.series.series.heading || {}).map(([k, e]) => ({ k, usd: l12(e).cur || 0, kg: l12(e, "imp_kg").cur || 0 }));
-    const byUsd = [...heads].sort((a, b) => b.usd - a.usd).slice(0, 5);
-    const byKg = [...heads].sort((a, b) => b.kg - a.kg).slice(0, 5);
+  // ── 판정 요약 ──────────────────────────────────────────
+  function renderVerdicts() {
+    const J = D.judg;
+    $("#v-hint").textContent = `${ym(J.month)} 기준 · 판정 규칙: config/criteria.yaml`;
+    $("#verdicts").innerHTML = J.cards.map((c) =>
+      `<button class="vcard ${c.level}" data-go="sec-${c.id}"><span class="vt">${c.title}</span><span class="vb">${c.badge}</span>` +
+      `<span class="vx">${c.text}</span><span class="vr">기준: ${refs(c.refs)}</span></button>`).join("");
+    $("#verdicts").querySelectorAll(".vcard").forEach((b) => b.onclick = () => {
+      const t = document.getElementById(b.dataset.go); if (t) window.scrollTo({ top: t.offsetTop - 70, behavior: "smooth" }); });
+  }
+
+  // ── 공급 위험 ──────────────────────────────────────────
+  function renderSupply() {
+    const sr = D.judg.supply_risk, per = periodL12();
+    const nV = sr.filter((d) => d.grade === "취약").length, nC = sr.filter((d) => d.grade === "주의").length;
+    const col = { "취약": C.color(7), "주의": C.color(3), "안정": C.color(0), "판정 제외": getComputedStyle(document.documentElement).getPropertyValue("--other").trim() };
+    $("#a-supply").innerHTML =
+      card(`공급 위험 지도 ${q("dep")}`, `${per} · 점 = 품목`, `<div id="sr-map"></div>` +
+        rule(`<b>취약</b>: 연 수입액 100만 달러 이상 + 특정국 의존도 50% 이상 (산업부 산업 공급망 3050 전략, 2023) · <b>주의</b>: HHI 2,500 이상 (미국 DOJ·FTC, 2010) · 100만 달러 미만은 판정 제외`), "",
+        `취약 ${nV}개 · 주의 ${nC}개 <span class="sub">오른쪽 위(빨간 선 바깥)가 크고 쏠린 품목</span>`) +
+      card(`품목별 판정 ${q("hhi")}`, "행을 누르면 상세",
+        `<div class="tbl-wrap"><table><thead><tr><th class="l">품목</th><th>판정</th><th class="l">최대 공급국</th><th>HHI</th><th>수입액</th></tr></thead><tbody>` +
+        sr.map((d) => `<tr class="click" data-axis="${d.axis}" data-key="${d.key}" title="${d.reason}"><td class="l">${d.label}</td><td>${badge(d.grade)}</td>` +
+          `<td class="l">${d.top_name} ${nf(d.top_share, 0)}%</td><td>${nf(d.hhi, 0)}</td><td>${usd(d.imp_usd)}</td></tr>`).join("") +
+        `</tbody></table></div><div class="foot">${per} · 출처: ${SRC} · 행에 마우스를 올리면 판정 근거</div>`, "",
+        nV ? `취약: ${sr.filter((d) => d.grade === "취약").map((d) => d.label.replace(/\(.+\)/, "")).join(" · ")}` : "취약 품목 없음");
+    C.scatterChart($("#sr-map"), {
+      points: sr.map((d) => ({ x: d.top_share, y: d.imp_usd, label: d.label.replace(/\(.+\)/, ""), color: col[d.grade],
+        size: d.grade === "판정 제외" ? 4 : 7, labelOn: d.grade === "취약", onClick: () => openDetail(d.axis, d.key), d })),
+      xMin: 0, xMax: 100, logY: true, height: 320, xTitle: "최대 공급국 점유율 (%)", yTitle: "연 수입액 (USD, 로그)",
+      xFmt: (v) => v + "%", yFmt: (v) => (v >= 1e8 ? nf(v / 1e8, 0) + "억" : v >= 1e6 ? nf(v / 1e6, 0) + "백만" : nf(v / 1e3, 0) + "천"),
+      refX: [{ v: 50, label: "특정국 50%" }], refY: [{ v: 1e6, label: "연 100만 달러" }],
+      tip: (p) => `<div class="tt">${p.d.label} ${badge(p.d.grade)}</div><div class="tr"><span>최대 공급국</span><b>${p.d.top_name} ${nf(p.d.top_share, 1)}%</b></div>` +
+        `<div class="tr"><span>연 수입액</span><b>${usd(p.d.imp_usd)}</b></div><div class="tr"><span>HHI</span><b>${nf(p.d.hhi, 0)}</b></div>` +
+        `<div style="margin-top:4px;color:var(--ink-2);white-space:normal;max-width:240px">${p.d.reason}</div>` });
+    $("#a-supply").querySelectorAll("tr[data-axis]").forEach((tr) => tr.onclick = () => openDetail(tr.dataset.axis, tr.dataset.key));
+  }
+
+  // ── 수입 의존 ──────────────────────────────────────────
+  function renderPenetration() {
+    const P = D.judg.penetration, S2 = D.judg.structure;
+    if (!P) { $("#a-penetration").innerHTML = card("수입 의존", "", `<div class="empty">자료 없음</div>`, "span-2"); return; }
+    const mk = P.mk || {};
+    const w = (D.supply && D.supply.wood_ssr) ? D.supply.wood_ssr.map((v, j) => [D.supply.years[j], v]).filter(([, v]) => v != null).pop() : null;
+    $("#a-penetration").innerHTML =
+      card(`원목 수입의존도 ${q("logdep")}`, `${P.years[0]}~${P.latest_year} · %`, `<div id="pn-line"></div>` +
+        rule(`수입침투율 = 수입 ÷ (국내 생산 − 수출 + 수입) (OECD STAN) · 원목 = 100 − 원목자급률 (산림청 목재수급통계, ㎥) · 추세: Mann-Kendall 검정, 최근 10년, 유의수준 5% (Mann 1945; Kendall 1975)`) +
+        (w ? `<div class="foot">참고: 목재 전체 자급률 ${w[0]}년 ${nf(w[1], 1)}% (수입의존도 약 ${nf(100 - w[1], 0)}%) — 연도별 자료 확보 후 추가</div>` : ""), "",
+        `${nf(P.latest, 1)}% (${P.latest_year}) · ${P.verdict} <span class="sub">연 ${mk.sen_slope > 0 ? "+" : ""}${nf(mk.sen_slope, 1)}%p, p=${nf(mk.p, 3)}</span>`) +
+      card("자급-수입 구조", "연간 · %", `<div id="pn-struct"></div>` +
+        rule(`가공제품 비중 = (1차 가공재 + 보드·패널 + 공학목재 + 건축용 목제품) ÷ (원자재 + 가공제품), 수입액 기준 · 12개월이 다 찬 연도만 표시`), "",
+        S2.years.length >= 2 ? `수입 중 가공제품 ${nf(S2.processed_share[0], 0)}% → ${nf(S2.processed_share[S2.processed_share.length - 1], 0)}% <span class="sub">(${S2.years[0]}→${S2.years[S2.years.length - 1]})</span>` : "연도 자료 축적 중");
+    C.lineChart($("#pn-line"), { x: P.years.map(String), series: [{ name: "원목 수입의존도", values: P.log_import_dependence }],
+      yFmt: (v) => nf(v, 0) + "%", tipFmt: (v) => nf(v, 1) + "%", height: 230, area: true,
+      markers: [{ x: String(P.trend_window[0]), label: "추세 검정 구간" }] });
+    C.lineChart($("#pn-struct"), { x: S2.years, series: [{ name: "수입 중 가공제품 비중", values: S2.processed_share },
+      { name: "원목 수입의존도", values: S2.log_import_dependence, dash: true }], yFmt: (v) => nf(v, 0) + "%", tipFmt: (v) => nf(v, 1) + "%", height: 230 });
+    if (S2.years.length < 3) $("#pn-struct").insertAdjacentHTML("beforeend", `<div class="foot">과거 데이터 수집이 끝나면 2016년부터 표시됨</div>`);
+  }
+
+  // ── 가격 ───────────────────────────────────────────────
+  function renderPrice() {
+    const PA = D.judg.price_anomaly, ms = months();
+    const ready = PA.filter((d) => d.band !== "판정 보류");
+    const opts = PA.map((d) => [d.axis, d.key, d.label]);
+    if (!S.pmap || !opts.find((o) => `${o[0]}:${o[1]}` === S.pmap)) S.pmap = "product:p11";
+    // 단가 지수 (12개월 평균, 시작=100)
+    const pitems = [["heading", "4403", "원목"], ["heading", "4407", "제재목"], ["product", "p06", "합판"], ["product", "p11", "목재펠릿"]].filter(([a, k]) => entry(a, k));
+    const r12p = (e) => ms.map((_, i) => { if (i < 11) return null; const u = sum(e.imp_usd.slice(i - 11, i + 1)), k = sum(e.imp_kg.slice(i - 11, i + 1)); return k ? u / k : null; });
+    const pser = pitems.map(([a, k, n]) => { const v = r12p(entry(a, k)); const b = v.find((x) => x != null); return { name: n, raw: v, values: v.map((x) => (x == null || !b ? null : (x / b) * 100)), a, k }; });
+    const now = pser.map((p) => { const i = ms.length - 1; return { n: p.name, v: p.raw[i] != null ? pconv(p.a, p.k)(p.raw[i], 1) : null, u: plabel(p.a, p.k), f: pfmt(p.a, p.k) }; });
+    $("#a-price").innerHTML =
+      card(`가격 이상 판정 ${q("price")}`, `${ym(ms[ms.length - 1])} 기준`,
+        `<div class="tbl-wrap"><table><thead><tr><th class="l">품목</th><th>판정</th><th>점수(σ)</th><th>단가 전년비</th><th>비교 연수</th></tr></thead><tbody>` +
+        PA.map((d) => `<tr class="click" data-axis="${d.axis}" data-key="${d.key}"><td class="l">${d.label}</td><td>${badge(d.band)}</td>` +
+          `<td>${d.ifpa != null ? (d.ifpa > 0 ? "+" : "") + nf(d.ifpa, 2) : "–"}</td><td>${d.yoy_pct != null ? (d.yoy_pct > 0 ? "+" : "") + nf(d.yoy_pct, 1) + "%" : "–"}</td>` +
+          `<td>${d.past_obs}/${d.need_obs}년</td></tr>`).join("") + `</tbody></table></div>` +
+        rule(`FAO 식품가격 이상 지표(IFPA, SDG 2.c.1) 방법: 분기·연간 단가 상승률을 과거 같은 달의 평균·표준편차로 표준화, 분기 가중 0.4 · ±0.5σ 정상, 0.5~1σ 다소 높음, 1σ 이상 비정상 (하락은 대칭 적용) · 과거 같은 달 3년 이상 필요`), "",
+        ready.length ? `판정 ${ready.length}개 품목 중 이상 ${ready.filter((d) => !["정상"].includes(d.band)).length}개` : `판정 보류 <span class="sub">과거 데이터 수집 후 자동 판정</span>`) +
+      card(`공급국 가격대 지도 ${q("price")}`, `${periodL12()}`,
+        `<div class="inline-sel"><span class="ctl-label">품목</span><select id="pmapSel">${opts.map(([a, k, n]) => `<option value="${a}:${k}" ${`${a}:${k}` === S.pmap ? "selected" : ""}>${n}</option>`).join("")}</select></div>` +
+        `<div id="pmap"></div>` + rule(`점 = 공급국 (최근 12개월 점유율 1% 이상) · 가로 = 점유율, 세로 = 단가 · ㎥ 단가는 기준 밀도로 환산한 추정값`), "", `<span id="pmap-lead"></span>`) +
+      card(`단가 지수 ${q("idx")}`, "12개월 평균 단가, 시작 = 100", `<div id="pidx"></div>` +
+        `<div class="foot">현재 단가: ${now.filter((x) => x.v != null).map((x) => `${x.n} ${x.f(x.v)} ${x.u}`).join(" · ")}</div>`, "span-2",
+        (() => { const y = pser.map((p) => { const i = ms.length - 1; const a = p.raw[i], b = p.raw[i - 12]; return { n: p.name, p: a && b ? (a / b - 1) * 100 : null }; }).filter((x) => x.p != null).sort((a, b) => b.p - a.p);
+          return y.length ? `전년 대비 ${y.map((x) => `${x.n} ${x.p > 0 ? "+" : ""}${nf(x.p, 1)}%`).join(" · ")}` : ""; })());
+    const pi = pser.length ? pser[0].values.findIndex((v) => v != null) : 0;
+    C.lineChart($("#pidx"), { x: ms.slice(pi), series: pser.map((p) => ({ name: p.name, values: p.values.slice(pi) })), yFmt: (v) => nf(v, 0), tipFmt: (v) => nf(v, 1), yMin0: false, height: 230, xLabelFmt: xFmt });
+    $("#a-price").querySelectorAll("tr[data-axis]").forEach((tr) => tr.onclick = () => openDetail(tr.dataset.axis, tr.dataset.key));
+    const drawMap = () => {
+      const [a, k] = S.pmap.split(":"); const rows = (D.countries[a] || {})[k] || {};
+      const tot = sum(Object.values(rows).map((r) => r.l12[0]));
+      const cv = pconv(a, k), pf = pfmt(a, k), pl = plabel(a, k);
+      const pts = Object.entries(rows).filter(([, r]) => r.l12[0] > 0 && r.l12[1] > 0 && tot && r.l12[0] / tot >= 0.01)
+        .map(([c, r]) => ({ c, share: (r.l12[0] / tot) * 100, price: cv(r.l12[0], r.l12[1]), imp: r.l12[0] }));
+      const avg = tot ? cv(tot, sum(Object.values(rows).map((r) => r.l12[1]))) : null;
+      C.scatterChart($("#pmap"), { points: pts.map((p) => ({ x: p.share, y: p.price, label: cname(p.c), size: 4 + Math.sqrt(p.share) * 1.6, labelOn: p.share >= 8,
+          color: C.color(0), d: p })), xMin: 0, xMax: Math.max(10, Math.ceil((Math.max(...pts.map((p) => p.share), 10) * 1.25) / 10) * 10), height: 270,
+        xTitle: "점유율 (%)", yTitle: pl, xFmt: (v) => v + "%", yFmt: pf, refY: avg ? [{ v: avg, label: `평균 ${pf(avg)}` }] : [],
+        tip: (p) => `<div class="tt">${p.label}</div><div class="tr"><span>점유율</span><b>${nf(p.d.share, 1)}%</b></div><div class="tr"><span>단가</span><b>${pf(p.d.price)} ${pl}</b></div><div class="tr"><span>수입액</span><b>${usd(p.d.imp)}</b></div>` });
+      const big = pts.filter((p) => p.share >= 5).sort((x, y) => x.price - y.price);
+      $("#pmap-lead").innerHTML = big.length >= 2 ? `점유율 5%↑ 중 최저 ${cname(big[0].c)} ${pf(big[0].price)} · 최고 ${cname(big[big.length - 1].c)} ${pf(big[big.length - 1].price)} <span class="sub">${pl}</span>` : "";
+    };
+    drawMap();
+    $("#pmapSel").onchange = (ev) => { S.pmap = ev.target.value; drawMap(); };
+  }
+
+  // ── 변화 요인 ──────────────────────────────────────────
+  function renderDrivers() {
+    const DC = D.judg.decomposition;
+    if (!DC.available) { $("#a-drivers").innerHTML = card("변화 요인", "", `<div class="empty">24개월 이상 자료 필요</div>`); return; }
+    const t = DC.total;
+    const fmtB = (v) => (Math.abs(v) >= 1e8 ? `${v > 0 ? "+" : ""}${nf(v / 1e8, 2)}억` : `${v > 0 ? "+" : ""}${nf(v / 1e6, 0)}백만`);
+    const rows = [t, ...DC.groups].map((g) => ({ label: g.label, a: g.volume, b: g.price, c: g.entry_exit, total: g.dV,
+      text: `${fmtB(g.dV)} (${g.pct > 0 ? "+" : ""}${nf(g.pct, 1)}%) ${g.driver.replace("물량·단가 ", "")}`,
+      tip: `물량 효과 ${fmtB(g.volume)} · 단가 효과 ${fmtB(g.price)}${g.entry_exit ? ` · 신규·중단 ${fmtB(g.entry_exit)}` : ""} (달러)`,
+      onClick: g.key !== "all" ? () => openDetail("group", g.key) : null }));
+    $("#a-drivers").innerHTML = card(`수입액 변화 분해`, `${DC.period[1]} vs ${DC.period[0]} · 달러`, `<div id="dc-bars"></div>` +
+      rule(`로그평균 디비지아 지수분해(LMDI, Ang 2005) · HS 6단위 품목별로 분해 후 합산 · 물량 = 순중량 변화, 단가 = 중량당 금액 변화(HS6 내부 규격·수종 구성 변화 포함) · 한 효과가 60% 이상이면 '주도'`), "",
+      `목재류 수입 ${fmtB(t.dV)} 달러 (${t.pct > 0 ? "+" : ""}${nf(t.pct, 1)}%) · ${t.driver} <span class="sub">물량 ${fmtB(t.volume)} · 단가 ${fmtB(t.price)}</span>`);
+    C.decompBars($("#dc-bars"), rows);
+  }
+
+  // ── 기본 현황 ──────────────────────────────────────────
+  function renderBasic() {
+    const per = periodL12(), tot = entry("total", "all"), L = l12(tot), Lexp = l12(tot, "exp_usd").cur;
+    const tops = topSuppliers("total", "all", 8), top3 = sum(tops.slice(0, 3).map((t) => t.share));
     const SHORT = { "4401": "연료재·펠릿·칩", "4402": "목탄", "4403": "원목", "4407": "제재목", "4408": "단판", "4409": "마루재·성형목재",
       "4410": "PB·OSB", "4411": "섬유판(MDF)", "4412": "합판·LVL", "4415": "팔레트·포장재", "4418": "건축용 목제품", "4419": "주방용품", "4421": "기타 목제품" };
     const hname = (k) => SHORT[k] || D.meta.headings[k] || k;
-    // 3) 수출입 격차
-    const Lexp = l12(tot, "exp_usd").cur;
-    const ratio = Lexp ? Ltot.cur / Lexp : null;
-    // 4) 증감 품목 (품목군, 최근 12개월 vs 직전 12개월)
-    const chg = D.meta.groups.map((g) => { const ge = entry("group", g.key); if (!ge) return null; const L = l12(ge);
-      return L.prev ? { name: g.name, key: g.key, p: (L.cur / L.prev - 1) * 100, cur: L.cur } : null; })
-      .filter(Boolean).sort((a, b) => b.p - a.p);
-    // 5) 수입 단가 추이 (12개월 평균 단가 지수)
-    const pitems = [["heading", "4403", "원목"], ["heading", "4407", "제재목"], ["product", "p06", "합판"], ["product", "p11", "목재펠릿"]]
-      .filter(([a, k]) => entry(a, k));
-    const ms = months();
-    const r12p = (e) => ms.map((_, i) => { if (i < 11) return null; const u = sum(e.imp_usd.slice(i - 11, i + 1)), k = sum(e.imp_kg.slice(i - 11, i + 1)); return k ? u / k : null; });
-    const pser = pitems.map(([a, k, n]) => { const v = r12p(entry(a, k)); const b = v.find((x) => x != null);
-      return { name: n, raw: v, values: v.map((x) => (x == null || !b ? null : (x / b) * 100)) }; });
-    const yoyP = pser.map((p, j) => { const i = ms.length - 1; const a = p.raw[i], b = p.raw[i - 12]; const [ax, ky] = pitems[j];
-      return { name: p.name, now: a == null ? null : pconv(ax, ky)(a, 1), unit: plabel(ax, ky), fmt: pfmt(ax, ky), p: a && b ? (a / b - 1) * 100 : null }; });
-    const upMost = [...yoyP].filter((x) => x.p != null).sort((a, b) => b.p - a.p)[0];
-    // 6) 수입의존도
-    const sup = D.supply;
-    const depKeys = [["heading", "4403", "원목"], ["heading", "4407", "제재목"], ["product", "p06", "합판"], ["product", "p11", "목재펠릿"],
-      ["product", "p12", "목재칩"], ["product", "p08", "섬유판(MDF 등)"], ["product", "p07", "파티클보드"], ["product", "p09", "OSB"],
-      ["product", "p05", "집성재"], ["product", "p16", "CLT"], ["product", "p17", "LVL"], ["product", "p15", "목탄"]];
-    const deps = depKeys.map(([a, k, n]) => { const e = entry(a, k); if (!e) return null; const t = topSuppliers(a, k, 3);
-      if (!t.length) return null; const h = e.hhi[ms.length - 1]; const t3 = sum(t.map((x) => x.share));
-      return { a, k, n, imp: l12(e).cur, top: t[0], t3, h, g: depGrade(t[0].share, h || 0) }; }).filter(Boolean);
-    const rank = { hi: 0, mid: 1, lo: 2 };
-    deps.sort((x, y) => rank[x.g.cls] - rank[y.g.cls] || y.top.share - x.top.share);
-    const nHi = deps.filter((d) => d.g.cls === "hi").length;
-
-    let logLead = "", logNote = "";
-    if (sup) {
-      const yrs = sup.years, dep = sup.log_ssr.map((v) => (v == null ? null : +(100 - v).toFixed(1)));
-      const li = dep.length - 1, i16 = yrs.indexOf("2016");
-      logLead = `원목 수입의존도 ${nf(dep[li], 1)}% <span class="sub">${yrs[li]}년 기준${i16 >= 0 ? `, ${yrs[i16]}년 ${nf(dep[i16], 1)}%에서 ${dep[li] < dep[i16] ? "하락" : "상승"}` : ""}</span>`;
-      const w = sup.wood_ssr.map((v, j) => [yrs[j], v]).filter(([, v]) => v != null).pop();
-      if (w) logNote = `목재 전체 자급률은 ${w[0]}년 ${nf(w[1], 1)}% (수입의존도 약 ${nf(100 - w[1], 0)}%)`;
-    }
-
-    $("#story").innerHTML = `<div class="grid g-2">` +
-      card(`최대 수입국 ${q("share")}`, `최근 12개월 수입액`, `<div id="st-cty"></div>` + foot(per), "",
+    const heads = Object.entries(D.series.series.heading || {}).map(([k, e]) => ({ k, usd: l12(e).cur || 0, kg: l12(e, "imp_kg").cur || 0 }));
+    const byUsd = [...heads].sort((a, b) => b.usd - a.usd).slice(0, 5), byKg = [...heads].sort((a, b) => b.kg - a.kg).slice(0, 5);
+    $("#a-basic").innerHTML =
+      card(`최대 수입국 ${q("share")}`, "최근 12개월 수입액", `<div id="bs-cty"></div>` +
+        `<div class="foot">${per} · 목재류 수입 ${usd(L.cur)}, 수출 ${usd(Lexp)} (수입이 수출의 ${Lexp ? nf(L.cur / Lexp, 0) : "–"}배) · 출처: ${SRC}</div>`, "",
         tops.length ? `${cname(tops[0].c)} ${nf(tops[0].share, 1)}% <span class="sub">상위 3개국 ${nf(top3, 0)}%</span>` : "") +
       card("최대 수입 품목", "HS 4단위 · 최근 12개월",
-        `<div class="twin"><div><h4>금액 기준</h4><div id="st-hu"></div></div><div><h4>물량 기준</h4><div id="st-hk"></div></div></div>` + foot(per), "",
-        byUsd.length ? `금액 1위 ${hname(byUsd[0].k)} <span class="sub">물량 1위 ${hname(byKg[0].k)}</span>` : "") +
-      card(`수출입 격차 ${q("gap")}`, "연간 · 백만 달러", `<div id="st-gap"></div>` + foot(), "",
-        ratio ? `수입이 수출의 ${nf(ratio, 0)}배 <span class="sub">무역수지 ${usd(Lexp - Ltot.cur)} (최근 12개월)</span>` : "") +
-      card(`증감 품목 ${q("r12")}`, "최근 12개월 vs 직전 12개월", `<div id="st-chg"></div>` + foot(per), "",
-        chg.length ? `증가 1위 ${chg[0].name} ${chg[0].p > 0 ? "+" : ""}${nf(chg[0].p, 1)}% <span class="sub">감소 1위 ${chg[chg.length - 1].name} ${nf(chg[chg.length - 1].p, 1)}%</span>` : "직전 12개월 비교에 24개월 이상 데이터 필요") +
-      card(`수입 단가 추이 ${q("idx")}`, "12개월 평균 단가 지수 (시작=100)", `<div id="st-price"></div>` + foot("단가 = 수입액÷순중량(CIF)"), "",
-        upMost ? `전년 대비 상승 폭 최대 ${upMost.name} ${upMost.p > 0 ? "+" : ""}${nf(upMost.p, 1)}% <span class="sub">${upMost.fmt(upMost.now)} ${upMost.unit}</span>` : "") +
-      card(`원목 수입의존도 ${q("logdep")}`, "연간 · %", `<div id="st-log"></div>` +
-        `<div class="foot">${logNote ? logNote + " · " : ""}출처: 산림청 목재수급통계</div>`, "", logLead) +
-      card(`공급국 의존도 ${q("dep")}${q("hhi")}`, "주요 품목 · 최근 12개월",
-        `<div class="tbl-wrap"><table><thead><tr><th class="l">품목</th><th>수입액</th><th class="l">최대 공급국</th><th>상위 3개국</th><th>HHI</th><th>의존도</th></tr></thead><tbody>` +
-        deps.map((d) => `<tr class="click" data-axis="${d.a}" data-key="${d.k}"><td class="l">${d.n}</td><td>${usd(d.imp)}</td>` +
-          `<td class="l">${cname(d.top.c)} ${nf(d.top.share, 0)}%</td><td>${nf(d.t3, 0)}%</td><td>${d.h != null ? nf(d.h, 0) : "–"}</td>` +
-          `<td><span class="grade ${d.g.cls}">${d.g.label}</span></td></tr>`).join("") +
-        `</tbody></table></div>` + foot(`${per} · 행을 누르면 상세`), "span-2",
-        `의존도 높음 ${nHi}개 품목 <span class="sub">/ 주요 ${deps.length}개 품목 중 (특정국 50%↑ 또는 HHI 2,500↑)</span>`) +
-      `</div>`;
-
-    C.hbars($("#st-cty"), tops.map((t) => ({ label: cname(t.c), value: t.imp, text: `${nf(t.share, 1)}% · ${usd(t.imp)}`,
-      onClick: () => { S.country = t.c; go("country"); } })));
-    C.hbars($("#st-hu"), byUsd.map((h) => ({ label: hname(h.k), value: h.usd, text: usd(h.usd) })));
-    C.hbars($("#st-hk"), byKg.map((h) => ({ label: hname(h.k), value: h.kg, text: ton(h.kg) })), { color: C.color(2) });
-    const yu = seriesOf(tot, "imp", "imp_usd", "year"), ye = seriesOf(tot, "exp", "imp_usd", "year");
-    C.barChart($("#st-gap"), { x: yu.x, stacked: false, series: [{ name: "수입", values: yu.v }, { name: "수출", values: ye.v }],
-      yFmt: (v) => nf(v, 0), tipFmt: (v) => nf(v, 1) + "백만 달러", height: 210 });
-    const mx = Math.max(...chg.map((c) => Math.abs(c.p)), 1);
-    $("#st-chg").innerHTML = `<div class="dbars">${chg.map((c) =>
-      `<div class="db" style="cursor:pointer" data-k="${c.key}"><span class="nm">${c.name}</span><span class="track">` +
-      `<i class="${c.p >= 0 ? "pos" : "neg"}" style="width:${(Math.abs(c.p) / mx) * 50}%"></i></span>` +
-      `<span class="vl ${c.p >= 0 ? "up" : "down"}">${c.p > 0 ? "+" : ""}${nf(c.p, 1)}%</span></div>`).join("")}</div>`;
-    $("#st-chg").querySelectorAll(".db").forEach((d) => d.onclick = () => openDetail("group", d.dataset.k));
-    const pi = pser.length ? pser[0].values.findIndex((v) => v != null) : 0;
-    C.lineChart($("#st-price"), { x: ms.slice(pi), series: pser.map((p) => ({ name: p.name, values: p.values.slice(pi) })),
-      yFmt: (v) => nf(v, 0), tipFmt: (v) => nf(v, 1), yMin0: false, height: 220, xLabelFmt: xFmt });
-    if (sup) {
-      const dep = sup.log_ssr.map((v) => (v == null ? null : 100 - v));
-      C.lineChart($("#st-log"), { x: sup.years, series: [{ name: "원목 수입의존도", values: dep }], yFmt: (v) => nf(v, 0) + "%",
-        tipFmt: (v) => nf(v, 1) + "%", height: 220, area: true });
-    } else $("#st-log").innerHTML = `<div class="empty">자료 없음</div>`;
-    $("#story").querySelectorAll("tr[data-axis]").forEach((tr) => tr.onclick = () => {
-      const a = tr.dataset.axis, k = tr.dataset.key;
-      if (a === "heading") { S.group = k === "4403" ? "raw" : "primary"; go("group"); } else openDetail(a, k);
-    });
+        `<div class="twin"><div><h4>금액 기준</h4><div id="bs-hu"></div></div><div><h4>물량 기준</h4><div id="bs-hk"></div></div></div><div class="foot">${per} · 출처: ${SRC}</div>`, "",
+        byUsd.length ? `금액 1위 ${hname(byUsd[0].k)} <span class="sub">물량 1위 ${hname(byKg[0].k)}</span>` : "");
+    C.hbars($("#bs-cty"), tops.map((t) => ({ label: cname(t.c), value: t.imp, text: `${nf(t.share, 1)}% · ${usd(t.imp)}`, onClick: () => { S.country = t.c; go("country"); } })));
+    C.hbars($("#bs-hu"), byUsd.map((h) => ({ label: hname(h.k), value: h.usd, text: usd(h.usd) })));
+    C.hbars($("#bs-hk"), byKg.map((h) => ({ label: hname(h.k), value: h.kg, text: ton(h.kg) })), { color: C.color(2) });
   }
+
+  function renderAlerts() {
+    const al = D.insights.alerts;
+    $("#alerts-body").innerHTML = `<div class="note" style="margin-bottom:6px">점유율 전월 대비 ±5%p, 단가 전년 동월 대비 ±20%, 신규 공급국 1%↑ (월 수입액 100만 달러↑ 분류만). 레퍼런스가 있는 기준이 아니라 참고용으로만 표시함.</div>` +
+      (al.length ? `<ul class="alerts" style="max-height:none">${al.map((a) => `<li><span class="tag">${{ share: "점유율", price: "단가", new: "신규국" }[a.type]}</span><span>${a.text}</span></li>`).join("")}</ul>` : `<div class="empty">해당 없음</div>`);
+  }
+
+  function renderAll() { renderVerdicts(); renderSupply(); renderPenetration(); renderPrice(); renderDrivers(); renderBasic(); renderAlerts(); }
 
   function renderControls() {
     const years = [...new Set(months().map((m) => m.slice(0, 4)))];
@@ -364,10 +376,9 @@
       card(`주요 공급국 ${q("share")}`, "최근 12개월 · 점유율 · 전년 대비", `<div id="d-sup"></div>`, "",
         tops[0] ? `1위 ${cname(tops[0].c)} ${nf(tops[0].share, 1)}% <span class="sub">상위 3개국 ${nf(sum(tops.slice(0, 3).map((t) => t.share)), 0)}%</span>` : "") +
       card(`공급국별 수입 단가 ${q("price")}`, `연간 · 상위 5개국 · ${pl}`, `<div id="d-price"></div>`, "", "<span id='d-price-lead'></span>") +
-      card(`공급국 집중도 HHI ${q("hhi")}`, "12개월 누적", `<div id="d-hhi"></div>`, "",
+      card(`공급국 집중도 HHI ${q("hhi")}`, "12개월 누적", `<div id="d-hhi"></div>`, "span-2",
         e.hhi[i] != null ? `HHI ${nf(e.hhi[i], 0)} <span class="sub">${e.hhi[i] >= 2500 ? "집중" : e.hhi[i] >= 1500 ? "보통" : "분산"} · 의존도 ${depGrade(tops[0] ? tops[0].share : 0, e.hhi[i]).label}</span>` : "") +
-      card("상위 3개국 점유율", "12개월 누적 · %", `<div id="d-top3"></div>`, "",
-        e.top3[i] != null ? `상위 3개국이 ${nf(e.top3[i], 0)}% 공급` : "") +
+
       `</div>`;
 
     const a = seriesOf(e, "imp", S.measure, S.agg, since, [axis, key]), b = seriesOf(e, "exp", S.measure, S.agg, since, [axis, key]);
@@ -388,63 +399,10 @@
     const ms = months(), keep = ms.map((m) => !S.start || m.slice(0, 4) >= S.start);
     const fx = ms.filter((_, j) => keep[j]);
     C.lineChart($("#d-hhi"), { x: fx, series: [{ name: "HHI", values: e.hhi.filter((_, j) => keep[j]) }], yFmt: (v) => nf(v, 0), height: 180, xLabelFmt: xFmt, area: true });
-    C.lineChart($("#d-top3"), { x: fx, series: [{ name: "상위 3개국", values: e.top3.filter((_, j) => keep[j]), color: C.color(2) }], yFmt: (v) => nf(v, 0) + "%", height: 180, xLabelFmt: xFmt });
+
   }
 
   // ── 탭 ─────────────────────────────────────────────────
-  function tabOverview(host) {
-    const e = entry("total", "all");
-    const groups = D.meta.groups;
-    host.innerHTML = `<div class="grid g-2">` +
-      card("목재류 수입·수출 추이", trendTitle(), `<div id="o-trend"></div>`, "span-2",
-        `최근 12개월 수입 ${usd(l12(e).cur)} <span class="sub">직전 12개월 대비 ${delta(l12(e).cur, l12(e).prev)}</span>`) +
-      card("품목군별 수입 구성", `연간 · ${S.measure === "imp_kg" ? "천 톤" : "백만 달러"}`, `<div id="o-groups"></div>`, "", "<span id='o-groups-lead'></span>") +
-      card("가공 단계별 수입 비중", "연간 · 원자재→1차 가공→보드→공학목재", `<div id="o-stage"></div>`, "", "<span id='o-stage-lead'></span>") +
-      card(`주요 공급국 ${q("share")}`, "최근 12개월 · 클릭하면 국가 상세", `<div id="o-sup"></div>`) +
-      card(`공급국 집중도 ${q("hhi")}`, "12개월 누적 HHI", `<div id="o-hhi"></div>`, "",
-        e.hhi[iLast()] != null ? `HHI ${nf(e.hhi[iLast()], 0)} <span class="sub">${e.hhi[iLast()] >= 2500 ? "집중" : e.hhi[iLast()] >= 1500 ? "보통" : "분산"}</span>` : "") +
-      card("품목군 요약", "최근 12개월 · 클릭하면 상세", `<div class="tbl-wrap" id="o-tbl"></div>`, "span-2") +
-      `</div>`;
-    const a = seriesOf(e, "imp", S.measure, S.agg), b = seriesOf(e, "exp", S.measure, S.agg);
-    C.lineChart($("#o-trend"), { x: a.x, series: [{ name: "수입", values: a.v }, { name: "수출", values: b.v }],
-      yFmt: yFmt(S.measure), markers: S.agg === "year" ? [] : revMarkers(a.x), xLabelFmt: xFmt, height: 270 });
-    const m2 = S.measure === "price" ? "imp_usd" : S.measure;
-    const yr = (k) => seriesOf(entry("group", k) || { imp_usd: [], imp_kg: [], exp_usd: [], exp_kg: [] }, "imp", m2, "year");
-    const base = yr(groups[0].key);
-    C.barChart($("#o-groups"), { x: base.x, stacked: true,
-      series: groups.map((g) => ({ name: g.name, values: entry("group", g.key) ? yr(g.key).v : base.x.map(() => 0) })),
-      yFmt: (v) => nf(v, 0), tipFmt: (v) => nf(v, 1), height: 250 });
-    const st = D.meta.processing_stages;
-    const stSeries = st.map((k) => ({ name: labelOf("group", k), values: entry("group", k) ? yr(k).v : base.x.map(() => 0) }));
-    C.barChart($("#o-stage"), { x: base.x, percent: true, series: stSeries, tipFmt: (v) => nf(v, 1), height: 250 });
-    // 결론 문장: 최근 연도 최대 품목군, 가공 단계 중 원자재 비중 변화
-    const gl = groups.map((g, j) => ({ n: g.name, v: entry("group", g.key) ? yr(g.key).v.slice(-1)[0] || 0 : 0 })).sort((a, b) => b.v - a.v);
-    const gsum = sum(gl.map((x) => x.v));
-    if (gsum) $("#o-groups-lead").innerHTML = `${base.x.slice(-1)[0]} 최대 ${gl[0].n} ${nf((gl[0].v / gsum) * 100, 0)}% <span class="sub">2위 ${gl[1].n} ${nf((gl[1].v / gsum) * 100, 0)}%</span>`;
-    const shareAt = (j) => { const t = sum(stSeries.map((s2) => s2.values[j] || 0)); return t ? ((stSeries[0].values[j] || 0) / t) * 100 : null; };
-    const a0 = shareAt(0), a1 = shareAt(base.x.length - 1);
-    if (a0 != null && a1 != null) $("#o-stage-lead").innerHTML = `원자재 비중 ${base.x[0]} ${nf(a0, 0)}% → ${base.x.slice(-1)[0]} ${nf(a1, 0)}%`;
-    const tops = topSuppliers("total", "all", 10);
-    C.hbars($("#o-sup"), tops.map((t) => ({ label: cname(t.c), value: t.imp,
-      text: `${usd(t.imp)} · ${nf(t.share, 1)}%`, onClick: () => { S.country = t.c; go("country"); } })));
-    const ms = months().filter((m) => !S.start || m.slice(0, 4) >= S.start);
-    const off = months().length - ms.length;
-    C.lineChart($("#o-hhi"), { x: ms, series: [{ name: "HHI", values: e.hhi.slice(off) }],
-      yFmt: (v) => nf(v, 0), height: 220, xLabelFmt: xFmt, area: true });
-    // 요약표
-    const tot = l12(e).cur;
-    const rows = groups.map((g) => {
-      const ge = entry("group", g.key);
-      if (!ge) return `<tr><td>${g.name}</td><td colspan="6" class="l">실적 없음</td></tr>`;
-      const L = l12(ge), K = l12(ge, "imp_kg"), t = topSuppliers("group", g.key, 1)[0];
-      return `<tr class="click" data-g="${g.key}"><td>${g.name}</td><td>${usd(L.cur)}</td><td>${delta(L.cur, L.prev)}</td>` +
-        `<td>${tot ? nf((L.cur / tot) * 100, 1) + "%" : "–"}</td><td>${ton(K.cur)}</td><td>${K.cur ? nf(L.cur / K.cur, 2) : "–"}</td>` +
-        `<td class="l">${t ? `${cname(t.c)} ${nf(t.share, 0)}%` : "–"}</td></tr>`;
-    }).join("");
-    $("#o-tbl").innerHTML = `<table><thead><tr><th>품목군</th><th>수입액</th><th>전년 대비</th><th>비중</th><th>수입량</th><th>단가(USD/kg)</th><th class="l">최대 공급국</th></tr></thead><tbody>${rows}</tbody></table>`;
-    $("#o-tbl").querySelectorAll("tr[data-g]").forEach((tr) => tr.onclick = () => { S.group = tr.dataset.g; go("group"); });
-  }
-
   function tabGroup(host) {
     host.innerHTML = `<div class="pills">${D.meta.groups.map((g) => `<button class="pill" data-k="${g.key}" aria-pressed="${g.key === S.group}">${g.name}</button>`).join("")}</div><div id="g-detail"></div>`;
     host.querySelectorAll(".pill").forEach((b) => b.onclick = () => { S.group = b.dataset.k; setHash(); tabGroup(host); });
@@ -539,7 +497,16 @@
 
   function tabData(host) {
     const m = D.meta;
-    host.innerHTML = `<div class="grid g-2">` +
+    const CR = (D.judg && D.judg.criteria) || {}, R = CR.references || {};
+    const crit = card("판정 기준과 레퍼런스", "config/criteria.yaml", `<div class="tbl-wrap"><table><thead><tr><th class="l">판정</th><th class="l">규칙</th><th class="l">레퍼런스</th></tr></thead><tbody>
+        <tr><td class="l">공급 위험</td><td class="l" style="white-space:normal">취약: 연 수입액 100만 달러↑ + 특정국 50%↑ · 주의: HHI 2,500↑ · 100만 달러 미만 판정 제외 (최근 12개월)</td><td class="l" style="white-space:normal">${[R.motie2023, R.doj2010].filter(Boolean).join("<br>")}</td></tr>
+        <tr><td class="l">수입 의존</td><td class="l" style="white-space:normal">수입침투율 = 수입 ÷ (생산 − 수출 + 수입). 원목 = 100 − 원목자급률. 최근 10년 Mann-Kendall 검정 p&lt;0.05면 상승/하락</td><td class="l" style="white-space:normal">${[R.oecd_stan, R.mann1945, R.kendall1975].filter(Boolean).join("<br>")}</td></tr>
+        <tr><td class="l">가격 이상</td><td class="l" style="white-space:normal">IFPA = 0.4·z(분기 성장률) + 0.6·z(연간 성장률), z는 과거 같은 달 기준 표준화. ±0.5σ 정상 · 0.5~1σ 다소 높음 · 1σ↑ 비정상 (하락 대칭). 과거 3년↑, 월 수입액 100만 달러↑</td><td class="l" style="white-space:normal">${R.fao_ifpa || ""}</td></tr>
+        <tr><td class="l">변화 요인</td><td class="l" style="white-space:normal">ΔV = Σ L(V₁,V₀)·ln(Q₁/Q₀) + Σ L(V₁,V₀)·ln(P₁/P₀), HS6 단위. 한 효과 60%↑면 '주도'</td><td class="l" style="white-space:normal">${R.ang2005 || ""}</td></tr>
+      </tbody></table></div><div class="downloads" style="margin-top:10px">
+        <a href="data/fig_supply_risk.csv" download>⬇ 공급 위험 판정</a><a href="data/fig_price_anomaly.csv" download>⬇ 가격 이상 판정</a>
+        <a href="data/fig_decomposition.csv" download>⬇ 변화 요인 분해</a><a href="data/fig_structure.csv" download>⬇ 자급-수입 구조</a></div>`, "span-2");
+    host.innerHTML = `<div class="grid g-2">` + crit +
       card("데이터 내려받기", "CSV (엑셀에서 바로 열림)", `<div class="downloads">
         <a href="data/monthly_by_category.csv" download>⬇ 분류별 월별 수출입</a>
         <a href="data/yearly_by_category_country.csv" download>⬇ 분류별·국가별 연간</a>
@@ -566,14 +533,14 @@
       `</div>`;
   }
 
-  const TABS = { overview: tabOverview, group: tabGroup, product: tabProduct, species: tabSpecies, country: tabCountry, data: tabData };
+  const TABS = { group: tabGroup, product: tabProduct, species: tabSpecies, country: tabCountry, data: tabData };
 
   function renderTab() {
     document.querySelectorAll(".tab").forEach((t) => t.setAttribute("aria-selected", t.dataset.tab === S.tab));
     $("#controls").classList.toggle("hidden", S.tab === "data" || S.tab === "country");
     TABS[S.tab]($("#panel"));
   }
-  function go(tab) { S.tab = tab; setHash(); renderTab(); window.scrollTo({ top: $("#explore").offsetTop - 70, behavior: "smooth" }); }
+  function go(tab) { S.tab = tab; $("#explore").open = true; setHash(); renderTab(); window.scrollTo({ top: $("#explore").offsetTop - 70, behavior: "smooth" }); }
 
   // URL 해시로 상태 공유 (강의 자료에 특정 화면 링크 가능)
   function setHash() {
@@ -593,25 +560,26 @@
 
   async function init() {
     const get = (f) => fetch(`data/${f}?v=${window.BUILD_ID || ""}`).then((r) => (r.ok ? r.json() : null));
-    const [meta, series, countries, insights, supply] = await Promise.all(["meta.json", "series.json", "countries.json", "insights.json", "supply.json"].map(get));
+    const [meta, series, countries, insights, supply, judg] = await Promise.all(["meta.json", "series.json", "countries.json", "insights.json", "supply.json", "judgments.json"].map(get));
     D.meta = meta || { status: "collecting" };
     renderHeader();
     if (!series || !series.months || !series.months.length) {
       $("#main").innerHTML = `<div class="loading">첫 데이터를 수집하는 중임. 수집이 끝나면 자동으로 표시됨.</div>`;
       return;
     }
-    Object.assign(D, { series, countries, insights, supply });
+    Object.assign(D, { series, countries, insights, supply, judg });
     const years = [...new Set(series.months.map((m) => m.slice(0, 4)))];
     S.start = years[0];
     readHash();
-    renderTop();
-    renderStory();
+    renderAll();
     renderControls();
     document.querySelectorAll(".tab").forEach((t) => t.onclick = () => go(t.dataset.tab));
     renderTab();
     let w = window.innerWidth;
-    window.addEventListener("resize", () => { if (Math.abs(window.innerWidth - w) > 40) { w = window.innerWidth; renderStory(); renderTab(); } });
-    matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { renderStory(); renderTab(); });
+    window.addEventListener("resize", () => { if (Math.abs(window.innerWidth - w) > 40) { w = window.innerWidth; renderAll(); renderTab(); } });
+    matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { renderAll(); renderTab(); });
+    $("#explore").addEventListener("toggle", () => { if ($("#explore").open) renderTab(); });
+    if (location.hash) $("#explore").open = true;
   }
   init();
 })();

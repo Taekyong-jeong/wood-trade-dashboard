@@ -1,0 +1,70 @@
+# ─────────────────────────────────────────────────────────────
+# 판정 기준과 레퍼런스 (2026-10-22 확정)
+# ─────────────────────────────────────────────────────────────
+# 대시보드의 모든 판정 배지(취약·주의·안정, 비정상·다소 높음 등)는 이 파일의 규칙으로만 결정함.
+# 값을 바꾸면 다음 갱신 때 반영됨. 바꿀 때는 근거를 README 변경 이력에 남길 것.
+# ─────────────────────────────────────────────────────────────
+
+# ① 공급 위험 — 수입이 특정 국가에 몰린 정도
+supply_risk:
+  window: L12M                    # 최근 12개월 수입액 기준
+  vulnerable:                     # 취약: 아래 두 조건을 모두 충족
+    min_import_usd: 1000000       #   연 수입액 100만 달러 이상
+    top_country_share_pct: 50     #   특정국(최대 공급국) 의존도 50% 이상
+  caution_hhi: 2500               # 주의: 취약은 아니지만 HHI 2,500 이상 (고집중)
+                                  # 연 수입액 100만 달러 미만 품목은 모든 등급에서 '판정 제외' (산업부 기준의 최소 규모 적용)
+  hhi_bands: [1500, 2500]         # HHI 구간 표시: 1,500 미만 분산 · 1,500~2,500 보통 · 2,500 이상 집중
+  refs: [motie2023, doj2010, doj2023]
+
+# ② 수입 의존 — 국내 수요 중 수입 비율 (수입침투율)
+import_penetration:
+  definition: "수입 ÷ (국내 생산 − 수출 + 수입)"
+  applied: "원목: 100 − 원목자급률 (산림청 목재수급통계, ㎥ 기준)"
+  trend_test: mann_kendall        # 추세 판정: Mann-Kendall 비모수 추세 검정
+  trend_years: 10                 # 최근 10년
+  alpha: 0.05                     # 유의수준 5% — 유의하면 상승/하락, 아니면 '뚜렷한 추세 없음'
+  refs: [oecd_stan, mann1945, kendall1975]
+
+# ③ 가격 이상 — 수입 단가 상승률이 과거 같은 달에 비해 얼마나 벗어났나
+price_anomaly:
+  method: IFPA                    # FAO 식품가격 이상 지표(SDG 2.c.1) 방법을 수입 단가에 적용
+  gamma: 0.4                      # 분기 성장률 가중치 (연간 성장률 0.6)
+  bands:                          # 표준화 점수(σ)
+    abnormal: 1.0                 #   ≥ 1.0  비정상 상승
+    moderate: 0.5                 #   0.5~1.0 다소 높음,  −0.5~0.5 정상
+  symmetric_low: true             # 하락 쪽도 대칭 적용 (본 대시보드 확장, FAO 원 지표는 상승만 정의)
+  min_past_years: 3               # 과거 같은 달 관측이 3개 미만이면 판정 보류
+  min_month_import_usd: 1000000   # 해당 월 수입액 100만 달러 미만이면 단가가 불안정해 계산 제외
+  weights: equal                  # 과거 관측 동일 가중 (FAO는 시간 가중 — 단순화)
+  items:                          # 판정 대상 (수입이 꾸준한 품목)
+    - "heading:4403"   # 원목
+    - "product:p01"    # 제재목
+    - "product:p06"    # 합판
+    - "product:p07"    # 파티클보드
+    - "product:p08"    # 섬유판
+    - "product:p09"    # OSB
+    - "product:p10"    # 목질바닥재
+    - "product:p11"    # 목재펠릿
+    - "product:p12"    # 목재칩
+    - "product:p15"    # 목탄
+    - "product:p17"    # LVL
+  refs: [fao_ifpa]
+
+# ④ 변화 요인 — 수입액 변화를 물량 효과와 단가 효과로 분해
+decomposition:
+  method: LMDI                    # 로그평균 디비지아 지수분해 (가법형)
+  level: HS6                      # HS 6단위 품목별로 분해 후 합산 (품목 구성 변화 영향 축소)
+  compare: "최근 12개월 vs 직전 12개월"
+  dominant_share: 0.6             # 한 효과가 변화의 60% 이상이면 '물량 주도' / '단가 주도'
+  refs: [ang2005]
+
+# 레퍼런스
+references:
+  motie2023: "산업통상자원부 (2023.12.13). 산업 공급망 3050 전략 — 공급망 안정품목 1차 선정 기준: 수입액 100만 달러 이상, 특정국 수입의존도 50% 이상"
+  doj2010: "U.S. Department of Justice & Federal Trade Commission (2010). Horizontal Merger Guidelines, §5.3 — HHI 1,500 미만 비집중, 1,500~2,500 중간 집중, 2,500 초과 고집중"
+  doj2023: "U.S. DOJ & FTC (2023). Merger Guidelines — 고집중 기준을 1,800으로 강화 (본 대시보드는 무역 분석에서 널리 쓰는 2010 구간 사용)"
+  oecd_stan: "OECD STAN Indicators — Import penetration: 수입 ÷ 국내 수요(생산 − 수출 + 수입)"
+  mann1945: "Mann, H. B. (1945). Nonparametric tests against trend. Econometrica, 13(3), 245–259"
+  kendall1975: "Kendall, M. G. (1975). Rank Correlation Methods (4th ed.). Charles Griffin, London"
+  fao_ifpa: "FAO. SDG Indicator 2.c.1 메타데이터 — Indicator of Food Price Anomalies (IFPA): 분기·연간 복합성장률을 과거 같은 달 기준으로 표준화, γ=0.4, 0.5σ·1σ 구간"
+  ang2005: "Ang, B. W. (2005). The LMDI approach to decomposition analysis: a practical guide. Energy Policy, 33(7), 867–871"

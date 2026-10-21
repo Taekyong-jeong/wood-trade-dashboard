@@ -22,6 +22,8 @@ import numpy as np
 import pandas as pd
 import yaml
 
+import judge
+
 ROOT = Path(__file__).resolve().parents[1]
 RAW_DIR = ROOT / "data" / "raw"
 OUT_DIR = ROOT / "docs" / "data"
@@ -384,6 +386,30 @@ def main() -> int:
     write_json("countries.json", countries)
     write_json("insights.json", insights)
     write_json("hs_names.json", hs_names)
+
+    # ── 판정 (config/criteria.yaml) ──
+    classify = build_classifier()
+    sr_items = [("heading", "4403", "원목")] + \
+               [("product", p["key"], p["name"]) for p in CFG["products"] if p["prefixes"] and p["key"] != "p01"] + \
+               [("product", "p01", "제재목")]
+    sr = judge.supply_risk(long, months, sr_items, names)
+    pen = judge.import_penetration(ROOT / "data" / "external" / "kosis_wood_supply.csv")
+    pa = judge.price_anomaly(series, months, lambda ax, k: "원목" if (ax, k) == ("heading", "4403") else label_of(ax, k))
+    dec = judge.decomposition(df, months, lambda h: classify(h)["group"],
+                              {g["key"]: g["name"] for g in CFG["groups"]})
+    st = judge.structure(series, months, pen, {"processed": ["primary", "panel", "ewp", "building"]})
+    write_json("judgments.json", {
+        "month": months[-1], "cards": judge.summary_cards(sr, pen, pa, dec),
+        "supply_risk": sr, "penetration": pen, "price_anomaly": pa, "decomposition": dec, "structure": st,
+        "criteria": judge.CRIT,
+    })
+    # 그림 원자료 (논문·보고서용)
+    pd.DataFrame(sr).to_csv(OUT_DIR / "fig_supply_risk.csv", index=False, encoding="utf-8-sig")
+    pd.DataFrame([{k: v for k, v in d.items() if k not in ("ifpa_series", "months")} for d in pa]).to_csv(
+        OUT_DIR / "fig_price_anomaly.csv", index=False, encoding="utf-8-sig")
+    if dec.get("available"):
+        pd.DataFrame([dec["total"]] + dec["groups"]).to_csv(OUT_DIR / "fig_decomposition.csv", index=False, encoding="utf-8-sig")
+    pd.DataFrame(st).to_csv(OUT_DIR / "fig_structure.csv", index=False, encoding="utf-8-sig")
     sup = ROOT / "data" / "external" / "kosis_wood_supply.csv"
     if sup.exists():
         t = pd.read_csv(sup)
