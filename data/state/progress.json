@@ -1,5 +1,5 @@
 {
- "202307": {
+ "202304": {
   "complete": false,
   "done": [
    "AD",
@@ -41,9 +41,58 @@
    "CC",
    "CD",
    "CF",
-   "CG"
+   "CG",
+   "CH",
+   "CI",
+   "CK",
+   "CL",
+   "CM",
+   "CN",
+   "CO",
+   "CR",
+   "CU",
+   "CV",
+   "CW",
+   "CX",
+   "CY",
+   "CZ",
+   "DE",
+   "DJ",
+   "DK",
+   "DM",
+   "DO",
+   "DZ",
+   "EC",
+   "EE",
+   "EG",
+   "EH",
+   "ER",
+   "ES",
+   "ET",
+   "EU",
+   "FI",
+   "FJ",
+   "FK"
   ],
   "target_n": 243
+ },
+ "202305": {
+  "complete": true,
+  "countries": 243,
+  "fetched_at": "2026-10-21T10:44:32+09:00",
+  "rows": 1144
+ },
+ "202306": {
+  "complete": true,
+  "countries": 243,
+  "fetched_at": "2026-10-21T10:43:24+09:00",
+  "rows": 1149
+ },
+ "202307": {
+  "complete": true,
+  "countries": 243,
+  "fetched_at": "2026-10-21T10:42:11+09:00",
+  "rows": 1105
  },
  "202308": {
   "complete": true,
