@@ -199,7 +199,7 @@ def unit_price(axis, key, usd, kg):
     """config/units.yaml 기준 단가와 단위 (m3=밀도 환산 추정, t=톤, 그 외 kg)."""
     it = (UNITS.get("items") or {}).get(f"{axis}:{key}", {})
     if it.get("unit") == "m3":
-        return usd * it["density"] * 1000 / kg, "USD/㎥(추정)", 0
+        return usd * it["density"] * 1000 / kg, ("USD/㎥(보정)" if it.get("calibrated") else "USD/㎥(추정)"), 0
     if it.get("unit") == "t":
         return usd * 1000 / kg, "USD/t", 0
     return usd / kg, "USD/kg", 2
@@ -350,6 +350,15 @@ def main() -> int:
         print("데이터 없음 — meta만 기록")
         return 0
 
+    # 부피 환산 밀도 보정 (목재이용실태조사 수입량 ㎥ 대비 관세청 중량) — 단가 계산 전에 적용
+    survey_csv = ROOT / "data" / "external" / "wood_use_survey.csv"
+    calib = judge.calibrate_density(df, survey_csv, UNITS)
+    for cb in calib:
+        it = UNITS.setdefault("items", {}).setdefault(cb["item"], {"unit": "m3"})
+        it["density"] = cb["density"]
+        it["calibrated"] = True
+        it["basis"] = f"실태조사 보정 {cb['density']:.2f} t/㎥ ({cb['method']}, {', '.join(cb['years'])}) · 잠정값 {cb['provisional']}"
+
     months, series, countries, names, hs_names, long = build_outputs(df)
     ok, msg = validate(months, series)
 
@@ -372,7 +381,8 @@ def main() -> int:
         "headings": HEADING_NAMES,
         "processing_stages": CFG["processing_stages"],
         "countries": names,
-        "units": yaml.safe_load((ROOT / "config" / "units.yaml").read_text(encoding="utf-8")),
+        "units": UNITS,
+        "density_calibration": calib,
     }
 
     if not ok:
@@ -398,9 +408,11 @@ def main() -> int:
     dec = judge.decomposition(df, months, lambda h: classify(h)["group"],
                               {g["key"]: g["name"] for g in CFG["groups"]})
     st = judge.structure(series, months, pen, {"processed": ["primary", "panel", "ewp", "building"]})
+    ds = judge.domestic_supply(survey_csv, sr, {p["key"]: p["name"] for p in CFG["products"]})
     write_json("judgments.json", {
-        "month": months[-1], "cards": judge.summary_cards(sr, pen, pa, dec),
+        "month": months[-1], "cards": judge.summary_cards(sr, pen, pa, dec, ds),
         "supply_risk": sr, "penetration": pen, "price_anomaly": pa, "decomposition": dec, "structure": st,
+        "domestic_supply": ds,
         "criteria": judge.CRIT,
     })
     # 그림 원자료 (논문·보고서용)
@@ -410,6 +422,12 @@ def main() -> int:
     if dec.get("available"):
         pd.DataFrame([dec["total"]] + dec["groups"]).to_csv(OUT_DIR / "fig_decomposition.csv", index=False, encoding="utf-8-sig")
     pd.DataFrame(st).to_csv(OUT_DIR / "fig_structure.csv", index=False, encoding="utf-8-sig")
+    if ds:
+        pd.DataFrame([{k: v for k, v in d.items() if k not in ("share_years", "share_series", "util_years", "util_series", "mk")}
+                      for d in ds["rows"]]).to_csv(OUT_DIR / "fig_domestic_supply.csv", index=False, encoding="utf-8-sig")
+    if survey_csv.exists():
+        import shutil
+        shutil.copy(survey_csv, OUT_DIR / "wood_use_survey.csv")
     sup = ROOT / "data" / "external" / "kosis_wood_supply.csv"
     if sup.exists():
         t = pd.read_csv(sup)

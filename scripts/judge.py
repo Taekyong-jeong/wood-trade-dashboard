@@ -234,13 +234,123 @@ def structure(series: dict, months: list[str], pen: dict | None, stages: dict) -
     return {"years": full, "processed_share": proc_share, "log_import_dependence": dep}
 
 
+# ── ⑥ 국내 공급 여력 (목재이용실태조사) ─────────────────────
+def domestic_supply(survey_csv: Path, sr: list[dict], labels: dict) -> dict | None:
+    """품목별 수입 비중(물량)·추세, 가동률, 여유 생산능력 ÷ 수입량. 관세청 수입 집중 판정과 결합."""
+    if not survey_csv.exists():
+        return None
+    s = pd.read_csv(survey_csv)
+    c = CRIT["domestic_supply"]
+    sr_by = {(d["axis"], d["key"]): d for d in sr}
+
+    def get(prod, metric):
+        t = s[(s["product"] == prod) & (s["metric"] == metric)]
+        return {int(y): float(v) for y, v in zip(t["year"], t["value"])}, (t["unit"].iloc[0] if len(t) else None), \
+               (t["note"].fillna("").iloc[-1] if len(t) else "")
+
+    rows = []
+    prods = [p for p in s["product"].unique() if p != "total"]
+    for prod in prods + ["logs"]:
+        if prod == "logs":                       # 원목: 국산 원목 이용량 vs 수입 원목 이용량
+            pr, unit, _ = get("total", "log_use_domestic")
+            im, _, _ = get("total", "log_use_imported")
+            ut, un, cap = {}, "", {}
+            axis, key, label = "heading", "4403", "원목"
+        else:
+            pr, unit, _ = get(prod, "production")
+            im, _, _ = get(prod, "imports")
+            ut, _, un = get(prod, "utilization_pct")
+            axis, key, label = "product", prod, labels.get(prod, prod)
+        years = sorted(set(pr) & set(im))
+        if not years:
+            continue
+        share = {y: (im[y] / (pr[y] + im[y]) * 100 if pr[y] + im[y] > 0 else None) for y in years}
+        ys = [share[y] for y in years]
+        mk = mann_kendall(ys) if len(years) >= c["trend_min_years"] else None
+        if len(years) < c["trend_min_years"]:
+            trend = f"판정 보류({len(years)}개년)"
+        elif mk is None:
+            trend = "판정 보류"
+        elif mk["p"] < c["alpha"]:
+            trend = "상승 추세" if mk["S"] > 0 else "하락 추세"
+        else:
+            trend = "뚜렷한 추세 없음"
+        y0 = years[-1]
+        u = ut.get(y0)
+        spare = pr[y0] * (100 / u - 1) if u and u > 0 else None
+        cover = spare / im[y0] * 100 if spare is not None and im[y0] > 0 else None
+        if pr[y0] == 0:
+            cover, spare = 0.0, 0.0
+        risk = sr_by.get((axis, key))
+        rows.append({
+            "axis": axis, "key": key, "label": label, "year": y0, "unit": unit,
+            "production": round(pr[y0]), "imports": round(im[y0]),
+            "import_share": _r(share[y0]), "share_years": years, "share_series": [_r(v) for v in ys],
+            "trend": trend, "mk": mk,
+            "utilization": _r(u), "util_note": un, "util_years": sorted(ut), "util_series": [_r(ut[y]) for y in sorted(ut)],
+            "spare": None if spare is None else round(spare), "spare_cover": _r(cover),
+            "risk_grade": risk["grade"] if risk else None,
+            "top_name": risk["top_name"] if risk else None, "top_share": risk["top_share"] if risk else None,
+        })
+    rows.sort(key=lambda d: (d["unit"] != "m3", -d["imports"]))
+    tot, _, _ = get("total", "wood_use_total")
+    imp, _, _ = get("total", "imported_products")
+    ld, _, _ = get("total", "log_use_domestic")
+    li, _, _ = get("total", "log_use_imported")
+    ty = sorted(tot)
+    overall = [{"year": y, "total": tot[y], "imported_products": imp.get(y), "log_imported": li.get(y), "log_domestic": ld.get(y),
+                "import_share": _r((imp.get(y, 0) + li.get(y, 0)) / tot[y] * 100)} for y in ty]
+    return {"rows": rows, "overall": overall, "source": c["source"], "line": c["spare_cover_line"]}
+
+
+def calibrate_density(df: pd.DataFrame, survey_csv: Path, units: dict) -> list[dict]:
+    """관세청 kg ÷ 실태조사 ㎥ → 밀도(t/㎥). config/criteria.yaml density_calibration."""
+    if not survey_csv.exists():
+        return []
+    c = CRIT["density_calibration"]
+    s = pd.read_csv(survey_csv)
+    months = sorted(df["month"].unique())
+    full = [y for y in sorted({m[:4] for m in months}) if sum(1 for m in months if m.startswith(y)) == 12]
+    out = []
+    for item, prefixes in c["items"].items():
+        sk = c["survey_key"][item]
+        sub = df[df["hs"].str.startswith(tuple(prefixes))]
+        imp = s[(s["product"] == sk) & (s["metric"] == "imports")]
+        m3 = {str(int(y)): float(v) for y, v in zip(imp["year"], imp["value"])}
+        usd = s[(s["product"] == sk) & (s["metric"] == "imports_usd_k")]
+        usd = {str(int(y)): float(v) * 1000 for y, v in zip(usd["year"], usd["value"])}
+        per_year = []
+        for y in full:
+            if y not in m3:
+                continue
+            ys = sub[sub["month"].str.startswith(y)]
+            kg, dl = float(ys["imp_kg"].sum()), float(ys["imp_usd"].sum())
+            if y in usd and abs(dl / usd[y] - 1) * 100 > c["scope_check_pct"]:
+                continue                                   # 범위 불일치
+            per_year.append({"year": y, "density": kg / 1000 / m3[y]})
+        method = "kg÷㎥"
+        if not per_year and "2023" in usd and "2023" in m3:   # 대체: 2023 단가 비율
+            ys = sub[sub["month"].str.startswith("2023")]
+            kg, dl = float(ys["imp_kg"].sum()), float(ys["imp_usd"].sum())
+            if kg > 0:
+                per_year.append({"year": "2023", "density": (usd["2023"] / m3["2023"]) / (dl / kg) / 1000})
+                method = "단가 비율(2023)"
+        if not per_year:
+            continue
+        d = float(np.median([p["density"] for p in per_year]))
+        prov = (units.get("items") or {}).get(item, {}).get("density")
+        out.append({"item": item, "density": round(d, 3), "provisional": prov, "method": method,
+                    "years": [p["year"] for p in per_year], "by_year": [round(p["density"], 3) for p in per_year]})
+    return out
+
+
 # ── 요약 카드 ────────────────────────────────────────────────
-def summary_cards(sr, pen, pa, dec) -> list[dict]:
+def summary_cards(sr, pen, pa, dec, ds=None) -> list[dict]:
     cards = []
     vul = [d for d in sr if d["grade"] == "취약"]
     cau = [d for d in sr if d["grade"] == "주의"]
     cards.append({
-        "id": "supply", "title": "공급 위험",
+        "id": "supply", "title": "수입 집중",
         "badge": f"취약 {len(vul)}개" if vul else ("주의" if cau else "안정"),
         "level": "hi" if vul else ("mid" if cau else "lo"),
         "text": ("정부 공급망 기준(연 100만 달러↑·특정국 50%↑)에 해당: " +
@@ -249,6 +359,23 @@ def summary_cards(sr, pen, pa, dec) -> list[dict]:
                 ("특정국 50%↑ 품목은 없으나 HHI 2,500↑ 고집중 품목 " + ", ".join(d["label"] for d in cau[:3]) if cau else
                  "정부 공급망 기준에 해당하는 품목 없음"),
         "refs": CRIT["supply_risk"]["refs"]})
+    if ds and ds["rows"]:
+        vul = {(d["axis"], d["key"]) for d in sr if d["grade"] == "취약"}
+        rows = [d for d in ds["rows"] if (d["axis"], d["key"]) in vul and d["spare_cover"] is not None]
+        low = [d for d in rows if d["spare_cover"] < ds["line"]]
+        ok = [d for d in rows if d["spare_cover"] >= ds["line"]]
+        yr = max(d["year"] for d in ds["rows"])
+        if rows:
+            txt = ("수입 집중 '취약' 품목 중 국내 여유 생산능력으로 수입량을 못 채우는 품목: " +
+                   ", ".join(f"{d['label']}({d['spare_cover']:.0f}%)" for d in sorted(low, key=lambda d: d['spare_cover'])) if low else
+                   "수입 집중 '취약' 품목 모두 국내 여유 생산능력이 수입량 이상")
+            if ok:
+                txt += " · 여유능력 ≥ 수입량: " + ", ".join(d["label"] for d in ok)
+        else:
+            txt = "수입 집중 '취약' 품목에 대응하는 국내 생산·가동률 자료 없음"
+        cards.append({"id": "domestic", "title": "국내 대체 여력",
+                      "badge": f"부족 {len(low)}개" if low else "충분", "level": "hi" if low else "lo",
+                      "text": txt + f" ({yr}년 실태조사, 여유능력÷수입량)", "refs": CRIT["domestic_supply"]["refs"]})
     if pen:
         mk = pen["mk"] or {}
         cards.append({
