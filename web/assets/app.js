@@ -1,4 +1,4 @@
-/* 목재류 무역통계 대시보드 — 화면 로직 */
+/* 대한민국 목재 수급·공급망 진단 — 화면 로직 */
 (function () {
   const C = window.Charts;
   const $ = (s, r = document) => r.querySelector(s);
@@ -393,7 +393,14 @@
       (al.length ? `<ul class="alerts" style="max-height:none">${al.map((a) => `<li><span class="tag">${{ share: "점유율", price: "단가", new: "신규국" }[a.type]}</span><span>${a.text}</span></li>`).join("")}</ul>` : `<div class="empty">해당 없음</div>`);
   }
 
-  function renderAll() { renderVerdicts(); renderSupply(); renderDomestic(); renderPenetration(); renderPrice(); renderDrivers(); renderBasic(); renderAlerts(); }
+  function renderIntro() {
+    const ds = D.judg && D.judg.domestic_supply, el = $("#intro-lead");
+    if (!el || !ds || !ds.overall || !ds.overall.length) return;
+    const o = ds.overall[ds.overall.length - 1];
+    el.innerHTML = `<span class="one-line">우리나라가 쓰는 목재의 <b>${nf(o.import_share, 0)}%</b>는 수입임 <span class="sub">(${o.year}년, 목재제품+원목 기준, 산림청 목재이용실태조사)</span></span>` +
+      `<span class="one-line">이 수입이 <b>특정 국가에 얼마나 쏠려 있는지</b>, 막히면 <b>국내 생산으로 메울 수 있는지</b>를 공인 기준으로 매월 진단함</span>`;
+  }
+  function renderAll() { renderIntro(); renderVerdicts(); renderSupply(); renderDomestic(); renderPenetration(); renderPrice(); renderDrivers(); renderBasic(); renderAlerts(); }
 
   function renderControls() {
     const years = [...new Set(months().map((m) => m.slice(0, 4)))];
