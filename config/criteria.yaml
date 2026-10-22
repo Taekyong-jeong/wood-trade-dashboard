@@ -82,11 +82,39 @@ density_calibration:
     "product:p06": ["4412"]        # 실태조사 합판 수입량 = 4412 전체
     "product:p08": ["4411"]
     "product:p07": ["4410"]        # 실태조사 파티클보드 수입량 = 4410 전체(OSB 포함)
-  survey_key: {"product:p01": p01, "heading:4407": p01, "product:p06": p06, "product:p08": p08, "product:p07": p07}
+    "heading:4403": ["4403"]       # 원목: 실태조사 '수입 원목 이용량'(재고 변동 포함) 기준 — 검증용
+  survey_key: {"product:p01": p01, "heading:4407": p01, "product:p06": p06, "product:p08": p08, "product:p07": p07, "heading:4403": total}
+  survey_metric: {"heading:4403": log_use_imported}   # 지정 없으면 imports
+  formula: "USD/㎥ = (수입액 ÷ 순중량 kg × 1,000) × 밀도(t/㎥) = USD/t × 밀도"
   refs: [kfs_wus]
+
+# ⑦ 국산·수입 가격 수준 — 산림조합 판매단가와 관세청 수입 단가 비교 (판정 없음, 참고)
+domestic_price:
+  source: "산림조합중앙회 목재유통센터 「2026년도 목재 제품 판매단가」 (A급, 면세단가, 연 1회) — data/external/kfcf_price.csv"
+  volume: "㎥ = 두께 × 폭 × 길이 (mm → m), 才 표기와 대조 (1㎥ = 299.5才)"
+  fx_krw_per_usd: 1422            # 2025년 연평균 원/달러 (한국은행 자료 기준, KB국민은행 2025.12.31 정리). 단가표 연도가 바뀌면 직전 연도 연평균으로 갱신
+  fx_basis: "2025년 연평균 원/달러 1,422원 (한국은행·KB국민은행)"
+  stat: median                    # 규격별 ㎥당 가격의 중앙값 (범위도 함께 표시)
+  min_import_usd: 1000000         # 비교 대상 수입이 최근 12개월 100만 달러 미만이면 '규모 미달'로 표시만 함 (①과 같은 최소 규모)
+  species_note: "수종별 수입 단가는 수종마다 밀도·함수율이 달라 단일 밀도로 ㎥ 환산하면 왜곡되므로, 수종 비교는 하지 않고 제재목 전체 평균과 비교함"
+  pairs:
+    - label: "낙엽송 제재목"
+      domestic: {category: "낙엽송 각·판재", treatment: "일반"}
+      imports:
+        - {label: "수입 제재목 전체 (최근 12개월, 보정 환산)", hs: ["4407"], density_item: "product:p01"}
+        - {label: "수입 제재목 전체 (2023, 신고 ㎥ 기준)", survey: p01, survey_year: 2023}
+        - {label: "수입 낙엽송 제재목", hs: ["4407194000"], density_item: "product:p01"}
+    - label: "낙엽송 방부목(H3)"
+      domestic: {category: "낙엽송 각·판재", treatment: "방부H3"}
+      imports:
+        - {label: "수입 방부 제재목", hs: ["4407111010", "4407122010", "4407131000"], density_item: "product:p02"}
+  note: "수입은 CIF(관세·통관·내륙운송·유통 마진 전), 국산은 산지 판매가(면세). 같은 단계의 가격이 아니므로 가격 수준 차이를 보는 참고 지표이며 경쟁력 판정에 쓰지 않음. 수장용집성재(집성판)·원주목은 수입 통계에 대응 품목이 없어 비교 제외"
+  refs: [kfcf2026, bok_fx]
 
 # 레퍼런스
 references:
+  kfcf2026: "산림조합중앙회 목재유통센터 (2026.1). 2026년도 목재 제품 판매단가 (https://www.woodkorea.or.kr)"
+  bok_fx: "한국은행 경제통계시스템 원/달러 환율 — 2025년 연평균 1,422원 (KB국민은행 자본시장사업그룹 2025.12.31 환율 전망 정리)"
   kfs_wus: "산림청·한국임업진흥원 (2024). 2023년 기준 목재이용실태조사 보고서 (국가승인통계). 2012~2023년 기준 보고서 연도별 발간"
   motie2023: "산업통상자원부 (2023.12.13). 산업 공급망 3050 전략 — 공급망 안정품목 1차 선정 기준: 수입액 100만 달러 이상, 특정국 수입의존도 50% 이상"
   doj2010: "U.S. Department of Justice & Federal Trade Commission (2010). Horizontal Merger Guidelines, §5.3 — HHI 1,500 미만 비집중, 1,500~2,500 중간 집중, 2,500 초과 고집중"

@@ -314,8 +314,9 @@ def calibrate_density(df: pd.DataFrame, survey_csv: Path, units: dict) -> list[d
     out = []
     for item, prefixes in c["items"].items():
         sk = c["survey_key"][item]
+        metric = (c.get("survey_metric") or {}).get(item, "imports")
         sub = df[df["hs"].str.startswith(tuple(prefixes))]
-        imp = s[(s["product"] == sk) & (s["metric"] == "imports")]
+        imp = s[(s["product"] == sk) & (s["metric"] == metric)]
         m3 = {str(int(y)): float(v) for y, v in zip(imp["year"], imp["value"])}
         usd = s[(s["product"] == sk) & (s["metric"] == "imports_usd_k")]
         usd = {str(int(y)): float(v) * 1000 for y, v in zip(usd["year"], usd["value"])}
@@ -328,7 +329,7 @@ def calibrate_density(df: pd.DataFrame, survey_csv: Path, units: dict) -> list[d
             if y in usd and abs(dl / usd[y] - 1) * 100 > c["scope_check_pct"]:
                 continue                                   # 범위 불일치
             per_year.append({"year": y, "density": kg / 1000 / m3[y]})
-        method = "kg÷㎥"
+        method = "kg÷㎥" + ("(이용량 기준)" if metric != "imports" else "")
         if not per_year and "2023" in usd and "2023" in m3:   # 대체: 2023 단가 비율
             ys = sub[sub["month"].str.startswith("2023")]
             kg, dl = float(ys["imp_kg"].sum()), float(ys["imp_usd"].sum())
@@ -339,9 +340,57 @@ def calibrate_density(df: pd.DataFrame, survey_csv: Path, units: dict) -> list[d
             continue
         d = float(np.median([p["density"] for p in per_year]))
         prov = (units.get("items") or {}).get(item, {}).get("density")
-        out.append({"item": item, "density": round(d, 3), "provisional": prov, "method": method,
+        out.append({"item": item, "density": round(d, 3), "provisional": prov, "method": method, "metric": metric,
                     "years": [p["year"] for p in per_year], "by_year": [round(p["density"], 3) for p in per_year]})
     return out
+
+
+# ── ⑦ 국산·수입 가격 수준 (참고) ────────────────────────────
+def domestic_price(df: pd.DataFrame, months: list[str], price_csv: Path, units: dict) -> dict | None:
+    if not price_csv.exists():
+        return None
+    c = CRIT["domestic_price"]
+    t = pd.read_csv(price_csv)
+    fx = float(c["fx_krw_per_usd"])
+    t["m3"] = t["T"].astype(float) * t["W"].astype(float) * t["L"].astype(float) / 1e9
+    t["krw_m3"] = t["price_krw"] / t["m3"]
+    last12 = months[-12:]
+    cur = df[df["month"].isin(last12)]
+    items = units.get("items") or {}
+    out = []
+    for pr in c["pairs"]:
+        d = t[(t["category"] == pr["domestic"]["category"]) & (t["treatment"] == pr["domestic"]["treatment"]) & t["m3"].notna()]
+        if d.empty:
+            continue
+        usd_m3 = d["krw_m3"] / fx
+        dom = {"median": round(float(usd_m3.median())), "min": round(float(usd_m3.min())), "max": round(float(usd_m3.max())),
+               "krw_m3_median": round(float(d["krw_m3"].median())), "n": int(len(d)), "year": int(d["year"].iloc[0])}
+        imps = []
+        for im in pr["imports"]:
+            if "survey" in im:                         # 실태조사(임산물수출입통계) 신고 ㎥ 기준 단가
+                sv = pd.read_csv(price_csv.parent / "wood_use_survey.csv")
+                g = lambda m: sv[(sv["product"] == im["survey"]) & (sv["metric"] == m) & (sv["year"] == im["survey_year"])]["value"]
+                m3, uk = g("imports"), g("imports_usd_k")
+                if len(m3) and len(uk):
+                    pm3 = float(uk.iloc[0]) * 1000 / float(m3.iloc[0])
+                    imps.append({"label": im["label"], "usd": round(float(uk.iloc[0]) * 1000), "usd_t": None, "usd_m3": round(pm3),
+                                 "density": None, "calibrated": None, "basis": "신고 ㎥", "ratio": round(dom["median"] / pm3, 2)})
+                continue
+            s = cur[cur["hs"].str.startswith(tuple(im["hs"]))]
+            kg, usd = float(s["imp_kg"].sum()), float(s["imp_usd"].sum())
+            if kg <= 0 or usd < c["min_import_usd"]:
+                imps.append({"label": im["label"], "usd": round(usd), "small": True})
+                continue
+            it = items.get(im["density_item"], {})
+            dens = it.get("density")
+            per_t = usd * 1000 / kg
+            per_m3 = per_t * dens if dens else None
+            imps.append({"label": im["label"], "usd": round(usd), "usd_t": round(per_t), "usd_m3": None if per_m3 is None else round(per_m3),
+                         "density": dens, "calibrated": bool(it.get("calibrated")),
+                         "ratio": None if not per_m3 else round(dom["median"] / per_m3, 2)})
+        out.append({"label": pr["label"], "domestic": dom, "imports": imps})
+    return {"pairs": out, "fx": fx, "fx_basis": c["fx_basis"], "period": f"{last12[0]}~{last12[-1]}", "note": c["note"],
+            "species_note": c.get("species_note"), "source": c["source"]}
 
 
 # ── 요약 카드 ────────────────────────────────────────────────

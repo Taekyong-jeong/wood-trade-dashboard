@@ -3,6 +3,7 @@
 | 파일 | 내용 | 출처 | 갱신 |
 |---|---|---|---|
 | wood_use_survey.csv | 품목별 국내 생산량·수입량, 가동률, 업체 수, 최대 생산가능량, 원목 이용량(국산·수입), 전체 목재 이용량 (long 형식: year, product, metric, value, unit, source, note) | 산림청·한국임업진흥원 「목재이용실태조사」 2023년 기준 보고서(시계열 표) + 2020~2022년 기준 보고서 표2-3. 원문: 목재정보서비스 winz.forest.go.kr → 목재정보 → 통계자료 → 목재이용실태조사 | 연 1회 (보고서 발간 시 `scripts/external/transcribe_wood_use_survey.py`에 새 연도 값 추가 후 실행) |
+| kfcf_price.csv | 산림조합 목재유통센터 판매단가 (낙엽송 각·판재 일반·방부H3, 사이딩, 벽판재, 내장재, 수장용집성재, 원주목). year, category, item, species, treatment, T, W, L(mm), cai(才), price_krw | 산림조합중앙회 목재유통센터 「2026년도 목재 제품 판매단가」(2026-01-29, A급, 면세). https://www.woodkorea.or.kr 공지사항 | 연 1회 (매년 1월 공지) — 새 연도 행을 추가하고 criteria.yaml의 fx_krw_per_usd를 직전 연도 연평균으로 바꿈 |
 | kosis_wood_supply.csv | 목재수급량(천㎥), 원목자급률(%), 목재자급률(%) | 산림청 목재수급통계 (KOSIS 지표 520·521, e-나라지표 1303) | 연 1회 (보통 이듬해 하반기) |
 
 - 목재자급률(전체)은 KOSIS 대표 지표에 없어 확인된 연도만 기입함 (2006~2010: 언론 보도된 산림청 수치, 2019: e-나라지표). 빈칸은 미확보.

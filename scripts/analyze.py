@@ -409,10 +409,11 @@ def main() -> int:
                               {g["key"]: g["name"] for g in CFG["groups"]})
     st = judge.structure(series, months, pen, {"processed": ["primary", "panel", "ewp", "building"]})
     ds = judge.domestic_supply(survey_csv, sr, {p["key"]: p["name"] for p in CFG["products"]})
+    dp = judge.domestic_price(df, months, ROOT / "data" / "external" / "kfcf_price.csv", UNITS)
     write_json("judgments.json", {
         "month": months[-1], "cards": judge.summary_cards(sr, pen, pa, dec, ds),
         "supply_risk": sr, "penetration": pen, "price_anomaly": pa, "decomposition": dec, "structure": st,
-        "domestic_supply": ds,
+        "domestic_supply": ds, "domestic_price": dp,
         "criteria": judge.CRIT,
     })
     # 그림 원자료 (논문·보고서용)
@@ -428,6 +429,10 @@ def main() -> int:
     if survey_csv.exists():
         import shutil
         shutil.copy(survey_csv, OUT_DIR / "wood_use_survey.csv")
+    kp = ROOT / "data" / "external" / "kfcf_price.csv"
+    if kp.exists():
+        import shutil
+        shutil.copy(kp, OUT_DIR / "kfcf_price.csv")
     sup = ROOT / "data" / "external" / "kosis_wood_supply.csv"
     if sup.exists():
         t = pd.read_csv(sup)
