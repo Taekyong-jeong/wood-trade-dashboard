@@ -426,8 +426,8 @@
     const ds = D.judg && D.judg.domestic_supply, el = $("#intro-lead");
     if (!el || !ds || !ds.overall || !ds.overall.length) return;
     const o = ds.overall[ds.overall.length - 1];
-    el.innerHTML = `<span class="one-line">우리나라가 쓰는 목재의 <b>${nf(o.import_share, 0)}%</b>는 수입임 <span class="sub">(${o.year}년, 목재제품+원목 기준, 산림청 목재이용실태조사)</span></span>` +
-      `<span class="one-line">이 수입이 <b>특정 국가에 얼마나 쏠려 있는지</b>, 막히면 <b>국내 생산으로 메울 수 있는지</b>를 공인 기준으로 매월 진단함</span>`;
+    el.innerHTML = `<span class="one-line">국내 목재 이용량의 <b>${nf(o.import_share, 0)}%</b>는 수입재입니다 <span class="sub">(${o.year}년, 목재제품·원목 기준, 산림청 목재이용실태조사)</span></span>` +
+      `<span class="one-line">본 페이지는 목재 수입의 <b>특정국 의존도</b>와 <b>국내 대체 생산 여력</b>을 공인 기준에 따라 매월 진단합니다</span>`;
   }
   function renderAll() { renderIntro(); renderVerdicts(); renderSupply(); renderDomestic(); renderPenetration(); renderPrice(); renderDrivers(); renderBasic(); renderAlerts(); }
 
