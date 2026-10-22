@@ -127,8 +127,24 @@
   }
 
   // ── 공통 렌더 ───────────────────────────────────────────
+  // 자료 구분: 원자료(공표 통계 수치 그대로·합계) / 분석(본 페이지가 계산한 비율·지수·환산·판정)
+  const KIND_ANA = /^(수입 집중|품목별 판정|품목별 국내 공급 구조|원목 수입의존도|자급-수입 구조|목재제품별 수입의존도|가격 이상 판정|공급국 가격대 지도|단가 지수|국산·수입 가격 수준|수입액 변화 분해|공급국별 수입 단가|공급국 집중도|목재제품별 수입과 점유율|품목군 구성)/;
+  const KIND_MIX = /^(국내 설비 가동률 추이)/;
+  const KIND_RAW = /^(최대 수입국|최대 수입 품목|수입·수출 추이|주요 공급국|대분류별 원목|세부 수종|.+산 목재류 수입|목재산업 매출|목재제품별 매출)/;
+  function kindOf(title, hint) {
+    const t = title.replace(/<[^>]+>/g, "").trim();
+    if (/^수입·수출 추이/.test(t) && /단가/.test(hint || "")) return "ana";
+    if (KIND_ANA.test(t)) return "ana";
+    if (KIND_MIX.test(t)) return "mix";
+    if (KIND_RAW.test(t)) return "raw";
+    return "";
+  }
+  const KTAG = { raw: `<span class="ktag raw" title="공표 통계 수치를 그대로(또는 합계만) 보여줌">원자료</span>`,
+    ana: `<span class="ktag ana" title="공표 통계로 본 페이지가 계산한 비율·지수·환산·판정">분석</span>`,
+    mix: `<span class="ktag mix" title="공표값 + 일부 품목은 공표 항목으로 산출">원자료·일부 산출</span>` };
   function card(title, hint, body = "", cls = "", lead = "") {
-    return `<div class="card ${cls}"><div class="card-head"><h3 class="one-line">${title}</h3>${hint ? `<span class="hint">${hint}</span>` : ""}</div>` +
+    const k = kindOf(title, hint);
+    return `<div class="card ${cls}"><div class="card-head"><h3 class="one-line">${title}${k ? KTAG[k] : ""}</h3>${hint ? `<span class="hint">${hint}</span>` : ""}</div>` +
       `${lead ? `<div class="lead" title="${lead.replace(/<[^>]+>/g, "")}">${lead}</div>` : ""}${body}</div>`;
   }
   // 용어 설명 (물음표에 마우스를 올리거나 누르면 표시)
@@ -140,7 +156,7 @@
     r12: "12개월 누적: 해당 월까지 최근 12개월 합계. 계절에 따른 들쭉날쭉함을 없애고 추세를 볼 때 씀.",
     share: "점유율: 해당 품목 전체 수입액 중 그 나라가 차지하는 비율.",
     gap: "무역수지 = 수출액 − 수입액. 음수면 수입이 더 많음. 수입은 CIF, 수출은 FOB 기준.",
-    ishare: "물량 기준 수입 비중 = 수입량 ÷ (국내 생산량 + 수입량). ㎥ 또는 톤 기준. 목재이용실태조사(산림청, 연 1회).",
+    ishare: "목재제품별 수입의존도 = 수입량 ÷ (국내 생산량 + 수입량). ㎥ 또는 톤 등 물량 기준(수출은 물량 자료가 없어 제외 — OECD 수입침투율의 근사). 국내 생산량은 산림청 목재이용실태조사(연 1회), 수입량은 실태조사 수록 임산물수출입통계.",
     util: "가동률 = 연 생산량 ÷ 최대 생산가능량. 목재이용실태조사 응답업체 기준. 공표값이 없는 품목은 실태조사 항목(일평균 생산량·가동일·최대 생산가능량)으로 산출.",
     cover: "대체 여력 = 국내 여유 생산능력 ÷ 수입량. 여유 생산능력 = 생산량 × (100 ÷ 가동률 − 1). 100% 이상이면 지금 남는 국내 설비만으로 수입량 전부를 만들 수 있다는 뜻. 원료 조달·품질·가격은 반영하지 않은 물리적 상한.",
     idx: "단가 지수: 비교 시작 시점의 12개월 평균 단가를 100으로 놓고 환산한 값. 단위가 다른 품목의 가격 변화 속도를 한 그래프에서 비교하기 위함.",
@@ -199,7 +215,7 @@
   // ── 판정 요약 ──────────────────────────────────────────
   function renderVerdicts() {
     const J = D.judg;
-    $("#v-hint").textContent = `${ym(J.month)} 기준 · 판정 규칙: config/criteria.yaml`;
+    $("#v-hint").innerHTML = `${KTAG.ana} ${ym(J.month)} 기준 · 판정 규칙: config/criteria.yaml`;
     $("#verdicts").innerHTML = J.cards.map((c) =>
       `<button class="vcard ${c.level}" data-go="sec-${c.id}"><span class="vt">${c.title}</span><span class="vb">${c.badge}</span>` +
       `<span class="vx">${c.text}</span><span class="vr">기준: ${refs(c.refs)}</span></button>`).join("");
@@ -253,25 +269,20 @@
         rule(`세로 100% 선 = 국내 여유 생산능력이 현재 수입량과 같아지는 경계 (정의상) · 가로 50% 선 = 산업부 특정국 의존 기준 · <b>왼쪽 아래보다 오른쪽 아래</b>(쏠렸고 국내로 못 메움)가 실제 공급 차질 위험이 큰 품목`), "",
         low.length ? `쏠렸고 국내로 못 메움: ${low.map((d) => `${short(d.label)} ${nf(d.spare_cover, 0)}%`).join(" · ")}` : "수입 집중 취약 품목 모두 국내 여유능력으로 대체 가능") +
       card(`품목별 국내 공급 구조 ${q("ishare")}`, `${yr}년 · 행을 누르면 상세`,
-        `<div class="tbl-wrap"><table><thead><tr><th class="l">품목</th><th>수입 비중</th><th>추세</th><th>가동률 ${q("util")}</th><th>대체 여력</th><th>수입 집중</th></tr></thead><tbody>` +
+        `<div class="tbl-wrap"><table><thead><tr><th class="l">품목</th><th>수입의존도</th><th>추세</th><th>가동률 ${q("util")}</th><th>대체 여력</th><th>수입 집중</th></tr></thead><tbody>` +
         rows.map((d) => `<tr class="click" data-axis="${d.axis}" data-key="${d.key}" title="국내 생산 ${big(d.production)}${u(d)} · 수입 ${big(d.imports)}${u(d)}${d.util_note ? " · 가동률: " + d.util_note : ""}">` +
           `<td class="l">${short(d.label)}</td><td>${nf(d.import_share, 0)}%</td><td>${badge(d.trend.startsWith("판정 보류") ? "판정 보류" : d.trend)}</td>` +
           `<td>${d.utilization == null ? "–" : nf(d.utilization, 0) + "%" + (/참고치/.test(d.util_note) ? "*" : "")}</td>` +
           `<td>${d.spare_cover == null ? "–" : nf(d.spare_cover, 0) + "%"}</td><td>${d.risk_grade ? badge(d.risk_grade) : "–"}</td></tr>`).join("") +
         `</tbody></table></div><div class="foot">수입 비중 = 수입량 ÷ (국내 생산 + 수입), 물량 기준 · 추세: Mann-Kendall(5개년 이상) · * 참고치(전국 생산량 ÷ 최대 생산가능량 합계) · 출처: 산림청 목재이용실태조사(${yr}년 기준), 수입 집중은 ${SRC}</div>`, "",
         `국내 목재 이용량 중 수입(제품+원목) ${nf(ov.import_share, 1)}% <span class="sub">(${ov.year}년, 총 ${nf(ov.total / 1e6, 1)}백만 ㎥)</span>`);
-    const shareRows = rows.filter((d) => d.share_years.length >= 5);
-    const ys = [...new Set(shareRows.flatMap((d) => d.share_years))].sort();
     const UTIL_KEYS = ["p01", "p06", "p07", "p08", "p10", "p12"];   // 업체 수가 적은 소량 품목(집성재·WPC·난연)은 해마다 출렁여 제외
     const utilRows = rows.filter((d) => UTIL_KEYS.includes(d.key) && d.util_years.length >= 8);
     const uy = [...new Set(utilRows.flatMap((d) => d.util_years))].sort();
     host.insertAdjacentHTML("beforeend",
-      card("물량 기준 수입 비중 추이", `${ys[0]}~${ys[ys.length - 1]} · %`, `<div id="ds-share"></div>` +
-        rule(`수입량 ÷ (국내 생산량 + 수입량) · 수입량은 임산물수출입통계(실태조사 수록), 국내 생산량은 실태조사 추정치`), "",
-        shareRows.map((d) => `${short(d.label)} ${nf(d.share_series[0], 0)}→${nf(d.import_share, 0)}%`).slice(0, 4).join(" · ")) +
       card(`국내 설비 가동률 추이 ${q("util")}`, `${uy[0]}~${uy[uy.length - 1]} · %`, `<div id="ds-util"></div>` +
         rule(`가동률 = 연 생산량 ÷ 최대 생산가능량 (실태조사 정의, 응답업체 기준) · 제재목·목재칩은 일평균 생산량 × 월 가동일 × 12로 산출 · 합판 3개·파티클보드 2개·섬유판 5개 업체라 해마다 출렁임 · 집성재·WPC·난연목재는 표에만 표시`), "",
-        utilRows.map((d) => `${short(d.label)} ${nf(d.utilization, 0)}%`).join(" · ")));
+        utilRows.map((d) => `${short(d.label)} ${nf(d.utilization, 0)}%`).join(" · "), "span-2"));
     C.scatterChart($("#ds-map"), {
       points: pts.map((d) => ({ x: d.top_share, y: Math.min(d.spare_cover, CAP), label: short(d.label), color: col[d.risk_grade] || C.color(0),
         size: 7, labelOn: d.risk_grade === "취약" || d.spare_cover >= 30 || d.top_share >= 50, onClick: () => openDetail(d.axis, d.key), d })),
@@ -279,16 +290,35 @@
       xFmt: (v) => v + "%", yFmt: (v) => v + "%", refX: [{ v: 50, label: "특정국 50%" }], refY: [{ v: DS.line, label: "여유능력 = 수입량" }],
       tip: (p) => `<div class="tt">${p.d.label} ${p.d.risk_grade ? badge(p.d.risk_grade) : ""}</div>` +
         `<div class="tr"><span>최대 공급국</span><b>${p.d.top_name} ${nf(p.d.top_share, 0)}%</b></div>` +
-        `<div class="tr"><span>수입 비중(물량)</span><b>${nf(p.d.import_share, 0)}%</b></div>` +
+        `<div class="tr"><span>수입의존도(물량)</span><b>${nf(p.d.import_share, 0)}%</b></div>` +
         `<div class="tr"><span>가동률</span><b>${p.d.utilization == null ? "–" : nf(p.d.utilization, 0) + "%"}</b></div>` +
         `<div class="tr"><span>대체 여력</span><b>${nf(p.d.spare_cover, 0)}%</b></div>` });
-    C.lineChart($("#ds-share"), { x: ys.map(String), series: shareRows.map((d) => ({ name: short(d.label),
-      values: ys.map((y) => { const i = d.share_years.indexOf(y); return i < 0 ? null : d.share_series[i]; }) })),
-      yFmt: (v) => nf(v, 0) + "%", tipFmt: (v) => nf(v, 1) + "%", height: 250 });
     C.lineChart($("#ds-util"), { x: uy.map(String), series: utilRows.map((d) => ({ name: short(d.label),
       values: uy.map((y) => { const i = d.util_years.indexOf(y); return i < 0 ? null : d.util_series[i]; }) })),
       yFmt: (v) => nf(v, 0) + "%", tipFmt: (v) => nf(v, 1) + "%", height: 250 });
     host.querySelectorAll("tr[data-axis]").forEach((tr) => tr.onclick = () => openDetail(tr.dataset.axis, tr.dataset.key));
+  }
+
+  // ── 목재산업 규모 (목재이용실태조사 공표값) ────────────
+  function renderIndustry() {
+    const I = D.judg.industry, host = $("#a-industry");
+    if (!host) return;
+    if (!I) { host.innerHTML = card("목재산업 매출", "", `<div class="empty">자료 없음</div>`, "span-2"); return; }
+    const n = I.years.length - 1, jo = (v) => v >= 1e4 ? `${nf(Math.floor(v / 1e4), 0)}조 ${nf(v % 1e4, 0)}억` : `${nf(v, 0)}억`;
+    const won = (v) => v == null ? "–" : (v >= 1e4 ? nf(v / 1e4, 2) + "조" : nf(v, 0) + "억") + " 원";
+    const top = I.products.slice(0, 14);
+    host.innerHTML =
+      card("목재산업 매출 추이", `${I.years[0]}~${I.years[n]} · 억 원`, `<div id="in-bar"></div>` +
+        rule(`${I.scope} · 출처: ${I.source} · 조사 범위·가중치가 해마다 조정돼 연도 간 비교는 참고 (예: 목재칩 수입·유통 매출 2021년 88억 → 2022년 5,357억)`), "",
+        `${I.years[n]}년 ${jo(I.sales[n])} 원 · 종사자 ${nf(I.employees[n], 0)}명 <span class="sub">국내 생산 ${nf(I.domestic[n] / I.sales[n] * 100, 0)}% · 수입·유통 ${nf(I.imports[n] / I.sales[n] * 100, 0)}%</span>`) +
+      card("목재제품별 매출", `${I.year}년 · 막대 = 전체 매출`, `<div id="in-prod"></div>` +
+        rule(`괄호 = 국내 생산업체 / 수입·유통업체 매출 · 종사자 수는 표에 마우스를 올리면 표시 · 펄프·장작·톱밥은 목재이용법 목재제품 외(실태조사 포함 품목)`), "",
+        `${top.slice(0, 3).map((d) => `${d.label.replace(/\(.+\)/, "")} ${won(d.sales)}`).join(" · ")}`);
+    C.barChart($("#in-bar"), { x: I.years.map(String), series: [{ name: "국내 생산업체", values: I.domestic }, { name: "수입·유통업체", values: I.imports }],
+      yFmt: (v) => nf(v / 1e4, 1) + "조", tipFmt: (v) => nf(v, 0) + "억 원", height: 335 });
+    C.hbars($("#in-prod"), top.map((d) => ({ label: d.label.replace(/\(.+\)/, ""), value: d.sales,
+      text: `${won(d.sales)} <span class="sub">(${nf(d.domestic, 0)}/${nf(d.import, 0)})</span>`,
+      onClick: d.is_product ? () => openDetail("product", d.key) : null })), { color: C.color(4) });
   }
 
   // ── 수입 의존 ──────────────────────────────────────────
@@ -311,6 +341,30 @@
     C.lineChart($("#pn-struct"), { x: S2.years, series: [{ name: "수입 중 가공제품 비중", values: S2.processed_share },
       { name: "원목 수입의존도", values: S2.log_import_dependence, dash: true }], yFmt: (v) => nf(v, 0) + "%", tipFmt: (v) => nf(v, 1) + "%", height: 230 });
     if (S2.years.length < 3) $("#pn-struct").insertAdjacentHTML("beforeend", `<div class="foot">과거 데이터 수집이 끝나면 2016년부터 표시됨</div>`);
+    // 목재제품별 수입의존도 (목재이용실태조사)
+    const DS = D.judg.domestic_supply;
+    if (DS && DS.rows) {
+      const short = (l) => l.replace(/\(.+\)/, "");
+      const prows = DS.rows.filter((d) => d.axis === "product" && d.import_share != null).sort((a, b) => b.import_share - a.import_share);
+      const yr = Math.max(...prows.map((d) => d.year));
+      const TC = { "상승 추세": C.color(7), "하락 추세": C.color(2) };
+      const trows = prows.filter((d) => d.share_years.length >= 5);
+      const ys = [...new Set(trows.flatMap((d) => d.share_years))].sort();
+      const sig = prows.filter((d) => /^(상승|하락) 추세$/.test(d.trend));
+      $("#a-penetration").insertAdjacentHTML("beforeend",
+        card(`목재제품별 수입의존도 ${q("ishare")}`, `${yr}년 · 물량 기준 · 막대 = 수입의존도`, `<div id="pn-prod"></div>` +
+          rule(`수입의존도 = 수입량 ÷ (국내 생산량 + 수입량), ㎥·톤 기준 (OECD 수입침투율의 근사, 수출 제외) · 추세: 5개년 이상 품목만 Mann-Kendall 검정(유의수준 5%), 4개년 이하는 판정 보류 · ▲ 상승·▼ 하락 추세(유의), 표시 없음 = 추세 없음 또는 판정 보류 · 원목은 위 카드(목재수급통계) 기준`), "",
+          `${prows.slice(0, 3).map((d) => `${short(d.label)} ${nf(d.import_share, 0)}%`).join(" · ")} <span class="sub">상위 3개</span>`) +
+        card("목재제품별 수입의존도 추이", `${ys[0]}~${ys[ys.length - 1]} · %`, `<div id="pn-prod-line"></div>` +
+          rule(`5개년 이상 자료가 있는 품목만 표시 · 출처: 산림청 목재이용실태조사(2023년 기준 보고서 시계열)`), "",
+          sig.length ? `유의한 변화: ${sig.map((d) => `${short(d.label)} ${d.trend} (${nf(d.share_series[0], 0)}→${nf(d.import_share, 0)}%)`).join(" · ")}` : "유의한 추세 변화 없음"));
+      C.hbars($("#pn-prod"), prows.map((d) => ({ label: short(d.label), value: d.import_share, color: TC[d.trend],
+        text: `${nf(d.import_share, 0)}%${d.trend === "상승 추세" ? " ▲" : d.trend === "하락 추세" ? " ▼" : ""}`,
+        onClick: () => openDetail(d.axis, d.key) })), { max: 100 });
+      C.lineChart($("#pn-prod-line"), { x: ys.map(String), series: trows.map((d) => ({ name: short(d.label),
+        values: ys.map((y) => { const i = d.share_years.indexOf(y); return i < 0 ? null : d.share_series[i]; }) })),
+        yFmt: (v) => nf(v, 0) + "%", tipFmt: (v) => nf(v, 1) + "%", height: 300 });
+    }
   }
 
   // ── 가격 ───────────────────────────────────────────────
@@ -429,7 +483,7 @@
     el.innerHTML = `<span class="one-line">국내 목재 이용량의 <b>${nf(o.import_share, 0)}%</b>는 수입재입니다 <span class="sub">(${o.year}년, 목재제품·원목 기준, 산림청 목재이용실태조사)</span></span>` +
       `<span class="one-line">본 페이지는 목재 수입의 <b>특정국 의존도</b>와 <b>국내 대체 생산 여력</b>을 공인 기준에 따라 매월 진단합니다</span>`;
   }
-  function renderAll() { renderIntro(); renderVerdicts(); renderSupply(); renderDomestic(); renderPenetration(); renderPrice(); renderDrivers(); renderBasic(); renderAlerts(); }
+  function renderAll() { renderIntro(); renderVerdicts(); renderSupply(); renderDomestic(); renderPenetration(); renderIndustry(); renderPrice(); renderDrivers(); renderBasic(); renderAlerts(); }
 
   function renderControls() {
     const years = [...new Set(months().map((m) => m.slice(0, 4)))];
@@ -605,11 +659,12 @@
         <tr><td class="l">국산·수입 가격 수준</td><td class="l" style="white-space:normal">국산 ㎥ 가격 = 판매단가 ÷ (두께×폭×길이), 규격별 중앙값, 원/달러 2025년 연평균 · 수입 = 최근 12개월 CIF ㎥ 단가(보정 밀도) 및 2023년 신고 ㎥ 단가 · 수입 100만 달러 미만 비교 제외 · 판정 없음(참고)</td><td class="l" style="white-space:normal">${[R.kfcf2026, R.bok_fx].filter(Boolean).join("<br>")}</td></tr>
         <tr><td class="l">변화 요인</td><td class="l" style="white-space:normal">ΔV = Σ L(V₁,V₀)·ln(Q₁/Q₀) + Σ L(V₁,V₀)·ln(P₁/P₀), HS6 단위. 한 효과 60%↑면 '주도'</td><td class="l" style="white-space:normal">${R.ang2005 || ""}</td></tr>
       </tbody></table></div><div class="downloads" style="margin-top:10px">
-        <a href="data/fig_supply_risk.csv" download>⬇ 수입 집중 판정</a><a href="data/fig_price_anomaly.csv" download>⬇ 가격 이상 판정</a>
+        <span class="dl-k">분석</span><a href="data/fig_supply_risk.csv" download>⬇ 수입 집중 판정</a><a href="data/fig_price_anomaly.csv" download>⬇ 가격 이상 판정</a>
         <a href="data/fig_decomposition.csv" download>⬇ 변화 요인 분해</a><a href="data/fig_structure.csv" download>⬇ 자급-수입 구조</a>
-        <a href="data/fig_domestic_supply.csv" download>⬇ 국내 공급 여력</a><a href="data/kfcf_price.csv" download>⬇ 산림조합 판매단가 전사 자료</a><a href="data/wood_use_survey.csv" download>⬇ 목재이용실태조사 전사 자료</a></div>`, "span-2");
+        <a href="data/fig_domestic_supply.csv" download>⬇ 국내 공급 여력</a>
+        <span class="dl-k">원자료</span><a href="data/wood_use_survey.csv" download>⬇ 목재이용실태조사 전사 자료</a><a href="data/kfcf_price.csv" download>⬇ 산림조합 판매단가 전사 자료</a></div>`, "span-2");
     host.innerHTML = `<div class="grid g-2">` + crit +
-      card("데이터 내려받기", "CSV (엑셀에서 바로 열림)", `<div class="downloads">
+      card("데이터 내려받기", "CSV (엑셀에서 바로 열림)", `<div class="downloads"><span class="dl-k">원자료</span>
         <a href="data/monthly_by_category.csv" download>⬇ 분류별 월별 수출입</a>
         <a href="data/yearly_by_category_country.csv" download>⬇ 분류별·국가별 연간</a>
         <a href="data/raw_last12m.csv" download>⬇ 최근 12개월 원자료 (국가×HSK10)</a></div>

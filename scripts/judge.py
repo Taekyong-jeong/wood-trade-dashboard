@@ -393,6 +393,50 @@ def domestic_price(df: pd.DataFrame, months: list[str], price_csv: Path, units: 
             "species_note": c.get("species_note"), "source": c["source"]}
 
 
+# ── ⑧ 목재산업 규모 (목재이용실태조사 공표값, 원자료) ─────────
+def industry(survey_csv: Path, labels: dict) -> dict | None:
+    if not survey_csv.exists():
+        return None
+    s = pd.read_csv(survey_csv)
+    t = s[s["product"] == "total"]
+    def ser(m):
+        x = t[t["metric"] == m].sort_values("year")
+        return [int(y) for y in x["year"]], [float(v) for v in x["value"]]
+    years, tot = ser("sales_100m_krw")
+    if not years:
+        return None
+    _, dom = ser("sales_domestic_100m_krw")
+    _, imp = ser("sales_import_100m_krw")
+    _, emp = ser("employees")
+    p = s[(s["product"] != "total") & s["metric"].isin(["sales_100m_krw", "sales_domestic_100m_krw", "sales_import_100m_krw", "employees"])]
+    y0 = int(p["year"].max())
+    q = p[p["year"] == y0].pivot_table(index="product", columns="metric", values="value", aggfunc="first")
+    extra = {"sawdust": "톱밥·목분", "firewood": "장작", "pulp": "펄프"}
+    prods = []
+    for k, r in q.iterrows():
+        prods.append({"key": k, "label": labels.get(k, extra.get(k, k)), "is_product": k in labels,
+                      "sales": _r(r.get("sales_100m_krw"), 0), "domestic": _r(r.get("sales_domestic_100m_krw"), 0),
+                      "import": _r(r.get("sales_import_100m_krw"), 0), "employees": _r(r.get("employees"), 0)})
+    prods.sort(key=lambda d: -(d["sales"] or 0))
+    return {"years": years, "sales": tot, "domestic": dom, "imports": imp, "employees": emp, "year": y0, "products": prods,
+            "source": "산림청·한국임업진흥원 목재이용실태조사 표2-4 (2020년은 2021년 기준 보고서 수정치)",
+            "scope": "목재생산업 등록업체(21개 목재제품의 국내 생산업체 + 수입·유통업체) 매출. 가구·건축·종이 제외. 수입·유통업체 값은 가중치 추정"}
+
+
+def _prod_dep_text(ds) -> str:
+    """목재제품별 수입의존도 요약 (실태조사 최신 연도): 수입액 기준 상위 품목 + 유의한 추세."""
+    if not ds or not ds.get("rows"):
+        return ""
+    rows = [d for d in ds["rows"] if d["axis"] == "product" and d["import_share"] is not None]
+    if not rows:
+        return ""
+    yr = max(d["year"] for d in rows)
+    main = [d for d in rows if d["key"] in ("p01", "p06", "p07", "p08", "p11")]
+    sig = [f"{d['label']} {d['trend'].replace(' 추세', '')}" for d in rows if d["trend"] in ("상승 추세", "하락 추세")]
+    t = f" · 제품({yr}): " + ", ".join(f"{d['label']} {d['import_share']:.0f}%" for d in main)
+    return t + (f" · 유의한 변화: {', '.join(sig)}" if sig else " · 유의한 변화 없음")
+
+
 # ── 요약 카드 ────────────────────────────────────────────────
 def summary_cards(sr, pen, pa, dec, ds=None) -> list[dict]:
     cards = []
@@ -428,10 +472,9 @@ def summary_cards(sr, pen, pa, dec, ds=None) -> list[dict]:
     if pen:
         mk = pen["mk"] or {}
         cards.append({
-            "id": "penetration", "title": "수입 의존 (원목)",
-            "badge": pen["verdict"], "level": "lo" if pen["verdict"] == "하락 추세" else ("hi" if pen["verdict"] == "상승 추세" else "mid"),
-            "text": f"원목 수입의존도 {pen['latest']:.1f}% ({pen['latest_year']}년). 최근 {pen['trend_window'][0]}~{pen['trend_window'][1]}년 "
-                    f"연평균 {mk.get('sen_slope', 0):+.1f}%p (Mann-Kendall p={mk.get('p', float('nan')):.3f})",
+            "id": "penetration", "title": "수입 의존",
+            "badge": f"원목 {pen['verdict']}", "level": "lo" if pen["verdict"] == "하락 추세" else ("hi" if pen["verdict"] == "상승 추세" else "mid"),
+            "text": f"원목 {pen['latest']:.1f}% ({pen['latest_year']}년, 연 {mk.get('sen_slope', 0):+.1f}%p, MK p={mk.get('p', float('nan')):.3f})" + _prod_dep_text(ds),
             "refs": CRIT["import_penetration"]["refs"]})
     ready = [d for d in pa if d["band"] != "판정 보류"]
     hot = [d for d in ready if d["band"] in ("비정상 상승", "다소 높음")]

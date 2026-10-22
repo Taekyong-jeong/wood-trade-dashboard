@@ -409,11 +409,12 @@ def main() -> int:
                               {g["key"]: g["name"] for g in CFG["groups"]})
     st = judge.structure(series, months, pen, {"processed": ["primary", "panel", "ewp", "building"]})
     ds = judge.domestic_supply(survey_csv, sr, {p["key"]: p["name"] for p in CFG["products"]})
+    ind = judge.industry(survey_csv, {p["key"]: p["name"] for p in CFG["products"]})
     dp = judge.domestic_price(df, months, ROOT / "data" / "external" / "kfcf_price.csv", UNITS)
     write_json("judgments.json", {
         "month": months[-1], "cards": judge.summary_cards(sr, pen, pa, dec, ds),
         "supply_risk": sr, "penetration": pen, "price_anomaly": pa, "decomposition": dec, "structure": st,
-        "domestic_supply": ds, "domestic_price": dp,
+        "domestic_supply": ds, "domestic_price": dp, "industry": ind,
         "criteria": judge.CRIT,
     })
     # 그림 원자료 (논문·보고서용)

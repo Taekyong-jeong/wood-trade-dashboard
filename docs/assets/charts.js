@@ -264,14 +264,14 @@
   function hbars(container, rows, opts = {}) {
     container.innerHTML = "";
     if (!rows.length) { container.innerHTML = `<div class="empty">데이터 없음</div>`; return; }
-    const max = Math.max(...rows.map((r) => r.value || 0)) || 1;
+    const max = opts.max || Math.max(...rows.map((r) => r.value || 0)) || 1;
     const wrap = document.createElement("div");
     wrap.className = "hbars";
     rows.forEach((r, i) => {
       const d = document.createElement("div");
       d.className = "hb";
       d.innerHTML = `<span class="rk">${i + 1}</span><span class="nm" title="${r.label}">${r.label}</span>` +
-        `<span class="bar"><i style="width:${((r.value || 0) / max) * 100}%;background:${opts.color || css("--s1")}"></i></span>` +
+        `<span class="bar"><i style="width:${((r.value || 0) / max) * 100}%;background:${r.color || opts.color || css("--s1")}"></i></span>` +
         `<span class="vl">${r.text}</span>`;
       if (r.onClick) { d.style.cursor = "pointer"; d.addEventListener("click", r.onClick); }
       wrap.appendChild(d);
