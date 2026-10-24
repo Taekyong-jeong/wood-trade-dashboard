@@ -45,7 +45,7 @@
   // ㎥ 환산 배지: 보정(실태조사) / 잠정(대표값). 툴팁에 공식·밀도 출처
   const pest = (axis, key) => { const u = unitOf(axis, key); if (u.unit !== "m3") return "";
     const f = `USD/㎥ = USD/t × 밀도 ${nf(u.density, 2)} t/㎥ · ${u.basis || ""}`;
-    return u.calibrated ? ` <span class="badge" title="${f}">보정</span>` : ` <span class="badge" title="${f}">잠정</span>`; };
+    return u.calibrated ? ` <span class="badge" title="${f}">${/산림청 환산계수/.test(u.basis || "") ? "산림청 계수" : "보정"}</span>` : ` <span class="badge" title="${f}">잠정</span>`; };
   // 같은 값의 다른 단위 (㎥ 환산 ↔ 톤 액면)
   function ptwin(axis, key, usdv, kg) {
     const b = unitOf(axis, key, true);
@@ -368,7 +368,7 @@
   }
 
   // ── 가격 ───────────────────────────────────────────────
-  const PU_RULE = "<b>톤 단가</b> = 수입액 ÷ 순중량 (관세청 액면, 환산 없음) · <b>㎥ 단가</b> = 톤 단가 × 밀도(t/㎥) — 밀도: 제재목·합판·섬유판·파티클보드는 목재이용실태조사 수입량(㎥)과 관세청 중량의 비로 <b>보정</b>(산림청·한국임업진흥원 2024), 원목은 같은 방식 검증(이용량 기준), 나머지는 <b>잠정</b> 대표값 · 단가 지수·이상 판정은 단위와 무관";
+  const PU_RULE = "<b>톤 단가</b> = 수입액 ÷ 순중량 (관세청 액면, 환산 없음) · <b>㎥ 단가</b> = 톤 단가 × 밀도(t/㎥) — 밀도: 제재목은 관세청 중량 ÷ 신고 수량(㎥)으로 <b>보정</b>(2020~2022년, 목재이용실태조사 수록 임산물수출입통계), 합판·섬유판·파티클보드는 <b>산림청 환산계수</b>(실태조사 수입 ㎥가 중량 ÷ 계수로 산출됨을 확인), 원목은 수입 원목 이용량 기준 검증, 나머지는 <b>잠정</b> 대표값 · 단가 지수·이상 판정은 단위와 무관";
   function renderPuSeg() {
     const el = $("#pu-seg"); if (!el) return;
     el.querySelectorAll("button").forEach((b) => { b.classList.toggle("on", b.dataset.pu === S.pu);
@@ -409,7 +409,7 @@
           pr.imports.map((im) => im.small ? `<tr><td class="l">└ ${im.label}</td><td colspan="2" class="sub">수입 ${usd(im.usd)} — 100만 달러 미만, 비교 제외</td></tr>`
             : `<tr><td class="l">└ ${im.label}</td><td>${nf(im.usd_m3, 0)}${im.basis ? "" : (im.calibrated ? " <span class='badge'>보정</span>" : " <span class='badge'>잠정</span>")}</td><td><b>${nf(im.ratio, 1)}배</b></td></tr>`).join("")).join("") +
         `</tbody></table></div>` +
-        rule(`국산 = 산림조합중앙회 목재유통센터 판매단가(A급·면세) ÷ 규격 부피(T×W×L), 원/달러 ${nf(DP.fx, 0)} (${DP.fx_basis.replace(/^.*?\(/, "").replace(/\)$/, "")}) · 수입 = CIF 단가 — 관세·통관·내륙운송·유통 마진 전이라 같은 단계 가격이 아님. 가격 수준 참고용이며 경쟁력 판정에 쓰지 않음 · ${DP.species_note}`), "",
+        rule(`국산 = 산림조합중앙회 목재유통센터 판매단가(A급·면세) ÷ 규격 부피(T×W×L), 원/달러 ${nf(DP.fx, 0)} (${DP.fx_basis.replace(/^.*?\(/, "").replace(/\)$/, "")}) · 수입 = CIF 단가 — 관세·통관·내륙운송·유통 마진 전이라 같은 단계 가격이 아님. 가격 수준 참고용이며 경쟁력 판정에 쓰지 않음 · ${DP.species_note} · ${DP.survey_note || ""}`), "",
         ref ? `국산 ${p0.label} ${nf(p0.domestic.median, 0)} USD/㎥ — 수입 제재목 평균의 ${nf(ref.ratio, 1)}배` : ""));
     }
     const pi = pser.length ? pser[0].values.findIndex((v) => v != null) : 0;
@@ -682,7 +682,7 @@
         const rows = Object.entries(U.items || {});
         return card("단가 단위와 기준 밀도", U.status === "confirmed" ? "확정" : "일부 실태조사 보정 · 나머지 잠정",
           `<div class="note" style="margin-bottom:8px">관세청 자료는 금액과 순중량(kg)만 있음. <b>톤 단가</b> = 수입액 ÷ 순중량 × 1,000 (액면, 환산 없음). <b>㎥ 단가</b> = 톤 단가 × 밀도(t/㎥).<br>
-            밀도 출처: ① <b>보정</b> — 같은 연도 관세청 순중량 ÷ 목재이용실태조사 수입량(㎥, 임산물수출입통계)의 중앙값, 12개월 자료가 없으면 2023년 실태조사 수입 단가(USD/㎥) ÷ 관세청 단가(USD/kg). 관세청 수입액이 실태조사와 ±10% 넘게 다르면 범위 불일치로 제외 (산림청·한국임업진흥원 2024, 2023년 기준 목재이용실태조사) ② <b>잠정</b> — 대표값, FAO·ITTO·UNECE(2020) Forest product conversion factors와 대조 전.<br>
+            밀도 출처: ① <b>보정</b> — 같은 연도 관세청 순중량 ÷ 목재이용실태조사 수입량(㎥, 임산물수출입통계)의 중앙값. 단, 실태조사 ㎥가 ‘중량 ÷ 고정 환산계수’로 만들어진 연도(kg÷㎥가 3개 연도 이상 같은 값)는 측정값에서 빼고, 남은 신고 수량 연도가 2개 이상이면 그 중앙값(제재목: 2020~2022년, 0.52), 없으면 그 계수를 <b>산림청 환산계수</b>로 표시(합판 0.65·섬유판 0.70·파티클보드 0.65). 관세청 수입액이 실태조사와 ±10% 넘게 다른 해는 범위 불일치로 제외 (산림청·한국임업진흥원 2024, 2023년 기준 목재이용실태조사) ② <b>잠정</b> — 대표값, FAO·ITTO·UNECE(2020) Forest product conversion factors와 대조 전.<br>
             가격 섹션의 ‘㎥ 환산 / 톤 액면’ 버튼으로 단위를 바꿔 볼 수 있음. 밀도가 10% 다르면 ㎥ 단가도 약 10% 달라지지만 오르내림(추세)과 이상 판정은 단위와 무관함.</div>` +
           `<div class="tbl-wrap"><table><thead><tr><th class="l">분류</th><th>단위</th><th>기준 밀도(t/㎥)</th><th class="l">기준 상태</th></tr></thead><tbody>` +
           rows.map(([k, v]) => `<tr><td class="l">${nameOf(k)}</td><td>${{ m3: "USD/㎥", t: "USD/t", kg: "USD/kg" }[v.unit]}</td><td>${v.density != null ? nf(v.density, 2) : "–"}</td><td class="l" style="white-space:normal">${v.basis || (v.unit === "t" ? "중량 그대로 (환산 없음)" : "")}</td></tr>`).join("") +

@@ -75,6 +75,8 @@ domestic_supply:
 density_calibration:
   method: "같은 연도 관세청 수입 중량(kg) ÷ 실태조사(임산물수출입통계) 수입량(㎥) → 연도별 t/㎥, 중앙값 사용"
   fallback: "12개월 자료가 없으면 2023년 실태조사 수입 단가(USD/㎥) ÷ 관세청 수입 단가(USD/kg)"
+  fixed_factor_min_years: 3       # kg÷㎥가 3개 연도 이상 똑같으면(소수 둘째 자리) 실태조사 ㎥가 '중량 ÷ 고정 환산계수'로 만든 값으로 보고 측정값에서 제외.
+                                  # 측정 연도가 2개 이상이면 그 중앙값, 없으면 그 고정계수(산림청 환산계수)를 씀
   scope_check_pct: 10             # 관세청 수입액이 실태조사 수입액과 ±10% 넘게 다르면 품목 범위 불일치로 보고 보정하지 않음
   items:                          # 품목: 관세청 HS 범위 (실태조사 수입량 범위와 맞춤)
     "product:p01": ["4407"]
@@ -96,13 +98,14 @@ domestic_price:
   fx_basis: "2025년 연평균 원/달러 1,422원 (한국은행·KB국민은행)"
   stat: median                    # 규격별 ㎥당 가격의 중앙값 (범위도 함께 표시)
   min_import_usd: 1000000         # 비교 대상 수입이 최근 12개월 100만 달러 미만이면 '규모 미달'로 표시만 함 (①과 같은 최소 규모)
+  survey_note: "실태조사 수록 2023년 제재목 수입액(6.46억 달러)은 관세청 4407 합계(4.84억 달러)보다 커서 범위가 더 넓은 것으로 보임 — 참고로만 병기"
   species_note: "수종별 수입 단가는 수종마다 밀도·함수율이 달라 단일 밀도로 ㎥ 환산하면 왜곡되므로, 수종 비교는 하지 않고 제재목 전체 평균과 비교함"
   pairs:
     - label: "낙엽송 제재목"
       domestic: {category: "낙엽송 각·판재", treatment: "일반"}
       imports:
         - {label: "수입 제재목 전체 (최근 12개월, 보정 환산)", hs: ["4407"], density_item: "product:p01"}
-        - {label: "수입 제재목 전체 (2023, 신고 ㎥ 기준)", survey: p01, survey_year: 2023}
+        - {label: "수입 제재목 (2023, 실태조사 수록 단가)", survey: p01, survey_year: 2023}
         - {label: "수입 낙엽송 제재목", hs: ["4407194000"], density_item: "product:p01"}
     - label: "낙엽송 방부목(H3)"
       domestic: {category: "낙엽송 각·판재", treatment: "방부H3"}

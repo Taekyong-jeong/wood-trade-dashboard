@@ -338,10 +338,31 @@ def calibrate_density(df: pd.DataFrame, survey_csv: Path, units: dict) -> list[d
                 method = "단가 비율(2023)"
         if not per_year:
             continue
-        d = float(np.median([p["density"] for p in per_year]))
+        # 고정 환산계수 연도 걸러내기: 실태조사(임산물수출입통계) ㎥가 중량 ÷ 고정계수로 만들어진 해는
+        # kg÷㎥가 해마다 똑같은 값(소수 셋째 자리)으로 나옴 → 측정값이 아니라 산림청 환산계수임
+        vals = [round(p["density"], 3) for p in per_year]
+        from collections import Counter
+        cnt = Counter(round(v, 2) for v in vals)
+        fixed = {v for v, n in cnt.items() if n >= c.get("fixed_factor_min_years", 3)}
+        measured = [p for p in per_year if round(p["density"], 2) not in fixed]
+        factor = None
+        if fixed:
+            factor = max(fixed, key=lambda v: cnt[v])
+        if len(measured) >= 2:
+            d = float(np.median([p["density"] for p in measured]))
+            method = method + " (신고 수량 연도)" if metric == "imports" else method
+            used = measured
+        elif factor is not None:
+            d = factor
+            method = "산림청 환산계수 (실태조사 ㎥ = 중량 ÷ 계수)"
+            used = [p for p in per_year if round(p["density"], 2) == factor]
+        else:
+            d = float(np.median([p["density"] for p in per_year]))
+            used = per_year
         prov = (units.get("items") or {}).get(item, {}).get("density")
         out.append({"item": item, "density": round(d, 3), "provisional": prov, "method": method, "metric": metric,
-                    "years": [p["year"] for p in per_year], "by_year": [round(p["density"], 3) for p in per_year]})
+                    "years": [p["year"] for p in used], "by_year": [round(p["density"], 3) for p in used],
+                    "all_years": [p["year"] for p in per_year], "all_by_year": vals, "fixed_factor": factor})
     return out
 
 
@@ -390,7 +411,7 @@ def domestic_price(df: pd.DataFrame, months: list[str], price_csv: Path, units: 
                          "ratio": None if not per_m3 else round(dom["median"] / per_m3, 2)})
         out.append({"label": pr["label"], "domestic": dom, "imports": imps})
     return {"pairs": out, "fx": fx, "fx_basis": c["fx_basis"], "period": f"{last12[0]}~{last12[-1]}", "note": c["note"],
-            "species_note": c.get("species_note"), "source": c["source"]}
+            "species_note": c.get("species_note"), "survey_note": c.get("survey_note"), "source": c["source"]}
 
 
 # ── ⑧ 목재산업 규모 (목재이용실태조사 공표값, 원자료) ─────────
