@@ -267,11 +267,7 @@
     const mk = (P && P.mk) || {};
     host.innerHTML =
       card(`품목별 수입 위험 ${q("dep")}`, "행을 누르면 상세",
-        `<div class="tbl-wrap"><table><thead><tr><th class="l">품목</th><th>수입의존도<br><span class="sub">물량 · ${yr}년</span></th><th class="l">최대 공급국<br><span class="sub">점유율 · 최근 12개월</span></th><th>HHI</th><th>공급망 판정</th><th>수입액<br><span class="sub">최근 12개월</span></th></tr></thead><tbody>` +
-        rows.map((d) => { const r = dep[`${d.axis}:${d.key}`];
-          return `<tr class="click" data-axis="${d.axis}" data-key="${d.key}" title="${d.reason}"><td class="l">${d.label}</td><td>${r && r.import_share != null ? nf(r.import_share, 0) + "%" : "–"}</td>` +
-            `<td class="l">${d.top_name} ${nf(d.top_share, 0)}%</td><td>${nf(d.hhi, 0)}</td><td>${badge(d.grade)}</td><td>${usd(d.imp_usd)}</td></tr>`; }).join("") +
-        `</tbody></table></div>` +
+        `<div class="tbl-wrap" id="rk-tbl"></div>` +
         rule(`<b>수입의존도</b> = 수입량 ÷ (국내 생산량 + 수입량), 물량 기준 (산림청 목재이용실태조사, OECD 수입침투율의 근사) · <b>공급망 판정</b>: 취약 = 연 수입액 100만 달러 이상 + 특정국 의존 50% 이상 (산업부 산업 공급망 3050 전략, 2023) · 주의 = HHI 2,500 이상 (미국 DOJ·FTC, 2010) · 100만 달러 미만은 판정 제외 · 출처: ${SRC}(${per}), 산림청 목재이용실태조사`), "span-2",
         `취약 ${nV}개 · 주의 ${nC}개 <span class="sub">${nV ? sr.filter((d) => d.grade === "취약").map((d) => d.label.replace(/\(.+\)/, "")).join(" · ") : ""}</span>`) +
       card(`수입 집중 지도 ${q("dep")}`, `${per} · 점 = 품목`, `<div id="sr-map"></div>` +
@@ -290,7 +286,23 @@
         `<div class="tr"><span>연 수입액</span><b>${usd(p.d.imp_usd)}</b></div><div class="tr"><span>HHI</span><b>${nf(p.d.hhi, 0)}</b></div>` });
     if (P) C.lineChart($("#pn-line"), { x: P.years.map(String), series: [{ name: "원목 수입의존도", values: P.log_import_dependence }],
       yFmt: (v) => nf(v, 0) + "%", tipFmt: (v) => nf(v, 1) + "%", height: 280, area: true, markers: [{ x: String(P.trend_window[0]), label: "추세 검정 구간" }] });
-    host.querySelectorAll("tr[data-axis]").forEach((tr) => tr.onclick = () => openDetail(tr.dataset.axis, tr.dataset.key));
+    // 표: 머리글을 누르면 그 항목 내림차순, 다시 누르면 기본(공급망 판정 순)
+    const val = (d, k) => { const r = dep[`${d.axis}:${d.key}`];
+      return k === "dep" ? (r && r.import_share != null ? r.import_share : -1) : k === "top" ? d.top_share : k === "hhi" ? d.hhi : k === "usd" ? d.imp_usd : 0; };
+    const drawTbl = () => {
+      const k = S.rks || "grade";
+      const rs = k === "grade" ? rows : [...sr].sort((a, b) => val(b, k) - val(a, k));
+      const th = (key, html, cls = "") => `<th class="sortable${cls}${k === key ? " on" : ""}" data-s="${key}">${html}${k === key ? " ▼" : ""}</th>`;
+      $("#rk-tbl").innerHTML = `<table><thead><tr><th class="l">품목</th>` +
+        th("dep", `수입의존도<br><span class="sub">물량 · ${yr}년</span>`) + th("top", `최대 공급국<br><span class="sub">점유율 · 최근 12개월</span>`, " l") +
+        th("hhi", "HHI") + th("grade", "공급망 판정") + th("usd", `수입액<br><span class="sub">최근 12개월</span>`) + `</tr></thead><tbody>` +
+        rs.map((d) => { const r = dep[`${d.axis}:${d.key}`];
+          return `<tr class="click" data-axis="${d.axis}" data-key="${d.key}" title="${d.reason}"><td class="l">${d.label}</td><td>${r && r.import_share != null ? nf(r.import_share, 0) + "%" : "–"}</td>` +
+            `<td class="l">${d.top_name} ${nf(d.top_share, 0)}%</td><td>${nf(d.hhi, 0)}</td><td>${badge(d.grade)}</td><td>${usd(d.imp_usd)}</td></tr>`; }).join("") + `</tbody></table>`;
+      $("#rk-tbl").querySelectorAll("th.sortable").forEach((h) => h.onclick = () => { const s = h.dataset.s; S.rks = S.rks === s && s !== "grade" ? "grade" : s; drawTbl(); });
+      $("#rk-tbl").querySelectorAll("tr[data-axis]").forEach((tr) => tr.onclick = () => openDetail(tr.dataset.axis, tr.dataset.key));
+    };
+    drawTbl();
   }
 
   // ── 국내 유통 라인 (목재이용실태조사) ───────────────────
