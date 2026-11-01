@@ -405,12 +405,12 @@
     const now = pser.map((p) => { const i = ms.length - 1; return { n: p.name, v: p.raw[i] != null ? pconv(p.a, p.k)(p.raw[i], 1) : null, u: plabel(p.a, p.k), f: pfmt(p.a, p.k) }; });
     $("#a-price").innerHTML =
       card(`가격 이상 판정 ${q("price")}`, `${ym(ms[ms.length - 1])} 기준`,
-        `<div class="tbl-wrap"><table><thead><tr><th class="l">품목</th><th>판정</th><th>점수(σ)</th><th>단가 전년비</th><th>비교 연수</th></tr></thead><tbody>` +
-        PA.map((d) => `<tr class="click" data-axis="${d.axis}" data-key="${d.key}"><td class="l">${d.label}</td><td>${badge(d.band)}</td>` +
-          `<td>${d.ifpa != null ? (d.ifpa > 0 ? "+" : "") + nf(d.ifpa, 2) : "–"}</td><td>${d.yoy_pct != null ? (d.yoy_pct > 0 ? "+" : "") + nf(d.yoy_pct, 1) + "%" : "–"}</td>` +
-          `<td>${d.past_obs}/${d.need_obs}년</td></tr>`).join("") + `</tbody></table></div>` +
-        rule(`FAO 식품가격 이상 지표(IFPA, SDG 2.c.1) 방법: 분기·연간 단가 상승률을 과거 같은 달의 평균·표준편차로 표준화, 분기 가중 0.4 · ±0.5σ 정상, 0.5~1σ 다소 높음, 1σ 이상 비정상 (하락은 대칭 적용) · 과거 같은 달 3년 이상 필요`), "",
-        ready.length ? `판정 ${ready.length}개 품목 중 이상 ${ready.filter((d) => !["정상"].includes(d.band)).length}개` : `판정 보류 <span class="sub">과거 데이터 수집 후 자동 판정</span>`) +
+        `<div class="tbl-wrap"><table><thead><tr><th class="l">품목</th><th>판정</th><th>단가 1년 전 대비</th><th>비교 기준</th></tr></thead><tbody>` +
+        PA.map((d) => `<tr class="click" data-axis="${d.axis}" data-key="${d.key}" title="이상 점수 ${d.ifpa != null ? (d.ifpa > 0 ? "+" : "") + nf(d.ifpa, 2) + "σ" : "–"} (±0.5 안이면 정상)"><td class="l">${d.label}</td><td>${badge(d.band)}</td>` +
+          `<td>${d.yoy_pct != null ? (d.yoy_pct > 0 ? "+" : "") + nf(d.yoy_pct, 1) + "%" : "–"}</td>` +
+          `<td class="sub">${d.past_obs >= d.need_obs ? `지난 ${d.past_obs}년 같은 달` : `${d.past_obs}년치뿐 (${d.need_obs}년 필요)`}</td></tr>`).join("") + `</tbody></table></div>` +
+        rule(`판정 = 이번 달 단가 오름폭이 지난 몇 년 같은 달의 보통 오름폭에서 얼마나 벗어났는지 · 비교 기준 = 그 비교에 쓴 과거 연수(3년 이상이어야 판정, LVL은 2022년 코드 신설로 3년치) · 행에 마우스를 올리면 이상 점수(σ) 표시 · FAO 식품가격 이상 지표(IFPA, SDG 2.c.1) 방법: 분기·연간 단가 상승률을 과거 같은 달의 평균·표준편차로 표준화, 분기 가중 0.4 · ±0.5σ 정상, 0.5~1σ 다소 높음, 1σ 이상 비정상 (하락은 대칭 적용) · 과거 같은 달 3년 이상 필요`), "",
+        ready.length ? `판정 ${ready.length}개 품목 중 비정상 ${ready.filter((d) => /비정상/.test(d.band)).length}개 · 다소 높음·낮음 ${ready.filter((d) => /다소/.test(d.band)).length}개 · 정상 ${ready.filter((d) => d.band === "정상").length}개` : `판정 보류 <span class="sub">과거 데이터 수집 후 자동 판정</span>`) +
       card(`공급국 가격대 지도 ${q("price")}`, `${periodL12()}`,
         `<div class="inline-sel"><span class="ctl-label">품목</span><select id="pmapSel">${opts.map(([a, k, n]) => `<option value="${a}:${k}" ${`${a}:${k}` === S.pmap ? "selected" : ""}>${n}</option>`).join("")}</select></div>` +
         `<div id="pmap"></div>` + rule(`점 = 공급국 (최근 12개월 점유율 1% 이상) · 가로 = 점유율, 세로 = 단가 · 빨간 점선 = 수입 평균 · <b>주황 실선·띠 = 같은 품목 국산 판매가</b>(산림조합 A급 중앙값·규격별 범위, 면세 — 수입 CIF와 유통 단계가 달라 수준 참고용, 제재목만 해당) · ${PU_RULE}`), "", `<span id="pmap-lead"></span>`) +
