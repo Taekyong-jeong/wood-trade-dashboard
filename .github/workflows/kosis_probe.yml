@@ -1,0 +1,35 @@
+name: KOSIS 통계표 탐색
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ["scripts/external/kosis_probe.py", ".github/workflows/kosis_probe.yml"]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: KOSIS 통합검색
+        env:
+          KOSIS_API_KEY: ${{ secrets.KOSIS }}
+        run: python scripts/external/kosis_probe.py
+      - name: 결과 커밋
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/external/kosis_probe.json
+          git diff --cached --quiet || git commit -m "KOSIS 통계표 탐색 결과"
+          git push
