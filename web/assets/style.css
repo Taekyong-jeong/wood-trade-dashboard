@@ -473,3 +473,15 @@ footer .feedback-f { color: var(--ink-2); font-weight: 600; }
 @keyframes srflash { 0%, 60% { box-shadow: 0 0 0 3px var(--accent); } 100% { box-shadow: 0 0 0 3px transparent; } }
 .sr-flash { animation: srflash 2.2s ease-out; border-radius: var(--radius); }
 @media (max-width: 640px) { .sr-box { flex-basis: 100%; } .sr-res { min-width: 0; } }
+
+/* 자세히 보기 안쪽 구역 접기 */
+details.sub-fold { border-top: 1px solid var(--border); }
+details.sub-fold:first-of-type { border-top: 0; }
+details.sub-fold > summary { list-style: none; cursor: pointer; }
+details.sub-fold > summary::-webkit-details-marker { display: none; }
+details.sub-fold > summary .sec-title { margin: 0; padding: 14px 4px; }
+details.sub-fold > summary .sec-title::before { content: "▸"; color: var(--muted); font-size: 13px; width: 12px; flex: none; }
+details.sub-fold[open] > summary .sec-title::before { content: "▾"; }
+details.sub-fold > summary:hover h2 { color: var(--accent); }
+details.sub-fold > .sub-body { padding: 0 0 18px; }
+details.sub-fold > .sub-body > section { margin-top: 0 !important; }

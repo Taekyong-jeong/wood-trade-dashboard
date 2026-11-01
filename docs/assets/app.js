@@ -858,8 +858,22 @@
     const body = $("#deep-body", det);
     let n = g.nextElementSibling;
     while (n && n !== det) { const nx = n.nextElementSibling; body.appendChild(n); n = nx; }
-    document.addEventListener("click", (ev) => { const a = ev.target.closest("a[href^='#sec-']"); if (!a) return; ev.preventDefault(); det.open = true;
-      const tg = document.querySelector(a.getAttribute("href")); if (tg) setTimeout(() => window.scrollTo({ top: tg.getBoundingClientRect().top + scrollY - 70, behavior: "smooth" }), 30); });
+    // 안쪽 구역(판정 요약·수입 집중·…)도 각각 접기 — 처음엔 모두 접힘, 제목을 누르면 펼침
+    [...body.querySelectorAll(":scope > .sec-title")].forEach((st) => {
+      const sub = document.createElement("details"); sub.className = "sub-fold";
+      const sm = document.createElement("summary");
+      st.parentNode.insertBefore(sub, st);
+      let x = st.nextElementSibling; const part = [];
+      while (x && !x.classList.contains("sec-title")) { part.push(x); x = x.nextElementSibling; }
+      sm.appendChild(st); sub.appendChild(sm);
+      const bd = document.createElement("div"); bd.className = "sub-body"; part.forEach((e) => bd.appendChild(e)); sub.appendChild(bd);
+      sm.addEventListener("click", (e) => { if (e.target.closest("button, a, select, .q")) e.preventDefault(); });   // 제목 줄 안의 버튼(㎥/톤 전환 등)은 접기 대신 버튼 동작
+      sub.addEventListener("toggle", () => { if (sub.open) renderAll(); });   // 접힌 상태에서는 차트 폭을 잴 수 없어 펼칠 때 다시 그림
+    });
+    const openTo = (el) => { let d = el; while (d) { if (d.tagName === "DETAILS") d.open = true; d = d.parentElement; } };
+    document.addEventListener("click", (ev) => { const a = ev.target.closest("a[href^='#sec-']"); if (!a) return; ev.preventDefault();
+      const tg = document.querySelector(a.getAttribute("href")); if (!tg) return; openTo(tg);
+      setTimeout(() => window.scrollTo({ top: tg.getBoundingClientRect().top + scrollY - 70, behavior: "smooth" }), 60); });
     det.addEventListener("toggle", () => { if (det.open) { renderAll(); } });
   }
 
