@@ -129,8 +129,8 @@
   // ── 공통 렌더 ───────────────────────────────────────────
   // 자료 구분: 원자료(공표 통계 수치 그대로·합계) / 분석(본 페이지가 계산한 비율·지수·환산·판정)
   const KIND_ANA = /^(수입 집중|품목별 판정|품목별 국내 공급 구조|원목 수입의존도|자급-수입 구조|목재제품별 수입의존도|가격 이상 판정|공급국 가격대 지도|단가 지수|국산·수입 가격 수준|수입액 변화 분해|공급국별 수입 단가|공급국 집중도|목재제품별 수입과 점유율|품목군 구성|산림청 공표치 대조)/;
-  const KIND_MIX = /^(국내 설비 가동률 추이)/;
-  const KIND_RAW = /^(최대 수입국|최대 수입 품목|수입·수출 추이|주요 공급국|대분류별 원목|세부 수종|.+산 목재류 수입|목재산업 매출|목재제품별 매출)/;
+  const KIND_MIX = /^(국내 설비 가동률 추이|국내 생산능력과 생산량)/;
+  const KIND_RAW = /^(최대 수입국|최대 수입 품목|수입·수출 추이|주요 공급국|대분류별 원목|세부 수종|.+산 목재류 수입|목재산업 매출|목재제품별 매출|목재는 어디서 와서 무엇이 되나|어디서 사오나)/;
   function kindOf(title, hint) {
     const t = title.replace(/<[^>]+>/g, "").trim();
     if (/^수입·수출 추이/.test(t) && /단가/.test(hint || "")) return "ana";
@@ -141,7 +141,7 @@
   }
   const KTAG = { raw: `<span class="ktag raw" title="공표 통계 수치를 그대로(또는 합계만) 보여줌">원자료</span>`,
     ana: `<span class="ktag ana" title="공표 통계로 본 페이지가 계산한 비율·지수·환산·판정">분석</span>`,
-    mix: `<span class="ktag mix" title="공표값 + 일부 품목은 공표 항목으로 산출">원자료·일부 산출</span>` };
+    mix: `<span class="ktag mix" title="공표값 그대로인 수치와 공표 항목으로 산출한 수치가 함께 있음 (예: 생산량은 공표값, 생산능력은 업체 수 × 업체 평균 최대 생산가능량으로 산출)">원자료·일부 산출</span>` };
   function card(title, hint, body = "", cls = "", lead = "") {
     const k = kindOf(title, hint);
     return `<div class="card ${cls}"><div class="card-head"><h3 class="one-line">${title}${k ? KTAG[k] : ""}</h3>${hint ? `<span class="hint">${hint}</span>` : ""}</div>` +
