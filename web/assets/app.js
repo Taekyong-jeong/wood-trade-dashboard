@@ -239,7 +239,7 @@
     "다소 낮음": "mid", "비정상 하락": "hi", "판정 보류": "na" };
   const badge = (t) => `<span class="grade ${GRADE_CLS[t] || "lo"}">${t}</span>`;
   // 국산·수입 색 체계 (원자재 출처·가치사슬 공통): 국산 = 초록 계열, 수입 = 파랑 계열, 기타·미상 = 회색
-  const VC_COL = { dom: "#1e8a57", dom2: "#7cc795", imp: "#1f4e9c", imp2: "#3f7fd6", imp3: "#9cc0ee", na: "#8a8f98" };
+  const VC_COL = { dom: "#1e8a57", dom2: "#7cc795", imp: "#1b3668", imp2: "#2a5296", imp3: "#4670b3", na: "#8a8f98" };
   const rule = (html) => `<div class="rule">${html}</div>`;
 
   // ── 판정 요약 ──────────────────────────────────────────
@@ -399,7 +399,7 @@
     const drawVC = () => {
       const yy = VC.years[S.vcy] ? S.vcy : vy, d = VC.years[yy], box = $("#ds-vc");
       const greens = ["#1e8a57", "#2f9d68", "#45ad7a", "#5dbd8c", "#76c99d", "#8fd4ae", "#a8dfbf", "#c0e9cf"];
-      const blues = ["#1f4e9c", "#2d62b5", "#3f77c9", "#5a8fd6", "#7aa7e0"];
+      const blues = ["#1b3668", "#22427d", "#2a5296", "#3561a6", "#4670b3"];
       const uu = d.uses.filter((u) => u[0] !== "기타"), TOPN = 7, us = uu.slice(0, TOPN), rest = uu.slice(TOPN).concat(d.uses.filter((u) => u[0] === "기타"));
       const usesG = rest.length ? us.concat([["그 밖 용도", sum(rest.map((u) => u[1])), sum(rest.map((u) => u[2]))]]) : us;
       const byD = Math.max(0, d.log_dom - d.prod_dom), byI = Math.max(0, d.log_imp - d.prod_imp);
