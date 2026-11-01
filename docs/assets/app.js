@@ -425,7 +425,7 @@
       `<div class="rk-per"><select id="ds-yr" class="mini-sel">${dYears.map((y) => `<option value="${y}">${y}년</option>`).join("")}</select></div><div class="tbl-wrap" id="ds-tbl"></div>` +
       rule(`최대 공급국 = 그 해 관세청 수입 <b>중량(kg)</b> 기준 1위국, 물량 = 실태조사 수입량 × 그 나라 중량 점유율(산출) · 여유 생산능력 = 생산량 × (100 ÷ 가동률 − 1) · <b>대체 여력 = 여유 생산능력 ÷ 1위국 물량</b> (1위국 수입만 끊기고 나머지 나라 수입은 계속된다고 가정, 원료·품질·가격 미반영, 마우스를 올리면 수입 전체가 끊길 때 값) · 가동률 = 생산량 ÷ 최대 생산가능량(응답업체 기준), * 참고치 · <b>판정</b>: 대체 가능 = 대체 여력 100% 이상 · 대체 불가 = 100% 미만 · 그 해 수입액 100만 달러 미만은 판정 제외(산업부 2023 최소 규모) · 판정 왼쪽 회색 글씨 = 전년 판정(바뀐 경우만) · 금액 기준 특정국 쏠림은 '품목별 수입 위험' 참고 · 출처: 산림청 목재이용실태조사, ${SRC}`), "span-2", "");
     const topQ = (d, y, b) => { const { tq } = top1(d, y);
-      return tq ? `<td class="l" title="${y}년 관세청 수입 중량 기준 1위 ${tq[0]} ${nf(tq[1], 1)}% × 실태조사 수입량">${tq[0]} ${big(b.imports * tq[1] / 100)} <span class="sub">(${nf(tq[1], 0)}%)</span></td>` : `<td class="l"><span class="sub">–</span></td>`; };
+      return tq ? `<td class="l hlc" title="${y}년 관세청 수입 중량 기준 1위 ${tq[0]} ${nf(tq[1], 1)}% × 실태조사 수입량">${tq[0]} ${big(b.imports * tq[1] / 100)} <span class="sub">(${nf(tq[1], 0)}%)</span></td>` : `<td class="l hlc"><span class="sub">–</span></td>`; };
     const drawDs = () => {
       const y = S.dsy || dYears[0];
       const R = rows.map((d) => ({ d, b: d.by_year && d.by_year[y], j: judgeOf(d, y) })).filter((r) => r.b);
@@ -435,11 +435,11 @@
       const ld = $("#ds-tbl").closest(".card").querySelector(".lead");
       const leadHtml = `${y}년 · 1위국이 막히면 국내로 못 메움 ${core.length}개 <span class="sub">${core.map((r) => short(r.d.label)).join(" · ")}</span> · 메울 수 있음 ${cnt("대체 가능")}개`;
       if (ld) ld.innerHTML = leadHtml; else $("#ds-tbl").closest(".card").querySelector(".card-head").insertAdjacentHTML("afterend", `<div class="lead">${leadHtml}</div>`);
-      $("#ds-tbl").innerHTML = `<table><thead><tr><th class="l">품목</th><th>수입</th><th class="l">최대 공급국<br><span class="sub">물량 (점유율)</span></th><th>국내 생산</th><th>가동률 ${q("util")}</th><th>여유 생산능력</th><th>대체 여력 ${q("cover")}<br><span class="sub">1위국 차단 시</span></th><th>판정</th></tr></thead><tbody>` +
+      $("#ds-tbl").innerHTML = `<table><thead><tr><th class="l">품목</th><th>수입</th><th class="l hlc">최대 공급국 Ⓑ<br><span class="sub">물량 (점유율)</span></th><th>국내 생산</th><th>가동률 ${q("util")}</th><th class="hlc">여유 생산능력 Ⓐ</th><th>대체 여력 ${q("cover")}<br><span class="sub">Ⓐ ÷ Ⓑ · 1위국 차단 시</span></th><th>판정</th></tr></thead><tbody>` +
         R.map(({ d, b, j, c1 }) => `<tr class="click" data-axis="${d.axis}" data-key="${d.key}"${j ? ` title="${j.why}"` : ""}>` +
           `<td class="l">${short(d.label)} <span class="sub">${u(d)}</span></td><td>${big(b.imports)}</td>${topQ(d, y, b)}<td>${big(b.production)}</td>` +
           `<td>${b.utilization == null ? "–" : nf(b.utilization, 0) + "%" + (/참고치/.test(d.util_note) ? "*" : "")}</td>` +
-          `<td>${b.spare == null ? "–" : big(b.spare)}</td><td title="수입 전체가 끊길 때 ${b.spare_cover == null ? "–" : nf(b.spare_cover, 0) + "%"}"><b>${c1 == null ? "–" : nf(c1, 0) + "%"}</b></td>` +
+          `<td class="hlc">${b.spare == null ? "–" : big(b.spare)}</td><td title="수입 전체가 끊길 때 ${b.spare_cover == null ? "–" : nf(b.spare_cover, 0) + "%"}"><b>${c1 == null ? "–" : nf(c1, 0) + "%"}</b></td>` +
           `<td>${j ? `${(() => { const pj = judgeOf(d, String(+y - 1)); return pj && pj.g !== j.g ? `<span class="rk-prev">${pj.g}</span><span class="rk-arr">→</span>` : ""; })()}<span class="grade ${JG[j.g]}">${j.g}</span>` : `<span class="sub">생산능력 자료 없음</span>`}</td></tr>`).join("") + `</tbody></table>`;
       $("#ds-tbl").querySelectorAll("tr[data-axis]").forEach((tr) => tr.onclick = () => openDetail(tr.dataset.axis, tr.dataset.key, { year: y, measure: "imp_kg" }));
     };
