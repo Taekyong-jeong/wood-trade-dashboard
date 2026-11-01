@@ -1,0 +1,2549 @@
+{
+ "생산자물가지수": [
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_2IFS032",
+   "TBL_NM": "생산자물가지수",
+   "STRT_PRD_DE": "1960",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_404Y015",
+   "TBL_NM": "생산자물가지수(특수분류)",
+   "STRT_PRD_DE": "1965",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_404Y014",
+   "TBL_NM": "생산자물가지수(기본분류)",
+   "STRT_PRD_DE": "1965",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_404Y016",
+   "TBL_NM": "생산자물가지수(품목별)",
+   "STRT_PRD_DE": "1965",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_2KAA601_01",
+   "TBL_NM": "생산자물가지수",
+   "STRT_PRD_DE": "1989",
+   "END_PRD_DE": "2025",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_XNN0102",
+   "TBL_NM": "생산자 물가지수 - 동북·중앙아시아",
+   "STRT_PRD_DE": "1992",
+   "END_PRD_DE": "2025",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_405Y006",
+   "TBL_NM": "국내공급물가지수",
+   "STRT_PRD_DE": "1980",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_2FAIA",
+   "TBL_NM": "물가",
+   "STRT_PRD_DE": "1960",
+   "END_PRD_DE": "2023",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "INH_DT_XNN275",
+   "TBL_NM": "농업 생산자 물가지수 - 동북·중앙아시아",
+   "STRT_PRD_DE": "1991",
+   "END_PRD_DE": "2024",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "INH_DT_XNS275",
+   "TBL_NM": "농업 생산자 물가지수 - 남부·동남아시아",
+   "STRT_PRD_DE": "1991",
+   "END_PRD_DE": "2024",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_2FA23025",
+   "TBL_NM": "농업 생산자 물가지수",
+   "STRT_PRD_DE": "1991",
+   "END_PRD_DE": "2024",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_1C8015",
+   "TBL_NM": "경기종합지수(2020=100)(10차)",
+   "STRT_PRD_DE": "1970",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_1C8016",
+   "TBL_NM": "경기종합지수(2020=100) 구성지표 시계열 (10차)",
+   "STRT_PRD_DE": "1970",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_1F48005",
+   "TBL_NM": "수요자/기종별 기계수주(불변금액)",
+   "STRT_PRD_DE": "1996",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_2KAA402",
+   "TBL_NM": "농업생산지수",
+   "STRT_PRD_DE": "1980",
+   "END_PRD_DE": "2024",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_XNN0058",
+   "TBL_NM": "농업생산지수 - 동북·중앙아시아",
+   "STRT_PRD_DE": "1980",
+   "END_PRD_DE": "2024",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_XNS0058",
+   "TBL_NM": "농업생산지수 - 남부·동남아시아",
+   "STRT_PRD_DE": "1980",
+   "END_PRD_DE": "2024",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_2STES019",
+   "TBL_NM": "소비자 의견 조사 > 경기",
+   "STRT_PRD_DE": "1972",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_2IFS039",
+   "TBL_NM": "상품무역(수입)",
+   "STRT_PRD_DE": "1960",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_2STES018",
+   "TBL_NM": "소비자 의견 조사 > 종합 소비자 신뢰도",
+   "STRT_PRD_DE": "1960",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_1F47005",
+   "TBL_NM": "수요자/기종별 기계수주(불변금액)",
+   "STRT_PRD_DE": "1996",
+   "END_PRD_DE": "2020",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_2FADA",
+   "TBL_NM": "기업 및 소비자 의견조사",
+   "STRT_PRD_DE": "1960",
+   "END_PRD_DE": "2024",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_2IFS038",
+   "TBL_NM": "상품무역(수출)",
+   "STRT_PRD_DE": "1960",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_1FO20206",
+   "TBL_NM": "임업 생산물 판매처별 임가",
+   "STRT_PRD_DE": "2020",
+   "END_PRD_DE": "2020",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "399",
+   "ORG_NM": "한국산업단지공단",
+   "TBL_ID": "DT_399030017",
+   "TBL_NM": "일반산업단지별 현황(2008.1/4~)",
+   "STRT_PRD_DE": "2008",
+   "END_PRD_DE": "2013",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_1AR15124",
+   "TBL_NM": "생산 기반시설 소요시간별 행정리 수",
+   "STRT_PRD_DE": "2015",
+   "END_PRD_DE": "2015",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_1AR122",
+   "TBL_NM": "생산 기반시설 소요시간별 행정리 수",
+   "STRT_PRD_DE": "2010",
+   "END_PRD_DE": "2010",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_404Y017",
+   "TBL_NM": "생산자물가지수-총지수(1910~1964)",
+   "STRT_PRD_DE": "1910",
+   "END_PRD_DE": "1964",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "203",
+   "ORG_NM": "대구광역시",
+   "TBL_ID": "DT_20304002",
+   "TBL_NM": "대구경기종합지수(2020=100) 구성지표 추이",
+   "STRT_PRD_DE": "1985",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "203",
+   "ORG_NM": "대구광역시",
+   "TBL_ID": "DT_20304001",
+   "TBL_NM": "대구경기종합지수(2020=100)",
+   "STRT_PRD_DE": "1985",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_IZGI01_302",
+   "TBL_NM": "GDP 디플레이터",
+   "STRT_PRD_DE": "1970",
+   "END_PRD_DE": "2024",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "376",
+   "ORG_NM": "금융감독원",
+   "TBL_ID": "DT_376_100_SDMZ022V_1",
+   "TBL_NM": "[주요경제지표] 2. 국내 주요경제지표(Ⅱ)",
+   "STRT_PRD_DE": "2001",
+   "END_PRD_DE": "2016",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "999S",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_999S_047062",
+   "TBL_NM": "산업별 국민총생산",
+   "STRT_PRD_DE": "1953",
+   "END_PRD_DE": "1961",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "999S",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_999S_208062",
+   "TBL_NM": "서울 도매물가지수",
+   "STRT_PRD_DE": "1945",
+   "END_PRD_DE": "1960",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "999S",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_999S_206062",
+   "TBL_NM": "도매물가지수",
+   "STRT_PRD_DE": "1955",
+   "END_PRD_DE": "1961",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "999S",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_999S_417062",
+   "TBL_NM": "도매물가",
+   "STRT_PRD_DE": "1948",
+   "END_PRD_DE": "1960",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "712",
+   "ORG_NM": "전북특별자치도 군산시",
+   "TBL_ID": "DT_71204N_001",
+   "TBL_NM": "군산시 서비스업동향조사",
+   "STRT_PRD_DE": "2009",
+   "END_PRD_DE": "2019",
+   "PRD_SE": null
+  }
+ ],
+ "수입물가지수": [
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_401Y017",
+   "TBL_NM": "수입물가지수(품목별)",
+   "STRT_PRD_DE": "1971",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_401Y015",
+   "TBL_NM": "수입물가지수(기본분류)",
+   "STRT_PRD_DE": "1971",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_401Y016",
+   "TBL_NM": "수입물가지수(특수분류)",
+   "STRT_PRD_DE": "1971",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_401Y018",
+   "TBL_NM": "수입물가지수(용도별)",
+   "STRT_PRD_DE": "1971",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_2IFS039",
+   "TBL_NM": "상품무역(수입)",
+   "STRT_PRD_DE": "1960",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_2KAV010",
+   "TBL_NM": "원자재 수출입 물가지수",
+   "STRT_PRD_DE": "1990",
+   "END_PRD_DE": "2025",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_405Y006",
+   "TBL_NM": "국내공급물가지수",
+   "STRT_PRD_DE": "1980",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_1C8015",
+   "TBL_NM": "경기종합지수(2020=100)(10차)",
+   "STRT_PRD_DE": "1970",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_1C8016",
+   "TBL_NM": "경기종합지수(2020=100) 구성지표 시계열 (10차)",
+   "STRT_PRD_DE": "1970",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_403Y003",
+   "TBL_NM": "수입금액지수",
+   "STRT_PRD_DE": "1988",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_2OEEO041",
+   "TBL_NM": "상대적 소비자 물가에 기초한 경쟁력 지표",
+   "STRT_PRD_DE": "1969",
+   "END_PRD_DE": "2027",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_403Y004",
+   "TBL_NM": "수입물량지수",
+   "STRT_PRD_DE": "1988",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_403Y001",
+   "TBL_NM": "수출금액지수",
+   "STRT_PRD_DE": "1988",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_404Y016",
+   "TBL_NM": "생산자물가지수(품목별)",
+   "STRT_PRD_DE": "1965",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_1J22005",
+   "TBL_NM": "생활물가지수(2020=100)",
+   "STRT_PRD_DE": "1995",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_403Y002",
+   "TBL_NM": "수출물량지수",
+   "STRT_PRD_DE": "1988",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_511Y002",
+   "TBL_NM": "소비자동향조사(전국, 월, 2008.9~)",
+   "STRT_PRD_DE": "2008",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_2IFS010",
+   "TBL_NM": "실효환율",
+   "STRT_PRD_DE": "1979",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_511Y004",
+   "TBL_NM": "소비자동향조사(지역, 월)",
+   "STRT_PRD_DE": "2008",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_2IFS038",
+   "TBL_NM": "상품무역(수출)",
+   "STRT_PRD_DE": "1960",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_511Y001",
+   "TBL_NM": "소비자동향조사(전국, 분기, 1995.3/4~2008.2/4)",
+   "STRT_PRD_DE": "1995",
+   "END_PRD_DE": "2008",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_A724",
+   "TBL_NM": "광주",
+   "STRT_PRD_DE": "1990",
+   "END_PRD_DE": "1992",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_A729",
+   "TBL_NM": "대전",
+   "STRT_PRD_DE": "1990",
+   "END_PRD_DE": "1992",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_A736",
+   "TBL_NM": "경기",
+   "STRT_PRD_DE": "1990",
+   "END_PRD_DE": "1992",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_A741",
+   "TBL_NM": "강원",
+   "STRT_PRD_DE": "1990",
+   "END_PRD_DE": "1992",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_A776",
+   "TBL_NM": "제주",
+   "STRT_PRD_DE": "1990",
+   "END_PRD_DE": "1992",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_A746",
+   "TBL_NM": "충북",
+   "STRT_PRD_DE": "1990",
+   "END_PRD_DE": "1992",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_A771",
+   "TBL_NM": "경남",
+   "STRT_PRD_DE": "1990",
+   "END_PRD_DE": "1992",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_A756",
+   "TBL_NM": "전북",
+   "STRT_PRD_DE": "1990",
+   "END_PRD_DE": "1992",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_A761",
+   "TBL_NM": "전남",
+   "STRT_PRD_DE": "1990",
+   "END_PRD_DE": "1992",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_A766",
+   "TBL_NM": "경북",
+   "STRT_PRD_DE": "1990",
+   "END_PRD_DE": "1992",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_A714",
+   "TBL_NM": "대구",
+   "STRT_PRD_DE": "1990",
+   "END_PRD_DE": "1992",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_A751",
+   "TBL_NM": "충남",
+   "STRT_PRD_DE": "1990",
+   "END_PRD_DE": "1992",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_A709",
+   "TBL_NM": "부산",
+   "STRT_PRD_DE": "1990",
+   "END_PRD_DE": "1992",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_A719",
+   "TBL_NM": "인천",
+   "STRT_PRD_DE": "1990",
+   "END_PRD_DE": "1992",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_A704",
+   "TBL_NM": "서울",
+   "STRT_PRD_DE": "1990",
+   "END_PRD_DE": "1992",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_A699",
+   "TBL_NM": "총 괄",
+   "STRT_PRD_DE": "1990",
+   "END_PRD_DE": "1992",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_B062",
+   "TBL_NM": "개별법령에 규정된 각종 인·허가 수수료(경북)",
+   "STRT_PRD_DE": "1981",
+   "END_PRD_DE": "1989",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_B065",
+   "TBL_NM": "개별법령에 규정된 각종 인·허가 수수료(경남)",
+   "STRT_PRD_DE": "1981",
+   "END_PRD_DE": "1989",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_A991",
+   "TBL_NM": "개별법령에 규정된 각종 인·허가 수수료(부산)",
+   "STRT_PRD_DE": "1981",
+   "END_PRD_DE": "1989",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_A992",
+   "TBL_NM": "개별법령에 규정된 각종 인·허가 수수료(대구)",
+   "STRT_PRD_DE": "1981",
+   "END_PRD_DE": "1989",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_A989",
+   "TBL_NM": "개별법령에 규정된 각종 인·허가 수수료(총괄)",
+   "STRT_PRD_DE": "1985",
+   "END_PRD_DE": "1989",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_B002",
+   "TBL_NM": "개별법령에 규정된 각종 인·허가 수수료(제주)",
+   "STRT_PRD_DE": "1981",
+   "END_PRD_DE": "1989",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_A990",
+   "TBL_NM": "개별법령에 규정된 각종 인·허가 수수료(서울)",
+   "STRT_PRD_DE": "1981",
+   "END_PRD_DE": "1989",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_B000",
+   "TBL_NM": "개별법령에 규정된 각종 인·허가 수수료(전북)",
+   "STRT_PRD_DE": "1981",
+   "END_PRD_DE": "1989",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_A998",
+   "TBL_NM": "개별법령에 규정된 각종 인·허가 수수료(충북)",
+   "STRT_PRD_DE": "1981",
+   "END_PRD_DE": "1989",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_A997",
+   "TBL_NM": "개별법령에 규정된 각종 인·허가 수수료(강원)",
+   "STRT_PRD_DE": "1981",
+   "END_PRD_DE": "1989",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_A996",
+   "TBL_NM": "개별법령에 규정된 각종 인·허가 수수료(경기)",
+   "STRT_PRD_DE": "1981",
+   "END_PRD_DE": "1989",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_A999",
+   "TBL_NM": "개별법령에 규정된 각종 인·허가 수수료(충남)",
+   "STRT_PRD_DE": "1981",
+   "END_PRD_DE": "1989",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_A995",
+   "TBL_NM": "개별법령에 규정된 각종 인·허가 수수료(대전)",
+   "STRT_PRD_DE": "1989",
+   "END_PRD_DE": "1989",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_A993",
+   "TBL_NM": "개별법령에 규정된 각종 인·허가 수수료(인천)",
+   "STRT_PRD_DE": "1981",
+   "END_PRD_DE": "1989",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_B001",
+   "TBL_NM": "개별법령에 규정된 각종 인·허가 수수료(전남)",
+   "STRT_PRD_DE": "1981",
+   "END_PRD_DE": "1989",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_A994",
+   "TBL_NM": "개별법령에 규정된 각종 인·허가 수수료(광주)",
+   "STRT_PRD_DE": "1988",
+   "END_PRD_DE": "1989",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_A528",
+   "TBL_NM": "개별법령에 규정된 각종 인·허가 수수료(특별시·직할시)",
+   "STRT_PRD_DE": "1983",
+   "END_PRD_DE": "1987",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_A988",
+   "TBL_NM": "개별법령에 규정된 각종 인·허가 수수료(총괄)",
+   "STRT_PRD_DE": "1984",
+   "END_PRD_DE": "1984",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_A987",
+   "TBL_NM": "개별법령에 규정된 각종 인·허가 수수료(총괄)",
+   "STRT_PRD_DE": "1981",
+   "END_PRD_DE": "1983",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "217",
+   "ORG_NM": "경상남도",
+   "TBL_ID": "DT_217J00010",
+   "TBL_NM": "경남 경기동행종합지수",
+   "STRT_PRD_DE": "1985",
+   "END_PRD_DE": "2025",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "217",
+   "ORG_NM": "경상남도",
+   "TBL_ID": "DT_217J00020",
+   "TBL_NM": "경남 경기선행종합지수",
+   "STRT_PRD_DE": "1985",
+   "END_PRD_DE": "2025",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "376",
+   "ORG_NM": "금융감독원",
+   "TBL_ID": "DT_376_100_SDMZ022V_1",
+   "TBL_NM": "[주요경제지표] 2. 국내 주요경제지표(Ⅱ)",
+   "STRT_PRD_DE": "2001",
+   "END_PRD_DE": "2016",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "999S",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_999S_209062",
+   "TBL_NM": "수입물가지수",
+   "STRT_PRD_DE": "1957",
+   "END_PRD_DE": "1961",
+   "PRD_SE": null
+  }
+ ],
+ "광업제조업동향조사 출하": [
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_1F02012",
+   "TBL_NM": "품목별 광공업 생산·출하·재고·내수·수출량",
+   "STRT_PRD_DE": "1995",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_1F02011",
+   "TBL_NM": "기본분류 일부항목 제외 광공업생산지수(2020=100)",
+   "STRT_PRD_DE": "2005",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_1F02007",
+   "TBL_NM": "기업규모별 제조업생산지수(매출액 기준)(2020=100)",
+   "STRT_PRD_DE": "2015",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_1F02001",
+   "TBL_NM": "시도/산업별 광공업생산지수(2020=100)",
+   "STRT_PRD_DE": "1975",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_1F02016",
+   "TBL_NM": "내수/수출 광공업출하지수(2020=100)",
+   "STRT_PRD_DE": "1985",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_1F02031",
+   "TBL_NM": "광역경제권/산업별지수(2020=100)",
+   "STRT_PRD_DE": "1995",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_1F02003",
+   "TBL_NM": "시도 재별 제조업생산지수(2020=100)",
+   "STRT_PRD_DE": "1985",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_1F02005",
+   "TBL_NM": "설비용기계류 생산지수(2020=100)",
+   "STRT_PRD_DE": "1985",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_1F02004",
+   "TBL_NM": "시도 공업구조별  제조업생산지수(2020=100)",
+   "STRT_PRD_DE": "1975",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_1F02013",
+   "TBL_NM": "제조업 재고율",
+   "STRT_PRD_DE": "1985",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_1F02061",
+   "TBL_NM": "명절과조업효과조정 광공업생산지수(2020=100)",
+   "STRT_PRD_DE": "1990",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_1JH20202",
+   "TBL_NM": "전산업생산지수(계절조정지수)",
+   "STRT_PRD_DE": "2000",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_1JH20201",
+   "TBL_NM": "전산업생산지수(원지수)",
+   "STRT_PRD_DE": "2000",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "718",
+   "ORG_NM": "전북특별자치도 진안군",
+   "TBL_ID": "DT_718001_F000002",
+   "TBL_NM": "읍·면별 광업·제조업(10인 이상)",
+   "STRT_PRD_DE": "2018",
+   "END_PRD_DE": "2024",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "718",
+   "ORG_NM": "전북특별자치도 진안군",
+   "TBL_ID": "DT_71801_F001",
+   "TBL_NM": "광업 및 제조업(10인이상)",
+   "STRT_PRD_DE": "2009",
+   "END_PRD_DE": "2024",
+   "PRD_SE": null
+  }
+ ],
+ "광업제조업동향조사 재고": [
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_1F02012",
+   "TBL_NM": "품목별 광공업 생산·출하·재고·내수·수출량",
+   "STRT_PRD_DE": "1995",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_1F02016",
+   "TBL_NM": "내수/수출 광공업출하지수(2020=100)",
+   "STRT_PRD_DE": "1985",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_1F02011",
+   "TBL_NM": "기본분류 일부항목 제외 광공업생산지수(2020=100)",
+   "STRT_PRD_DE": "2005",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_1F02004",
+   "TBL_NM": "시도 공업구조별  제조업생산지수(2020=100)",
+   "STRT_PRD_DE": "1975",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_1F02013",
+   "TBL_NM": "제조업 재고율",
+   "STRT_PRD_DE": "1985",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_1F02003",
+   "TBL_NM": "시도 재별 제조업생산지수(2020=100)",
+   "STRT_PRD_DE": "1985",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_1F02001",
+   "TBL_NM": "시도/산업별 광공업생산지수(2020=100)",
+   "STRT_PRD_DE": "1975",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_1F02007",
+   "TBL_NM": "기업규모별 제조업생산지수(매출액 기준)(2020=100)",
+   "STRT_PRD_DE": "2015",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_1F02031",
+   "TBL_NM": "광역경제권/산업별지수(2020=100)",
+   "STRT_PRD_DE": "1995",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_1F02061",
+   "TBL_NM": "명절과조업효과조정 광공업생산지수(2020=100)",
+   "STRT_PRD_DE": "1990",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_1F02005",
+   "TBL_NM": "설비용기계류 생산지수(2020=100)",
+   "STRT_PRD_DE": "1985",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_1JH20201",
+   "TBL_NM": "전산업생산지수(원지수)",
+   "STRT_PRD_DE": "2000",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_1JH20202",
+   "TBL_NM": "전산업생산지수(계절조정지수)",
+   "STRT_PRD_DE": "2000",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "718",
+   "ORG_NM": "전북특별자치도 진안군",
+   "TBL_ID": "DT_71801_F001",
+   "TBL_NM": "광업 및 제조업(10인이상)",
+   "STRT_PRD_DE": "2009",
+   "END_PRD_DE": "2024",
+   "PRD_SE": null
+  }
+ ],
+ "광업제조업동향조사 생산지수 산업별": [
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_1JH20202",
+   "TBL_NM": "전산업생산지수(계절조정지수)",
+   "STRT_PRD_DE": "2000",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_1JH20201",
+   "TBL_NM": "전산업생산지수(원지수)",
+   "STRT_PRD_DE": "2000",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_1YL15009",
+   "TBL_NM": "제조업생산 증감률(시도)",
+   "STRT_PRD_DE": "2000",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_1F48005",
+   "TBL_NM": "수요자/기종별 기계수주(불변금액)",
+   "STRT_PRD_DE": "1996",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_1F47005",
+   "TBL_NM": "수요자/기종별 기계수주(불변금액)",
+   "STRT_PRD_DE": "1996",
+   "END_PRD_DE": "2020",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_1IN6001",
+   "TBL_NM": "행정구역/성,연령,배우관계,학력,경제활동상태별 인구",
+   "STRT_PRD_DE": "1960",
+   "END_PRD_DE": "1960",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_1ZGA68",
+   "TBL_NM": "광공업생산지수",
+   "STRT_PRD_DE": "1980",
+   "END_PRD_DE": "2017",
+   "PRD_SE": null
+  }
+ ],
+ "목재 가격": [
+  {
+   "ORG_ID": "136",
+   "ORG_NM": "산림청",
+   "TBL_ID": "DT_136022_10130",
+   "TBL_NM": "영림업및목재수확업_산림청에 바라는 점",
+   "STRT_PRD_DE": "2020",
+   "END_PRD_DE": "2025",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "136",
+   "ORG_NM": "산림청",
+   "TBL_ID": "DT_136022_10072",
+   "TBL_NM": "영림업및목재수확업_영림업, 목재수확업을 줄이거나 중단하려는 주된 이유",
+   "STRT_PRD_DE": "2020",
+   "END_PRD_DE": "2025",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_271Y120",
+   "TBL_NM": "투입산출표 총거래표(생산자가격, 중분류)",
+   "STRT_PRD_DE": "2020",
+   "END_PRD_DE": "2024",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_271Y110",
+   "TBL_NM": "투입산출표 총거래표(생산자가격, 대분류)",
+   "STRT_PRD_DE": "2020",
+   "END_PRD_DE": "2024",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_271Y123",
+   "TBL_NM": "투입산출표 수입유발계수표(생산자가격, 중분류)",
+   "STRT_PRD_DE": "2020",
+   "END_PRD_DE": "2024",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_271Y116",
+   "TBL_NM": "투입산출표 고용유발계수표(생산자가격, 대분류)",
+   "STRT_PRD_DE": "2020",
+   "END_PRD_DE": "2024",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_271Y112",
+   "TBL_NM": "투입산출표 생산유발계수표(생산자가격, 대분류)",
+   "STRT_PRD_DE": "2020",
+   "END_PRD_DE": "2024",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_271Y115",
+   "TBL_NM": "투입산출표 취업유발계수표(생산자가격, 대분류)",
+   "STRT_PRD_DE": "2020",
+   "END_PRD_DE": "2024",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_271Y126",
+   "TBL_NM": "투입산출표 고용유발계수표(생산자가격, 중분류)",
+   "STRT_PRD_DE": "2020",
+   "END_PRD_DE": "2024",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_271Y124",
+   "TBL_NM": "투입산출표 부가가치유발계수표(생산자가격, 중분류)",
+   "STRT_PRD_DE": "2020",
+   "END_PRD_DE": "2024",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_271Y125",
+   "TBL_NM": "투입산출표 취업유발계수표(생산자가격, 중분류)",
+   "STRT_PRD_DE": "2020",
+   "END_PRD_DE": "2024",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_271Y111",
+   "TBL_NM": "투입산출표 총투입계수표(생산자가격, 대분류)",
+   "STRT_PRD_DE": "2020",
+   "END_PRD_DE": "2024",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_271Y113",
+   "TBL_NM": "투입산출표 수입유발계수표(생산자가격, 대분류)",
+   "STRT_PRD_DE": "2020",
+   "END_PRD_DE": "2024",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_271Y122",
+   "TBL_NM": "투입산출표 생산유발계수표(생산자가격, 중분류)",
+   "STRT_PRD_DE": "2020",
+   "END_PRD_DE": "2024",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_271Y114",
+   "TBL_NM": "투입산출표 부가가치유발계수표(생산자가격, 대분류)",
+   "STRT_PRD_DE": "2020",
+   "END_PRD_DE": "2024",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_271Y121",
+   "TBL_NM": "투입산출표 총투입계수표(생산자가격, 중분류)",
+   "STRT_PRD_DE": "2020",
+   "END_PRD_DE": "2024",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_512Y007",
+   "TBL_NM": "업종별 기업경기실사지수, 2009.8~(실적)",
+   "STRT_PRD_DE": "2009",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_512Y008",
+   "TBL_NM": "업종별 기업경기실사지수, 2009.9~(전망)",
+   "STRT_PRD_DE": "2009",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_200Y103",
+   "TBL_NM": "경제활동별 GDP 및 GNI(계절조정, 명목, 분기)",
+   "STRT_PRD_DE": "1960",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "152",
+   "ORG_NM": "공정거래위원회",
+   "TBL_ID": "DT_152009_B032",
+   "TBL_NM": "하도급 단가 결정 고려 - 원사업자가 구입한 원자재 가격 변화",
+   "STRT_PRD_DE": "2020",
+   "END_PRD_DE": "2024",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "152",
+   "ORG_NM": "공정거래위원회",
+   "TBL_ID": "DT_152009_B035",
+   "TBL_NM": "하도급 단가 결정 고려 - 수급사업자가 구입한 원자재 가격 변화",
+   "STRT_PRD_DE": "2020",
+   "END_PRD_DE": "2024",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "340",
+   "ORG_NM": "중소벤처기업부",
+   "TBL_ID": "DT_D10127",
+   "TBL_NM": "기업경영상 애로요인(복수응답)",
+   "STRT_PRD_DE": "2024",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_1C91",
+   "TBL_NM": "시도별 경제활동별 지역내총생산",
+   "STRT_PRD_DE": "1985",
+   "END_PRD_DE": "2024",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "340",
+   "ORG_NM": "중소벤처기업부",
+   "TBL_ID": "DT_B10120",
+   "TBL_NM": "기업경영상 애로요인(복수응답)",
+   "STRT_PRD_DE": "2015",
+   "END_PRD_DE": "2022",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_200Y105",
+   "TBL_NM": "경제활동별 GDP 및 GNI(원계열, 명목, 분기 및 연간)",
+   "STRT_PRD_DE": "1953",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_200Y124",
+   "TBL_NM": "경제활동별 성장기여도(원계열, 실질, 분기 및 연간)",
+   "STRT_PRD_DE": "1954",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_200Y123",
+   "TBL_NM": "경제활동별 성장기여도(계절조정, 실질, 분기)",
+   "STRT_PRD_DE": "1960",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "154",
+   "ORG_NM": "성평등가족부",
+   "TBL_ID": "DT_MOGE_3000400129_2023_6",
+   "TBL_NM": "중앙행정기관 위원회별 여성참여 현황",
+   "STRT_PRD_DE": "2023",
+   "END_PRD_DE": "2023",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "154",
+   "ORG_NM": "성평등가족부",
+   "TBL_ID": "DT_MOGE_3000400129_2024_6",
+   "TBL_NM": "중앙행정기관 위원회별 여성참여 현황",
+   "STRT_PRD_DE": "2024",
+   "END_PRD_DE": "2024",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "340",
+   "ORG_NM": "중소벤처기업부",
+   "TBL_ID": "DT_D10126",
+   "TBL_NM": "기업경영상 애로요인(복수응답)",
+   "STRT_PRD_DE": "2023",
+   "END_PRD_DE": "2024",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "115",
+   "ORG_NM": "산업통상부",
+   "TBL_ID": "DT_360007_011",
+   "TBL_NM": "기업물류비 산출 목적",
+   "STRT_PRD_DE": "2016",
+   "END_PRD_DE": "2024",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "152",
+   "ORG_NM": "공정거래위원회",
+   "TBL_ID": "DT_152009_B039",
+   "TBL_NM": "하도급 단가 결정 고려 - 시장 가격경쟁 정도 변화",
+   "STRT_PRD_DE": "2020",
+   "END_PRD_DE": "2022",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "136",
+   "ORG_NM": "산림청",
+   "TBL_ID": "DT_13634_A034",
+   "TBL_NM": "일반제재업_전반에 대한 자유제언",
+   "STRT_PRD_DE": "2008",
+   "END_PRD_DE": "2012",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_271Y015",
+   "TBL_NM": "공급표(기초가격, 대분류)",
+   "STRT_PRD_DE": "2015",
+   "END_PRD_DE": "2019",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "395",
+   "ORG_NM": "과학기술정책연구원",
+   "TBL_ID": "DT_395N_S2023037",
+   "TBL_NM": "시장 환경 상황별 설명도: 가격 인상이 고객의 손실을 초래함",
+   "STRT_PRD_DE": "2023",
+   "END_PRD_DE": "2023",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "395",
+   "ORG_NM": "과학기술정책연구원",
+   "TBL_ID": "DT_395N_S2023014",
+   "TBL_NM": "전략별 중요도: 상품의 가격을 낮추기 위한 전략(가격경쟁력)",
+   "STRT_PRD_DE": "2023",
+   "END_PRD_DE": "2023",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "395",
+   "ORG_NM": "과학기술정책연구원",
+   "TBL_ID": "DT_395N_S2023004",
+   "TBL_NM": "전략별 활용 여부: 상품의 가격을 낮추기 위한 전략(가격경쟁력)",
+   "STRT_PRD_DE": "2023",
+   "END_PRD_DE": "2023",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_271Y075",
+   "TBL_NM": "공급표(기초가격, 중분류)",
+   "STRT_PRD_DE": "2015",
+   "END_PRD_DE": "2019",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "152",
+   "ORG_NM": "공정거래위원회",
+   "TBL_ID": "DT_152009_A036",
+   "TBL_NM": "하도급 단가 결정 고려 - 귀사가 구입한 원자재 가격 변화",
+   "STRT_PRD_DE": "2020",
+   "END_PRD_DE": "2024",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "152",
+   "ORG_NM": "공정거래위원회",
+   "TBL_ID": "DT_152009_A039",
+   "TBL_NM": "하도급 단가 결정 고려 - 수급사업자가 구입한 원자재 가격 변화",
+   "STRT_PRD_DE": "2020",
+   "END_PRD_DE": "2024",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_271Y017",
+   "TBL_NM": "사용표(기초가격, 대분류)",
+   "STRT_PRD_DE": "2015",
+   "END_PRD_DE": "2019",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_271Y077",
+   "TBL_NM": "사용표(기초가격, 중분류)",
+   "STRT_PRD_DE": "2015",
+   "END_PRD_DE": "2019",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_271Y076",
+   "TBL_NM": "사용표(구매자가격, 중분류)",
+   "STRT_PRD_DE": "2015",
+   "END_PRD_DE": "2019",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_271Y016",
+   "TBL_NM": "사용표(구매자가격, 대분류)",
+   "STRT_PRD_DE": "2015",
+   "END_PRD_DE": "2019",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_271Y008",
+   "TBL_NM": "투입산출표 총거래표(생산자가격, 대분류)",
+   "STRT_PRD_DE": "2015",
+   "END_PRD_DE": "2019",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_271Y068",
+   "TBL_NM": "투입산출표 총거래표(생산자가격, 중분류)",
+   "STRT_PRD_DE": "2015",
+   "END_PRD_DE": "2019",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_271Y014",
+   "TBL_NM": "투입산출표 고용유발계수표(생산자가격, 대분류)",
+   "STRT_PRD_DE": "2015",
+   "END_PRD_DE": "2019",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "395",
+   "ORG_NM": "과학기술정책연구원",
+   "TBL_ID": "DT_395N_S2023074",
+   "TBL_NM": "비즈니스프로세스 혁신 적용: 판촉(프로모션), 포장(패키징), 가격, 상품 배치 또는 애프터서비스(A/S)를 위한 마케팅 방법",
+   "STRT_PRD_DE": "2023",
+   "END_PRD_DE": "2023",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "395",
+   "ORG_NM": "과학기술정책연구원",
+   "TBL_ID": "DT_395N_S2023192",
+   "TBL_NM": "정부 규제별 혁신 영향 정도 여부: 가격 제한",
+   "STRT_PRD_DE": "2023",
+   "END_PRD_DE": "2023",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "395",
+   "ORG_NM": "과학기술정책연구원",
+   "TBL_ID": "DT_395N_S2023203",
+   "TBL_NM": "정부 규제별 혁신 영향 정도: 가격 제한",
+   "STRT_PRD_DE": "2023",
+   "END_PRD_DE": "2023",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "395",
+   "ORG_NM": "과학기술정책연구원",
+   "TBL_ID": "DT_395N_S2023029",
+   "TBL_NM": "시장 환경 상황별 해당 여부: 가격 인상이 고객의 손실을 초래함",
+   "STRT_PRD_DE": "2023",
+   "END_PRD_DE": "2023",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "142",
+   "ORG_NM": "중소벤처기업부",
+   "TBL_ID": "DT_G40044",
+   "TBL_NM": "위탁기업과 거래시 겪은 애로사항(복수응답)",
+   "STRT_PRD_DE": "2021",
+   "END_PRD_DE": "2023",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "154",
+   "ORG_NM": "성평등가족부",
+   "TBL_ID": "DT_MOGE_3000400129_2021_6",
+   "TBL_NM": "중앙행정기관 위원회별 여성참여 현황",
+   "STRT_PRD_DE": "2021",
+   "END_PRD_DE": "2021",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_200Y106",
+   "TBL_NM": "경제활동별 GDP 및 GNI(원계열, 실질, 분기 및 연간)",
+   "STRT_PRD_DE": "1953",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_200Y104",
+   "TBL_NM": "경제활동별 GDP 및 GNI(계절조정, 실질, 분기)",
+   "STRT_PRD_DE": "1960",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "152",
+   "ORG_NM": "공정거래위원회",
+   "TBL_ID": "DT_152009_A042",
+   "TBL_NM": "하도급 단가 결정 고려_시장 가격경쟁 정도 변화",
+   "STRT_PRD_DE": "2020",
+   "END_PRD_DE": "2022",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_271Y073",
+   "TBL_NM": "투입산출표 취업유발계수표(생산자가격, 중분류)",
+   "STRT_PRD_DE": "2015",
+   "END_PRD_DE": "2019",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_271Y011",
+   "TBL_NM": "투입산출표 수입유발계수표(생산자가격, 대분류)",
+   "STRT_PRD_DE": "2015",
+   "END_PRD_DE": "2019",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_271Y009",
+   "TBL_NM": "투입산출표 총투입계수표(생산자가격, 대분류)",
+   "STRT_PRD_DE": "2015",
+   "END_PRD_DE": "2019",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_271Y074",
+   "TBL_NM": "투입산출표 고용유발계수표(생산자가격, 중분류)",
+   "STRT_PRD_DE": "2015",
+   "END_PRD_DE": "2019",
+   "PRD_SE": null
+  }
+ ],
+ "원목 가격": [
+  {
+   "ORG_ID": "136",
+   "ORG_NM": "산림청",
+   "TBL_ID": "DT_136022_10130",
+   "TBL_NM": "영림업및목재수확업_산림청에 바라는 점",
+   "STRT_PRD_DE": "2020",
+   "END_PRD_DE": "2025",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "136",
+   "ORG_NM": "산림청",
+   "TBL_ID": "DT_136022_9845",
+   "TBL_NM": "밤재배업_산림청에 바라는 점",
+   "STRT_PRD_DE": "2020",
+   "END_PRD_DE": "2025",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "136",
+   "ORG_NM": "산림청",
+   "TBL_ID": "DT_136022_10076",
+   "TBL_NM": "버섯재배업_재배를 줄이거나 중단하려는 주된 이유",
+   "STRT_PRD_DE": "2020",
+   "END_PRD_DE": "2025",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "136",
+   "ORG_NM": "산림청",
+   "TBL_ID": "DT_136022_2018_05_025",
+   "TBL_NM": "원목생산업 종사에 어려운 점",
+   "STRT_PRD_DE": "2018",
+   "END_PRD_DE": "2018",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "136",
+   "ORG_NM": "산림청",
+   "TBL_ID": "DT_136022_9998",
+   "TBL_NM": "관상산림식물재배업_산림청에 바라는 점",
+   "STRT_PRD_DE": "2020",
+   "END_PRD_DE": "2025",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "136",
+   "ORG_NM": "산림청",
+   "TBL_ID": "DT_136022_2018_05_027",
+   "TBL_NM": "산림청에 바라는 점",
+   "STRT_PRD_DE": "2018",
+   "END_PRD_DE": "2018",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "136",
+   "ORG_NM": "산림청",
+   "TBL_ID": "DT_136022_10092",
+   "TBL_NM": "버섯재배업_산림청에 바라는 점",
+   "STRT_PRD_DE": "2020",
+   "END_PRD_DE": "2025",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "136",
+   "ORG_NM": "산림청",
+   "TBL_ID": "DT_136036_11104",
+   "TBL_NM": "원목표고(시설)_중간재비 분석결과_대농구",
+   "STRT_PRD_DE": "2023",
+   "END_PRD_DE": "2023",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "136",
+   "ORG_NM": "산림청",
+   "TBL_ID": "DT_136036_11087",
+   "TBL_NM": "원목표고(노지)_중간재비 분석결과_대농구",
+   "STRT_PRD_DE": "2023",
+   "END_PRD_DE": "2023",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "136",
+   "ORG_NM": "산림청",
+   "TBL_ID": "DT_136036_11086",
+   "TBL_NM": "원목표고(노지)_중간재비 분석결과_영농시설",
+   "STRT_PRD_DE": "2023",
+   "END_PRD_DE": "2023",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "136",
+   "ORG_NM": "산림청",
+   "TBL_ID": "DT_136036_11103",
+   "TBL_NM": "원목표고(시설)_중간재비 분석결과_영농시설",
+   "STRT_PRD_DE": "2023",
+   "END_PRD_DE": "2023",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "136",
+   "ORG_NM": "산림청",
+   "TBL_ID": "DT_136022_10072",
+   "TBL_NM": "영림업및목재수확업_영림업, 목재수확업을 줄이거나 중단하려는 주된 이유",
+   "STRT_PRD_DE": "2020",
+   "END_PRD_DE": "2025",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "136",
+   "ORG_NM": "산림청",
+   "TBL_ID": "DT_136022_10191",
+   "TBL_NM": "기타산림수실류재배업_산림청에 바라는 점",
+   "STRT_PRD_DE": "2020",
+   "END_PRD_DE": "2025",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "136",
+   "ORG_NM": "산림청",
+   "TBL_ID": "DT_13622_A1082",
+   "TBL_NM": "원목표고재배 산림청에 바라는점",
+   "STRT_PRD_DE": "2011",
+   "END_PRD_DE": "2011",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "136",
+   "ORG_NM": "산림청",
+   "TBL_ID": "DT_136022_9945",
+   "TBL_NM": "기타임산물재배업_산림청에 바라는 점",
+   "STRT_PRD_DE": "2020",
+   "END_PRD_DE": "2025",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "136",
+   "ORG_NM": "산림청",
+   "TBL_ID": "DT_136022_2018_05_011",
+   "TBL_NM": "최근 원목 생산량 변화 및 이유",
+   "STRT_PRD_DE": "2018",
+   "END_PRD_DE": "2018",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "136",
+   "ORG_NM": "산림청",
+   "TBL_ID": "DT_13634_A105",
+   "TBL_NM": "목탄 및 목초액 제조업_발전을 위한 제언",
+   "STRT_PRD_DE": "2009",
+   "END_PRD_DE": "2012",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "136",
+   "ORG_NM": "산림청",
+   "TBL_ID": "TX_136_2009_H8278",
+   "TBL_NM": "수입원목 판매가격",
+   "STRT_PRD_DE": "2005",
+   "END_PRD_DE": "2005",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "136",
+   "ORG_NM": "산림청",
+   "TBL_ID": "DT_13622_A449",
+   "TBL_NM": "입목 매입 및 원목 판매 시 가격흥정 방법",
+   "STRT_PRD_DE": "2009",
+   "END_PRD_DE": "2009",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "136",
+   "ORG_NM": "산림청",
+   "TBL_ID": "DT_13634_A033",
+   "TBL_NM": "일반제재업_산림청 건의사항",
+   "STRT_PRD_DE": "2008",
+   "END_PRD_DE": "2010",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "136",
+   "ORG_NM": "산림청",
+   "TBL_ID": "DT_13622_2014E019",
+   "TBL_NM": "최근 3년간 원목 생산량 변화 및 이유",
+   "STRT_PRD_DE": "2014",
+   "END_PRD_DE": "2014",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "136",
+   "ORG_NM": "산림청",
+   "TBL_ID": "DT_13634_A034",
+   "TBL_NM": "일반제재업_전반에 대한 자유제언",
+   "STRT_PRD_DE": "2008",
+   "END_PRD_DE": "2012",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "136",
+   "ORG_NM": "산림청",
+   "TBL_ID": "DT_13622_A842",
+   "TBL_NM": "산림청에 바라는 점",
+   "STRT_PRD_DE": "2010",
+   "END_PRD_DE": "2010",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "136",
+   "ORG_NM": "산림청",
+   "TBL_ID": "DT_13622_2014E054",
+   "TBL_NM": "산림청에 바라는 점",
+   "STRT_PRD_DE": "2014",
+   "END_PRD_DE": "2014",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "136",
+   "ORG_NM": "산림청",
+   "TBL_ID": "DT_13622_A1078",
+   "TBL_NM": "원목표고재배 전망 및 악화 예상이유",
+   "STRT_PRD_DE": "2011",
+   "END_PRD_DE": "2011",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "136",
+   "ORG_NM": "산림청",
+   "TBL_ID": "TX_136_2009_H9837",
+   "TBL_NM": "입목 매입 및 원목 판매 시 가격흥정 방법",
+   "STRT_PRD_DE": "2004",
+   "END_PRD_DE": "2004",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "136",
+   "ORG_NM": "산림청",
+   "TBL_ID": "DT_13622_A712",
+   "TBL_NM": "산림청에 바라는 점",
+   "STRT_PRD_DE": "2010",
+   "END_PRD_DE": "2010",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "143",
+   "ORG_NM": "농촌진흥청",
+   "TBL_ID": "DT_143002_C007",
+   "TBL_NM": "소득분석표_시설표고버섯",
+   "STRT_PRD_DE": "2002",
+   "END_PRD_DE": "2002",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "136",
+   "ORG_NM": "산림청",
+   "TBL_ID": "TX_136_2009_H4173",
+   "TBL_NM": "전년대비 산채재배량, 수입 변화 및 수입 감소 요인",
+   "STRT_PRD_DE": "2006",
+   "END_PRD_DE": "2006",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "742",
+   "ORG_NM": "전남광주통합특별시 장흥군",
+   "TBL_ID": "DT_742003N_A049",
+   "TBL_NM": "가격동향이 나빠질 것으로 전망하는 이유",
+   "STRT_PRD_DE": "2016",
+   "END_PRD_DE": "2022",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "742",
+   "ORG_NM": "전남광주통합특별시 장흥군",
+   "TBL_ID": "DT_742003N_A028",
+   "TBL_NM": "신품종 보급 시 구매의사 여부",
+   "STRT_PRD_DE": "2016",
+   "END_PRD_DE": "2022",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "742",
+   "ORG_NM": "전남광주통합특별시 장흥군",
+   "TBL_ID": "DT_742003N_A048",
+   "TBL_NM": "향후 가격동향 전망",
+   "STRT_PRD_DE": "2016",
+   "END_PRD_DE": "2022",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "742",
+   "ORG_NM": "전남광주통합특별시 장흥군",
+   "TBL_ID": "DT_742003N_A045",
+   "TBL_NM": "특산물의 입지를 굳히기 위한 추진사항(주된 응답)",
+   "STRT_PRD_DE": "2016",
+   "END_PRD_DE": "2022",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "742",
+   "ORG_NM": "전남광주통합특별시 장흥군",
+   "TBL_ID": "DT_742003N_A039",
+   "TBL_NM": "향후 축소 또는 폐업 평균연수 및 사유",
+   "STRT_PRD_DE": "2016",
+   "END_PRD_DE": "2022",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "999S",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_999S_203062",
+   "TBL_NM": "전국 주요 상품 도매가격",
+   "STRT_PRD_DE": "1955",
+   "END_PRD_DE": "1961",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "999",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_999N_111C2011",
+   "TBL_NM": "영림창 매수재 및 원목료 징수재",
+   "STRT_PRD_DE": "1911",
+   "END_PRD_DE": "1914",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "999",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_999N_103C2014",
+   "TBL_NM": "영림창 목재 현재고",
+   "STRT_PRD_DE": "1914",
+   "END_PRD_DE": "1918",
+   "PRD_SE": null
+  }
+ ],
+ "제재목 가격": [
+  {
+   "ORG_ID": "136",
+   "ORG_NM": "산림청",
+   "TBL_ID": "DT_13634_A105",
+   "TBL_NM": "목탄 및 목초액 제조업_발전을 위한 제언",
+   "STRT_PRD_DE": "2009",
+   "END_PRD_DE": "2012",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "136",
+   "ORG_NM": "산림청",
+   "TBL_ID": "DT_13622_A839",
+   "TBL_NM": "제재업의 국내시장 전망에 대한 의견",
+   "STRT_PRD_DE": "2010",
+   "END_PRD_DE": "2010",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "136",
+   "ORG_NM": "산림청",
+   "TBL_ID": "DT_13634_A034",
+   "TBL_NM": "일반제재업_전반에 대한 자유제언",
+   "STRT_PRD_DE": "2008",
+   "END_PRD_DE": "2012",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "136",
+   "ORG_NM": "산림청",
+   "TBL_ID": "DT_13622_A842",
+   "TBL_NM": "산림청에 바라는 점",
+   "STRT_PRD_DE": "2010",
+   "END_PRD_DE": "2010",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "136",
+   "ORG_NM": "산림청",
+   "TBL_ID": "DT_13622N_A123",
+   "TBL_NM": "산림청에 바라는 점",
+   "STRT_PRD_DE": "2012",
+   "END_PRD_DE": "2012",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "136",
+   "ORG_NM": "산림청",
+   "TBL_ID": "DT_13634_A033",
+   "TBL_NM": "일반제재업_산림청 건의사항",
+   "STRT_PRD_DE": "2008",
+   "END_PRD_DE": "2010",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_1COC304",
+   "TBL_NM": "도/산업/자산항목별 개인기업자산액",
+   "STRT_PRD_DE": "1968",
+   "END_PRD_DE": "1968",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_1COC305",
+   "TBL_NM": "자산액규모/산업/자산항목별 개인기업자산액",
+   "STRT_PRD_DE": "1968",
+   "END_PRD_DE": "1968",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_1COC306",
+   "TBL_NM": "종업원규모/산업/자산항목별 개인기업자산액",
+   "STRT_PRD_DE": "1968",
+   "END_PRD_DE": "1968",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "999",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_999N_010C5010",
+   "TBL_NM": "제공장(부록)",
+   "STRT_PRD_DE": "1910",
+   "END_PRD_DE": "1912",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "999S",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_999S_209057",
+   "TBL_NM": "서울 직종별 총평균 노동 임금",
+   "STRT_PRD_DE": "1948",
+   "END_PRD_DE": "1956",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "999S",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_999S_136054",
+   "TBL_NM": "서울,부산 산업직종별 노동 임금 및 노임 지수",
+   "STRT_PRD_DE": "1951",
+   "END_PRD_DE": "1954",
+   "PRD_SE": null
+  }
+ ],
+ "임산물 가격": [
+  {
+   "ORG_ID": "136",
+   "ORG_NM": "산림청",
+   "TBL_ID": "DT_136022_10130",
+   "TBL_NM": "영림업및목재수확업_산림청에 바라는 점",
+   "STRT_PRD_DE": "2020",
+   "END_PRD_DE": "2025",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_271Y126",
+   "TBL_NM": "투입산출표 고용유발계수표(생산자가격, 중분류)",
+   "STRT_PRD_DE": "2020",
+   "END_PRD_DE": "2024",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_271Y125",
+   "TBL_NM": "투입산출표 취업유발계수표(생산자가격, 중분류)",
+   "STRT_PRD_DE": "2020",
+   "END_PRD_DE": "2024",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_271Y120",
+   "TBL_NM": "투입산출표 총거래표(생산자가격, 중분류)",
+   "STRT_PRD_DE": "2020",
+   "END_PRD_DE": "2024",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_271Y121",
+   "TBL_NM": "투입산출표 총투입계수표(생산자가격, 중분류)",
+   "STRT_PRD_DE": "2020",
+   "END_PRD_DE": "2024",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_271Y124",
+   "TBL_NM": "투입산출표 부가가치유발계수표(생산자가격, 중분류)",
+   "STRT_PRD_DE": "2020",
+   "END_PRD_DE": "2024",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_271Y122",
+   "TBL_NM": "투입산출표 생산유발계수표(생산자가격, 중분류)",
+   "STRT_PRD_DE": "2020",
+   "END_PRD_DE": "2024",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_271Y123",
+   "TBL_NM": "투입산출표 수입유발계수표(생산자가격, 중분류)",
+   "STRT_PRD_DE": "2020",
+   "END_PRD_DE": "2024",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "136",
+   "ORG_NM": "산림청",
+   "TBL_ID": "DT_136022_9873",
+   "TBL_NM": "식용임산물채취업_채취를 줄이거나 중단하려는 주된 이유",
+   "STRT_PRD_DE": "2020",
+   "END_PRD_DE": "2025",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "136",
+   "ORG_NM": "산림청",
+   "TBL_ID": "DT_136022_9887",
+   "TBL_NM": "식용임산물채취업_산림청에 바라는 점",
+   "STRT_PRD_DE": "2020",
+   "END_PRD_DE": "2025",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_271Y068",
+   "TBL_NM": "투입산출표 총거래표(생산자가격, 중분류)",
+   "STRT_PRD_DE": "2015",
+   "END_PRD_DE": "2019",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_271Y071",
+   "TBL_NM": "투입산출표 수입유발계수표(생산자가격, 중분류)",
+   "STRT_PRD_DE": "2015",
+   "END_PRD_DE": "2019",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_271Y075",
+   "TBL_NM": "공급표(기초가격, 중분류)",
+   "STRT_PRD_DE": "2015",
+   "END_PRD_DE": "2019",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_271Y076",
+   "TBL_NM": "사용표(구매자가격, 중분류)",
+   "STRT_PRD_DE": "2015",
+   "END_PRD_DE": "2019",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_271Y077",
+   "TBL_NM": "사용표(기초가격, 중분류)",
+   "STRT_PRD_DE": "2015",
+   "END_PRD_DE": "2019",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_271Y069",
+   "TBL_NM": "투입산출표 총투입계수표(생산자가격, 중분류)",
+   "STRT_PRD_DE": "2015",
+   "END_PRD_DE": "2019",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_271Y073",
+   "TBL_NM": "투입산출표 취업유발계수표(생산자가격, 중분류)",
+   "STRT_PRD_DE": "2015",
+   "END_PRD_DE": "2019",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_271Y070",
+   "TBL_NM": "투입산출표 생산유발계수표(생산자가격, 중분류)",
+   "STRT_PRD_DE": "2015",
+   "END_PRD_DE": "2019",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_271Y072",
+   "TBL_NM": "투입산출표 부가가치유발계수표(생산자가격, 중분류)",
+   "STRT_PRD_DE": "2015",
+   "END_PRD_DE": "2019",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_271Y074",
+   "TBL_NM": "투입산출표 고용유발계수표(생산자가격, 중분류)",
+   "STRT_PRD_DE": "2015",
+   "END_PRD_DE": "2019",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "114",
+   "ORG_NM": "농림축산식품부",
+   "TBL_ID": "DT_114_2014_S0003",
+   "TBL_NM": "농림업생산지수(2019~2021 평균=100)",
+   "STRT_PRD_DE": "1965",
+   "END_PRD_DE": "2024",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "136",
+   "ORG_NM": "산림청",
+   "TBL_ID": "DT_136022_2018_02_031",
+   "TBL_NM": "산림청에 바라는 점",
+   "STRT_PRD_DE": "2018",
+   "END_PRD_DE": "2018",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "136",
+   "ORG_NM": "산림청",
+   "TBL_ID": "DT_136022_2018_07_026",
+   "TBL_NM": "수액 채취업 관련 건의사항",
+   "STRT_PRD_DE": "2018",
+   "END_PRD_DE": "2018",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "136",
+   "ORG_NM": "산림청",
+   "TBL_ID": "DT_13622N_2016A032",
+   "TBL_NM": "산림청에 바라는 점",
+   "STRT_PRD_DE": "2016",
+   "END_PRD_DE": "2016",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "136",
+   "ORG_NM": "산림청",
+   "TBL_ID": "DT_136022_2018_03_031",
+   "TBL_NM": "산림청에 바라는 점",
+   "STRT_PRD_DE": "2018",
+   "END_PRD_DE": "2018",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "136",
+   "ORG_NM": "산림청",
+   "TBL_ID": "DT_13622_A131",
+   "TBL_NM": "산림청이나 국립산림과학원에 바라는 점",
+   "STRT_PRD_DE": "2009",
+   "END_PRD_DE": "2009",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "136",
+   "ORG_NM": "산림청",
+   "TBL_ID": "DT_13622_A1082",
+   "TBL_NM": "원목표고재배 산림청에 바라는점",
+   "STRT_PRD_DE": "2011",
+   "END_PRD_DE": "2011",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "136",
+   "ORG_NM": "산림청",
+   "TBL_ID": "DT_13622_2014B051",
+   "TBL_NM": "산림청에 바라는 점",
+   "STRT_PRD_DE": "2014",
+   "END_PRD_DE": "2014",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "136",
+   "ORG_NM": "산림청",
+   "TBL_ID": "DT_13634_A033",
+   "TBL_NM": "일반제재업_산림청 건의사항",
+   "STRT_PRD_DE": "2008",
+   "END_PRD_DE": "2010",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "136",
+   "ORG_NM": "산림청",
+   "TBL_ID": "TX_136_2009_H9503",
+   "TBL_NM": "산림청이나 국립산림과학원에 바라는 점",
+   "STRT_PRD_DE": "2004",
+   "END_PRD_DE": "2004",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "136",
+   "ORG_NM": "산림청",
+   "TBL_ID": "DT_13622_A357",
+   "TBL_NM": "산림청이나 국립산림과학원에 바라는 점",
+   "STRT_PRD_DE": "2009",
+   "END_PRD_DE": "2009",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "136",
+   "ORG_NM": "산림청",
+   "TBL_ID": "DT_13622N_A123",
+   "TBL_NM": "산림청에 바라는 점",
+   "STRT_PRD_DE": "2012",
+   "END_PRD_DE": "2012",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "136",
+   "ORG_NM": "산림청",
+   "TBL_ID": "DT_13622_A195",
+   "TBL_NM": "산림청이나 국립산림과학원에 바라는 점",
+   "STRT_PRD_DE": "2009",
+   "END_PRD_DE": "2009",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "136",
+   "ORG_NM": "산림청",
+   "TBL_ID": "TX_136_2009_H9344",
+   "TBL_NM": "산림청이나 국립산림과학원에 바라는 점",
+   "STRT_PRD_DE": "2004",
+   "END_PRD_DE": "2004",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "136",
+   "ORG_NM": "산림청",
+   "TBL_ID": "TX_136_2009_H2306",
+   "TBL_NM": "수액 생산업 관련 정부 건의사항",
+   "STRT_PRD_DE": "2007",
+   "END_PRD_DE": "2007",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "714",
+   "ORG_NM": "전북특별자치도 정읍시",
+   "TBL_ID": "DT_JUNGEUB_F003",
+   "TBL_NM": "특수 임산물 생산실적",
+   "STRT_PRD_DE": "1962",
+   "END_PRD_DE": "1967",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "999S",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_999S_211062",
+   "TBL_NM": "농산물 농가판매가격지수",
+   "STRT_PRD_DE": "1959",
+   "END_PRD_DE": "1961",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "999S",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_999S_116062",
+   "TBL_NM": "특수임산물 생산량",
+   "STRT_PRD_DE": "1959",
+   "END_PRD_DE": "1960",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "999S",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_999S_101062",
+   "TBL_NM": "겸업수지(호당 평균)",
+   "STRT_PRD_DE": "1958",
+   "END_PRD_DE": "1961",
+   "PRD_SE": null
+  }
+ ]
+}
