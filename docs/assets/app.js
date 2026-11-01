@@ -420,7 +420,7 @@
       rule(`최대 공급국 = 그 해 관세청 수입액 1위국(판정 기준과 같음), % = 수입액 점유율, 물량 = 실태조사 수입량 × 그 나라의 수입 중량(kg) 점유율(산출) · 판정 왼쪽 회색 글씨 = 전년 판정(바뀐 경우만) · 여유 생산능력 = 생산량 × (100 ÷ 가동률 − 1) · 대체 여력 = 여유 생산능력 ÷ 수입량 (100% 이상이면 남는 국내 설비로 수입량 전부를 만들 수 있음, 원료·품질·가격 미반영) · 가동률 = 생산량 ÷ 최대 생산가능량(응답업체 기준), * 참고치 · <b>판정</b>: 대체 가능 = 대체 여력 100% 이상 · 대체 불가 = 100% 미만 · 쏠림·대체 불가 = 100% 미만 + 그 해 최대 공급국 50% 이상(산업부 산업 공급망 3050 전략, 2023) · 그 해 수입액 100만 달러 미만은 판정 제외 · 출처: 산림청 목재이용실태조사, ${SRC}`), "span-2", "");
     const topQ = (d, y, b) => { const h = SH && SH.items[`${d.axis}:${d.key}`], i = SH ? SH.years.indexOf(y) : -1, tq = h && h.top_qty && i >= 0 ? h.top_qty[i] : null;
       const tp = h && i >= 0 ? h.top[i] : null;
-      return tq && tp ? `<td class="l" title="${y}년 수입액 점유율 ${nf(tp[1], 1)}% (판정 기준) · 중량 점유율 ${nf(tq[1], 1)}% × 실태조사 수입량 = ${big(b.imports * tq[1] / 100)}${u(d)}">${tq[0]} ${nf(tp[1], 0)}% <span class="sub">· ${big(b.imports * tq[1] / 100)}</span></td>` : `<td class="l"><span class="sub">–</span></td>`; };
+      return tq && tp ? `<td class="l" title="${y}년 수입액 점유율 ${nf(tp[1], 1)}% (판정 기준) · 중량 점유율 ${nf(tq[1], 1)}% × 실태조사 수입량 = ${big(b.imports * tq[1] / 100)}${u(d)}">${tq[0]} ${nf(tp[1], 0)}% <span class="sub">· 물량 ${nf(tq[1], 0)}% · ${big(b.imports * tq[1] / 100)}</span></td>` : `<td class="l"><span class="sub">–</span></td>`; };
     const drawDs = () => {
       const y = S.dsy || dYears[0];
       const R = rows.map((d) => ({ d, b: d.by_year && d.by_year[y], j: judgeOf(d, y) })).filter((r) => r.b);
@@ -429,7 +429,7 @@
       const ld = $("#ds-tbl").closest(".card").querySelector(".lead");
       const leadHtml = `${y}년 · 쏠림·대체 불가 ${core.length}개 <span class="sub">${core.map((r) => short(r.d.label)).join(" · ")}</span> · 대체 불가 ${cnt("대체 불가")}개 · 대체 가능 ${cnt("대체 가능")}개`;
       if (ld) ld.innerHTML = leadHtml; else $("#ds-tbl").closest(".card").querySelector(".card-head").insertAdjacentHTML("afterend", `<div class="lead">${leadHtml}</div>`);
-      $("#ds-tbl").innerHTML = `<table><thead><tr><th class="l">품목</th><th>수입</th><th class="l">최대 공급국<br><span class="sub">수입액 점유율 · 물량</span></th><th>국내 생산</th><th>가동률 ${q("util")}</th><th>여유 생산능력</th><th>대체 여력 ${q("cover")}</th><th>판정</th></tr></thead><tbody>` +
+      $("#ds-tbl").innerHTML = `<table><thead><tr><th class="l">품목</th><th>수입</th><th class="l">최대 공급국<br><span class="sub">수입액 % · 물량 % · 물량</span></th><th>국내 생산</th><th>가동률 ${q("util")}</th><th>여유 생산능력</th><th>대체 여력 ${q("cover")}</th><th>판정</th></tr></thead><tbody>` +
         R.map(({ d, b, j }) => `<tr class="click" data-axis="${d.axis}" data-key="${d.key}"${j ? ` title="${j.why}"` : ""}>` +
           `<td class="l">${short(d.label)} <span class="sub">${u(d)}</span></td><td>${big(b.imports)}</td>${topQ(d, y, b)}<td>${big(b.production)}</td>` +
           `<td>${b.utilization == null ? "–" : nf(b.utilization, 0) + "%" + (/참고치/.test(d.util_note) ? "*" : "")}</td>` +
@@ -868,7 +868,8 @@
       kpi(`${Y}년 수입액`, usd(L.cur), `전년 대비 ${delta(L.cur, L.prev)}`) +
       kpi(`${Y}년 수입량`, ton(Lk.cur), `전년 대비 ${delta(Lk.cur, Lk.prev)}`) +
       kpi(`${Y}년 평균 수입 단가${pest(axis, key)}`, p0 ? `${pf(p0)} <small>${pl}</small>` : "–", `${delta(p0, pp)} <span class="sub">${ptwin(axis, key, L.cur || 0, Lk.cur || 0) || "전년 대비"}</span>`) +
-      kpi(`${Y}년 최대 공급국`, tops[0] ? `${cname(tops[0].c)} <small>${nf(tops[0].share, 1)}%</small>` : "–", hhiY != null ? `수입액 기준 · HHI ${nf(hhiY, 0)}` : "") +
+      (() => { const tq = Y ? topSuppliersYear(axis, key, Y, 1, MK)[0] : null;
+        return kpi(`${Y}년 최대 공급국`, tq ? `${cname(tq.c)} <small>${nf(tq.share, 1)}%</small>` : "–", `${MK === "kg" ? "물량" : "수입액"} 기준${hhiY != null ? ` · HHI ${nf(hhiY, 0)}(수입액)` : ""}`); })() +
       `</div><div class="grid g-2" style="margin-top:12px">` +
       card(`수입·수출 추이`, trendTitle([axis, key]), `<div id="d-trend"></div>`, "span-2",
         `${Y}년 수입 ${MK === "kg" ? ton(Lk.cur) : usd(L.cur)} <span class="sub">전년 대비 ${MK === "kg" ? delta(Lk.cur, Lk.prev) : delta(L.cur, L.prev)}</span>`) +
