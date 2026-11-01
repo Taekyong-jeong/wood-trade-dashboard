@@ -559,7 +559,7 @@
       el.querySelectorAll(".ss-r").forEach((r) => r.onclick = () => { const d = SS[+r.dataset.k]; openDetail(d.axis, d.key); });
     }
     C.lineChart($("#bs-trade"), { x: ms.slice(pk), series: [{ name: "수입액", values: ru.slice(pk).map((v) => v / 1e8) }, { name: "수출액", values: re.slice(pk).map((v) => v / 1e8) }],
-      yFmt: (v) => nf(v, 0), tipFmt: (v) => nf(v, 2) + "억 달러", height: 250, xLabelFmt: xFmt });
+      yFmt: (v) => nf(v, 0), tipFmt: (v) => nf(v, 2) + "억 달러", diffFmt: (v) => (v > 0 ? "+" : "") + nf(v, 2) + "억 달러", height: 250, xLabelFmt: xFmt, pin: true });
     C.hbars($("#bs-prod"), pr.slice(0, 10).map((x) => ({ label: x.n, value: x.v,
       text: `${nf(x.v / 1e8, 2)}억 달러 <span class="sub">(${x.pv ? ((g) => (g >= 0 ? "+" : "") + nf(g, Math.abs(g) < 10 ? 1 : 0) + "%")((x.v / x.pv - 1) * 100) : "–"})</span>`, onClick: () => openDetail("product", x.k) })));
   }

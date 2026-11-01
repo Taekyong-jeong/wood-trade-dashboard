@@ -206,6 +206,45 @@
     hit.addEventListener("touchmove", move, { passive: true });
     hit.addEventListener("mouseleave", leave);
     hit.addEventListener("touchend", leave);
+    // 누르면 고정 (opts.pin): 한 번 = 그 달 고정, 다른 달 = 두 달 고정하고 증감 표시, 고정된 달 다시 누르면 해제
+    if (opts.pin) {
+      const pins = [], layer = el("g", {}, svg);
+      svg.appendChild(hit);   // 클릭 영역을 맨 위로
+      const box = document.createElement("div"); box.className = "pin-box"; container.appendChild(box);
+      const dfmt = opts.diffFmt || ((v) => (v > 0 ? "+" : "") + tfmt(v));
+      const draw = () => {
+        layer.innerHTML = "";
+        pins.forEach((i, k) => {
+          el("line", { x1: X(i), x2: X(i), y1: pad.t, y2: pad.t + ih, stroke: css("--ink"), "stroke-width": 1.2, "stroke-dasharray": k ? "4 3" : "none", opacity: 0.7 }, layer);
+          series.forEach((s) => { const v = s.values[i]; if (v != null) el("circle", { cx: X(i), cy: Y(v), r: 4.5, fill: s.color, stroke: css("--surface"), "stroke-width": 2 }, layer); });
+          const tx = el("text", { x: X(i), y: pad.t + 11, "text-anchor": X(i) > W - 60 ? "end" : X(i) < pad.l + 40 ? "start" : "middle", style: `fill:${css("--ink")};font-size:11px;font-weight:700` }, layer);
+          tx.textContent = (k ? "B " : "A ") + xfmt(opts.x[i], true);
+        });
+        if (!pins.length) { box.innerHTML = `<span class="pin-hint">그래프를 누르면 그 달이 고정됨 · 다른 달을 누르면 두 달을 비교</span>`; return; }
+        const [a, b] = pins;
+        box.innerHTML = series.map((s) => {
+          const va = s.values[a], vb = b != null ? s.values[b] : null;
+          let r = `<span class="pin-s"><i style="background:${s.color}"></i>${s.name} <b>${xfmt(opts.x[a], true)} ${va == null ? "–" : tfmt(va)}</b>`;
+          if (b != null) {
+            r += ` → <b>${xfmt(opts.x[b], true)} ${vb == null ? "–" : tfmt(vb)}</b>`;
+            if (va != null && vb != null) { const d = vb - va, pc = va ? (d / va) * 100 : null;
+              r += ` <em class="${d < 0 ? "dn" : "up"}">${dfmt(d)}${pc == null ? "" : ` (${pc > 0 ? "+" : ""}${pc.toFixed(1)}%)`}</em>`; }
+          }
+          return r + `</span>`; }).join("") + `<button type="button" class="pin-clear">고정 해제</button>`;
+        box.querySelector(".pin-clear").onclick = () => { pins.length = 0; draw(); };
+      };
+      svg.addEventListener("click", (ev) => {   // 그래프 영역 전체(오른쪽 끝 포함)
+        const rect = svg.getBoundingClientRect();
+        const px = (ev.clientX - rect.left) * (W / rect.width);
+        const i = Math.max(0, Math.min(n - 1, Math.round(((px - pad.l) / iw) * (n - 1))));
+        const k = pins.indexOf(i);
+        if (k >= 0) pins.splice(k, 1); else if (pins.length < 2) pins.push(i); else pins[1] = i;
+        pins.sort((x, y) => x - y);
+        draw();
+      });
+      svg.style.cursor = "pointer";
+      draw();
+    }
   }
 
   /**
