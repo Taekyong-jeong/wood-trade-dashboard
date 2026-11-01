@@ -326,7 +326,7 @@
     host.innerHTML =
       card(`품목별 수입 위험 ${q("dep")}`, "행을 누르면 상세",
         `<div class="tbl-wrap" id="rk-tbl"></div>` +
-        rule(`<b>수입의존도</b> = 수입량 ÷ (국내 생산량 + 수입량), 물량 기준 (산림청 목재이용실태조사, OECD 수입침투율의 근사) · <b>공급망 판정</b>: 취약 = 연 수입액 100만 달러 이상 + 특정국 의존 50% 이상 (산업부 산업 공급망 3050 전략, 2023) · 주의 = HHI 2,500 이상 (미국 DOJ·FTC, 2010) · 100만 달러 미만은 판정 제외 · 판정·공급국·HHI·수입액 = 선택한 해 1~12월 수입액 기준, 수입의존도 = 그 해 실태조사 값(공표 전이면 –) · 출처: ${SRC}(${SH.years[0]}~${SH.years[SH.years.length - 1]}), 산림청 목재이용실태조사`), "span-2",
+        rule(`<b>수입의존도</b> = 수입량 ÷ (국내 생산량 + 수입량), 물량 기준 (산림청 목재이용실태조사, OECD 수입침투율의 근사) · <b>공급망 판정</b>: 취약 = 연 수입액 100만 달러 이상 + 특정국 수입액(USD) 점유율 50% 이상 (산업부 산업 공급망 3050 전략, 2023) · 주의 = HHI 2,500 이상 (미국 DOJ·FTC, 2010) · 100만 달러 미만은 판정 제외 · 판정·공급국·HHI·수입액 = 선택한 해 1~12월 수입액 기준, 수입의존도 = 그 해 실태조사 값(공표 전이면 –) · 출처: ${SRC}(${SH.years[0]}~${SH.years[SH.years.length - 1]}), 산림청 목재이용실태조사`), "span-2",
         `취약 ${nV}개 · 주의 ${nC}개 <span class="sub">${nV ? sr.filter((d) => d.grade === "취약").map((d) => d.label.replace(/\(.+\)/, "")).join(" · ") : ""}</span>`) +
       card(`목재제품별 수입의존도 ${q("dep")}`, `${depYrs[0]}~${depYrs[depYrs.length - 1]} · 물량 기준 % · 이름을 누르면 강조`, `<div id="dp-chips" class="dp-chips"></div><div id="dp-line" class="dp-line"></div>` +
         rule(`수입의존도 = 수입량 ÷ (국내 생산량 + 수입량), 물량 기준 · 출처: 산림청 목재이용실태조사(2016~2019는 6개 제품만 공표, 2020~ 전 제품) · ↗↘ = 유의한 상승·하락 추세 (Mann-Kendall, 5개년 이상, 유의수준 5%; Mann 1945, Kendall 1975) · 원목은 실태조사 기준이라 산림청 목재수급통계의 원목 수입의존도(100 − 원목자급률)와 값이 다름`), "span-2",
@@ -406,18 +406,19 @@
     const big = (v) => (v >= 1e4 ? nf(v / 1e4, 0) + "만" : nf(v, 0));
     const short = (l) => l.replace(/\(.+\)/, "");
     // 근거 표: 연도 선택 + 판정(산업부 특정국 50% × 대체 여력 100%)
-    const SH = D.judg.supply_hist, MIN = 1e6;
+    const DJ = ((D.judg.criteria || {}).domestic_supply || {}).judge || {};
+    const SH = D.judg.supply_hist, MIN = DJ.min_import_usd || 1e6, TOP = DJ.top_share_pct || 50;
     const dYears = [...new Set(rows.flatMap((d) => Object.keys(d.by_year || {})))].sort().reverse();
     const JG = { "쏠림·대체 불가": "hi", "대체 불가": "mid", "대체 가능": "lo", "판정 제외": "ex" }, JO = { "쏠림·대체 불가": 0, "대체 불가": 1, "대체 가능": 2, "판정 제외": 3 };
     const judgeOf = (d, y) => { const b = d.by_year && d.by_year[y]; if (!b || b.spare_cover == null) return null;
       const h = SH && SH.items[`${d.axis}:${d.key}`], i = SH ? SH.years.indexOf(y) : -1, tp = h && i >= 0 ? h.top[i] : null;
       if (!tp) return { g: "판정 제외", why: h ? `${y}년 관세청 자료 없음(전용 HS 코드 신설 전 또는 수입 없음)` : "전용 HS 코드 없음(공급국 불명)" };
       if (tp[2] < MIN) return { g: "판정 제외", why: `${y}년 수입액 ${usd(tp[2])} < 100만 달러` };
-      const sh = tp[1] >= 50, cv = b.spare_cover >= DS.line;
-      return { g: cv ? "대체 가능" : sh ? "쏠림·대체 불가" : "대체 불가", why: `최대 공급국 ${tp[0]} ${nf(tp[1], 0)}% · 대체 여력 ${nf(b.spare_cover, 0)}%` }; };
+      const sh = tp[1] >= TOP, cv = b.spare_cover >= DS.line;
+      return { g: cv ? "대체 가능" : sh ? "쏠림·대체 불가" : "대체 불가", why: `최대 공급국 ${tp[0]} 수입액 점유율 ${nf(tp[1], 0)}% · 대체 여력 ${nf(b.spare_cover, 0)}%` }; };
     const tblCard = card(`국내 공급 여력 ${q("cover")}`, `행을 누르면 상세`,
       `<div class="rk-per"><select id="ds-yr" class="mini-sel">${dYears.map((y) => `<option value="${y}">${y}년</option>`).join("")}</select></div><div class="tbl-wrap" id="ds-tbl"></div>` +
-      rule(`최대 공급국 = 그 해 관세청 수입액 1위국(판정 기준과 같음), % = 수입액 점유율, 물량 = 실태조사 수입량 × 그 나라의 수입 중량(kg) 점유율(산출) · 판정 왼쪽 회색 글씨 = 전년 판정(바뀐 경우만) · 여유 생산능력 = 생산량 × (100 ÷ 가동률 − 1) · 대체 여력 = 여유 생산능력 ÷ 수입량 (100% 이상이면 남는 국내 설비로 수입량 전부를 만들 수 있음, 원료·품질·가격 미반영) · 가동률 = 생산량 ÷ 최대 생산가능량(응답업체 기준), * 참고치 · <b>판정</b>: 대체 가능 = 대체 여력 100% 이상 · 대체 불가 = 100% 미만 · 쏠림·대체 불가 = 100% 미만 + 그 해 최대 공급국 50% 이상(산업부 산업 공급망 3050 전략, 2023) · 그 해 수입액 100만 달러 미만은 판정 제외 · 출처: 산림청 목재이용실태조사, ${SRC}`), "span-2", "");
+      rule(`최대 공급국 = 그 해 관세청 수입액 1위국(판정 기준과 같음), % = 수입액 점유율, 물량 = 실태조사 수입량 × 그 나라의 수입 중량(kg) 점유율(산출) · 판정 왼쪽 회색 글씨 = 전년 판정(바뀐 경우만) · 여유 생산능력 = 생산량 × (100 ÷ 가동률 − 1) · 대체 여력 = 여유 생산능력 ÷ 수입량 (100% 이상이면 남는 국내 설비로 수입량 전부를 만들 수 있음, 원료·품질·가격 미반영) · 가동률 = 생산량 ÷ 최대 생산가능량(응답업체 기준), * 참고치 · <b>판정</b>: 대체 가능 = 대체 여력 100% 이상 · 대체 불가 = 100% 미만 · 쏠림·대체 불가 = 100% 미만 + 그 해 최대 공급국 <b>수입액(USD) 점유율</b> ${TOP}% 이상 — 물량(톤·㎥) 아님, 관세청 1~12월 수입액 기준 (산업부 산업 공급망 3050 전략, 2023: 수입액 100만 달러 이상·특정국 수입의존도 50% 이상) · 그 해 수입액 100만 달러 미만은 판정 제외 · 출처: 산림청 목재이용실태조사, ${SRC}`), "span-2", "");
     const topQ = (d, y, b) => { const h = SH && SH.items[`${d.axis}:${d.key}`], i = SH ? SH.years.indexOf(y) : -1, tq = h && h.top_qty && i >= 0 ? h.top_qty[i] : null;
       const tp = h && i >= 0 ? h.top[i] : null;
       return tq && tp ? `<td class="l" title="${y}년 수입액 점유율 ${nf(tp[1], 1)}% (판정 기준) · 중량 점유율 ${nf(tq[1], 1)}% × 실태조사 수입량 = ${big(b.imports * tq[1] / 100)}${u(d)}">${tq[0]} ${nf(tp[1], 0)}% <span class="sub">· 물량 ${nf(tq[1], 0)}% · ${big(b.imports * tq[1] / 100)}</span></td>` : `<td class="l"><span class="sub">–</span></td>`; };
