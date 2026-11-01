@@ -382,8 +382,9 @@
     const isP = (k) => !!D.meta.products.find((x) => x.key === k);
     // 제품별 원자재 투입 표(KOSIS)가 있으면 그것으로, 없으면 「국내 목재 이용 현황」(p.11) 값으로
     const OTH = getComputedStyle(document.documentElement).getPropertyValue("--other").trim();
-    const SRCS = [["in_log_dom", "국산 원목", C.color(2)], ["in_sec_dom", "국산 원목 외(부산물·폐목재 등)", C.color(3)], ["in_log_imp", "수입 원목", C.color(1)],
-      ["in_mid_imp", "수입 중간재(단판·제재목 등)", C.color(4)], ["in_unk", "기타·미상", OTH], ["use_imported_products", "수입 제품", C.color(0)]];
+    // 색: 국산 = 초록 계열(진→연), 수입 = 붉은 계열(원목 진 → 중간재 → 제품 연), 기타·미상 = 회색
+    const SRCS = [["in_log_dom", "국산 원목", "#1e8a57"], ["in_sec_dom", "국산 원목 외(부산물·폐목재 등)", "#7cc795"], ["in_log_imp", "수입 원목", "#a8322a"],
+      ["in_mid_imp", "수입 중간재(단판·제재목 등)", "#df5f43"], ["use_imported_products", "수입 제품", "#f2a48c"], ["in_unk", "기타·미상", "#8a8f98"]];
     const PBY = G.products_by_year || {}, srcYs = Object.keys(PBY).sort().reverse();
     const sy = PBY[S.srcy] ? S.srcy : PBY[defYear()] ? defYear() : srcYs[0];
     const flowsOf = (d) => d.flows;
