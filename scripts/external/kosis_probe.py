@@ -17,6 +17,22 @@ def meta(org, tbl, typ):
     with urllib.request.urlopen("https://kosis.kr/openapi/statisticsData.do?" + q, timeout=90) as r:
         return json.loads(r.read().decode("utf-8", "replace"))
 
+TERMS = [x for x in os.environ.get("KOSIS_TERMS", "").split("|") if x]
+if TERMS:
+    res = {}
+    for term in TERMS:
+        q = urllib.parse.urlencode({"method": "getList", "apiKey": KEY, "searchNm": term, "sort": "RANK", "startCount": 1, "resultCount": 40, "format": "json", "jsonVD": "Y"})
+        try:
+            with urllib.request.urlopen("https://kosis.kr/openapi/statisticsSearch.do?" + q, timeout=60) as r:
+                data = json.loads(r.read().decode("utf-8", "replace"))
+        except Exception as e:
+            print(f"[{term}] 오류 {type(e).__name__}"); continue
+        if isinstance(data, dict): print(f"[{term}] 응답 오류 {data.get('err')}"); continue
+        print(f"[{term}] {len(data)}건")
+        for d in data: print(f"  {d.get('ORG_NM')} | {d.get('TBL_ID')} | {d.get('TBL_NM')} | {d.get('STRT_PRD_DE')}~{d.get('END_PRD_DE')}")
+        res[term] = data
+    Path("data/external/kosis_search.json").write_text(json.dumps(res, ensure_ascii=False, indent=1), encoding="utf-8")
+    sys.exit(0)
 out = {}
 for org, tbl, nm in TABLES:
     try:

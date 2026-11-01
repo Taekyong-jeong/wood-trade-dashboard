@@ -25,11 +25,12 @@ jobs:
       - name: KOSIS 통합검색
         env:
           KOSIS_API_KEY: ${{ secrets.KOSIS }}
+          KOSIS_TERMS: "국내 목재 이용 현황|목재 이용량|원자재 이용량|국산 원목 이용|목재이용실태조사"
         run: python scripts/external/kosis_probe.py
       - name: 결과 커밋
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/external/kosis_probe.json data/external/kosis_meta.json 2>/dev/null || true
+          git add data/external/kosis_*.json 2>/dev/null || true
           git diff --cached --quiet || git commit -m "KOSIS 통계표 탐색 결과"
           git push
