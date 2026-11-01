@@ -513,7 +513,7 @@ GLANCE_GROUPS = [  # (key, 이름, 실태조사 제품 키)
 GLANCE_SOURCES = [("use_log_domestic", "국산 원목"), ("use_other_raw", "원목 외 원자재"), ("use_log_imported", "수입 원목"), ("use_imported_products", "수입 목재제품")]
 
 
-def glance(survey_csv: Path) -> dict | None:
+def glance(survey_csv: Path, wus_csv: Path | None = None) -> dict | None:
     if not survey_csv.exists():
         return None
     s = pd.read_csv(survey_csv)
@@ -536,6 +536,25 @@ def glance(survey_csv: Path) -> dict | None:
         tt = sum(f.values())
         if tt > 0:
             prods.append({"key": k, "flows": f, "total": tt})
+    # 제품별 원자재 투입(KOSIS 실태조사 제품별 원자재 표)이 있으면 국내 생산 쪽을 투입 원자재로 나눔
+    #   p.11 「국내 목재 이용 현황」은 원목 기준(중간재·폐목재 제외)이라 수입 단판으로 만든 합판 등이 빠짐 → 보완
+    if wus_csv is not None and wus_csv.exists():
+        w = pd.read_csv(wus_csv)
+        w = w[w["year"] == y]
+        for d in prods:
+            g = w[w["product"] == d["key"]]
+            if g.empty:
+                continue
+            isl = g["category"].str.endswith("원목")
+            inp = {"in_log_dom": float(g[isl & (g["origin"] == "국산")]["value_m3"].sum()),
+                   "in_sec_dom": float(g[~isl & (g["origin"] == "국산")]["value_m3"].sum()),
+                   "in_log_imp": float(g[isl & (g["origin"] == "수입")]["value_m3"].sum()),
+                   "in_mid_imp": float(g[~isl & (g["origin"] == "수입")]["value_m3"].sum()),
+                   "in_unk": float(g[~g["origin"].isin(["국산", "수입"])]["value_m3"].sum())}
+            inp["use_imported_products"] = d["flows"].get("use_imported_products", 0.0)
+            d["inputs"] = inp
+            d["inputs_total"] = sum(inp.values())
+            d["inputs_detail"] = [[r["category"], r["origin"], float(r["value_m3"])] for _, r in g.iterrows()]
     prods.sort(key=lambda d: -d["total"])
     return {"year": y, "total": total, "sources": src, "groups": groups, "products": prods, "import_share": round(imp / total * 100, 1),
             "note": "단위 ㎥ — 펠릿 수입은 톤×1.67, 그 밖의 톤 단위 제품은 1:1로 환산(실태조사 방식). 폐목재 제외",

@@ -380,17 +380,24 @@
     const SHN = { p09: "OSB", p04: "목재플라스틱(WPC)", p10: "목질바닥재" };
     const nm = (k) => { const p = D.meta.products.find((x) => x.key === k); return SHN[k] || (p ? p.name.replace(/\(.+\)/, "") : EX[k] || k); };
     const isP = (k) => !!D.meta.products.find((x) => x.key === k);
-    const SRCS = [["use_log_domestic", "국산 원목", C.color(2)], ["use_other_raw", "원목 외 원자재", C.color(3)], ["use_log_imported", "수입 원목", C.color(1)], ["use_imported_products", "수입 제품", C.color(0)]];
-    const pr = G.products.filter((d) => d.total >= 1e4);
+    // 제품별 원자재 투입 표(KOSIS)가 있으면 그것으로, 없으면 「국내 목재 이용 현황」(p.11) 값으로
+    const OTH = getComputedStyle(document.documentElement).getPropertyValue("--other").trim();
+    const SRCS = [["in_log_dom", "국산 원목", C.color(2)], ["in_sec_dom", "국산 원목 외(부산물·폐목재 등)", C.color(3)], ["in_log_imp", "수입 원목", C.color(1)],
+      ["in_mid_imp", "수입 중간재(단판·제재목 등)", C.color(4)], ["in_unk", "기타·미상", OTH], ["use_imported_products", "수입 제품", C.color(0)]];
+    const flowsOf = (d) => d.inputs || { in_log_dom: d.flows.use_log_domestic || 0, in_sec_dom: d.flows.use_other_raw || 0, in_log_imp: d.flows.use_log_imported || 0,
+      in_mid_imp: 0, in_unk: 0, use_imported_products: d.flows.use_imported_products || 0 };
+    const totOf = (d) => sum(Object.values(flowsOf(d)));
+    const impOf = (d) => { const f = flowsOf(d); return (f.in_log_imp + f.in_mid_imp + f.use_imported_products) / (totOf(d) || 1) * 100; };
+    const pr = G.products.filter((d) => totOf(d) >= 1e4).sort((a, b) => totOf(b) - totOf(a));
     host.innerHTML =
       card("제품별 원자재 출처", `${G.year}년 · 막대 = 비율 · 오른쪽 = 이용량`, `<div id="ds-src"></div>` +
-        rule(`국산 원목·수입 원목으로 국내에서 만든 몫과, 제품째 수입한 몫 (실태조사 「국내 목재 이용 현황」 표 그대로 옮김) · 원목 외 원자재 = 폐목재·부산물·칩 등 · 단위 ㎥ (펠릿 수입은 톤×1.67, 그 밖의 톤 단위 제품은 1:1, 실태조사 방식) · 출처: ${G.source}`), "",
-        (() => { const top = pr.slice(0, 3).map((d) => `${nm(d.key)} 수입 ${nf(((d.flows.use_log_imported + d.flows.use_imported_products) / d.total) * 100, 0)}%`); return top.join(" · "); })()) +
+        rule(`국내에서 만든 몫은 원자재별로(수입 단판으로 만든 합판, 수입 제재목을 처리한 방부목재 등 포함), 제품째 수입한 몫은 수입 제품으로 · 국내 생산 몫 = 실태조사 제품별 원자재 투입량(KOSIS, 2022~ 공표 제품), 그 밖의 제품(펄프·장작·톱밥·버섯 원목 등)과 수입 제품 = 실태조사 「국내 목재 이용 현황」 표 · 원자재 투입량은 제품 생산량이 아니라 투입한 원자재 양이고, 중간재(수입 합판·단판 등)는 다른 제품의 수입량과 겹칠 수 있음 · 단위 ㎥ (펠릿 수입은 톤×1.67, 그 밖의 톤 단위 제품은 1:1, 실태조사 방식) · 출처: 산림청·한국임업진흥원 목재이용실태조사(KOSIS 제품별 원자재 표, 국내 목재 이용 현황)`), "",
+        (() => { const top = pr.slice(0, 3).map((d) => `${nm(d.key)} 수입 ${nf(impOf(d), 0)}%`); return top.join(" · "); })()) +
       (I ? card("제품별 매출 구조", `${I.year}년 · 억 원`, `<div id="ds-sales"></div>` +
         rule(`국내 생산업체 = 국내에서 제품을 만든 업체 매출 · 수입·유통업체 = 수입해서 파는 업체 매출(실태조사 가중치 추정) · 출처: ${I.source}`), "",
         `국내 생산 ${nf(I.domestic[I.years.length - 1] / 1e4, 1)}조 · 수입·유통 ${nf(I.imports[I.years.length - 1] / 1e4, 1)}조 원`) : "");
-    stackRows($("#ds-src"), pr.map((d) => ({ label: nm(d.key), values: SRCS.map(([k]) => d.flows[k] || 0),
-      text: `${nf(d.total / 1e4, d.total >= 1e5 ? 0 : 1)}만 ㎥`, onClick: isP(d.key) ? () => openDetail("product", d.key) : null })), SRCS.map(([, n, c]) => ({ name: n, color: c })), true);
+    stackRows($("#ds-src"), pr.map((d) => ({ label: nm(d.key), values: SRCS.map(([k]) => flowsOf(d)[k] || 0),
+      text: `${nf(totOf(d) / 1e4, totOf(d) >= 1e5 ? 0 : 1)}만 ㎥`, onClick: isP(d.key) ? () => openDetail("product", d.key) : null })), SRCS.map(([, n, c]) => ({ name: n, color: c })), true);
     if (I) stackRows($("#ds-sales"), I.products.filter((d) => d.sales >= 100).slice(0, 15).map((d) => ({ label: d.label.replace(/\(.+\)/, "").replace("배향성스트랜드보드", "OSB").replace("목재플라스틱복합재", "목재플라스틱(WPC)"), values: [d.domestic || 0, d.import || 0],
       text: `${nf(d.sales, 0)}억`, onClick: d.is_product ? () => openDetail("product", d.key) : null })), [{ name: "국내 생산업체", color: C.color(2) }, { name: "수입·유통업체", color: C.color(0) }], false);
   }
