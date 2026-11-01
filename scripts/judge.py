@@ -81,7 +81,7 @@ def supply_risk(long: pd.DataFrame, months: list[str], items: list[tuple[str, st
 
 
 def supply_hist(long: pd.DataFrame, months: list[str], items: list[tuple[str, str, str]], names: dict) -> dict:
-    """연도별(1~12월이 모두 있는 해) 수입 집중 — supply_risk와 같은 규칙을 연간 수입액에 적용 (분석)"""
+    """연도별(1~12월이 모두 있는 해) 수입 집중 — supply_risk와 같은 규칙을 연간 수입액에 적용 (분석). top_qty = 수입액 1위국과 그 나라의 중량(kg) 점유율"""
     c = CRIT["supply_risk"]
     yrs = sorted({m[:4] for m in months})
     full = [y for y in yrs if sum(1 for m in months if m.startswith(y)) == 12]
@@ -89,9 +89,16 @@ def supply_hist(long: pd.DataFrame, months: list[str], items: list[tuple[str, st
     out = {}
     for axis, key, _ in items:
         sub = d[(d["axis"] == axis) & (d["key"] == key)]
-        hhi, grade, top = [], [], []
+        hhi, grade, top, topq = [], [], [], []
         for y in full:
+            gk = sub[sub["year"] == y].groupby("cnty")["imp_kg"].sum()
             g = sub[sub["year"] == y].groupby("cnty")["imp_usd"].sum()
+            gp = g[g > 0]
+            if len(gp) and gk.sum() > 0:     # 수입액 1위국(판정 기준과 같은 나라)의 중량 점유율
+                c0 = gp.idxmax()
+                topq.append([names.get(c0, c0), _r(float(gk.get(c0, 0) / gk.sum() * 100))])
+            else:
+                topq.append(None)
             g = g[g > 0]
             tot = float(g.sum())
             if tot <= 0:
@@ -107,7 +114,7 @@ def supply_hist(long: pd.DataFrame, months: list[str], items: list[tuple[str, st
                 grade.append("주의")
             else:
                 grade.append("안정")
-        out[f"{axis}:{key}"] = {"hhi": hhi, "grade": grade, "top": top}
+        out[f"{axis}:{key}"] = {"hhi": hhi, "grade": grade, "top": top, "top_qty": topq}
     return {"years": full, "items": out}
 
 
