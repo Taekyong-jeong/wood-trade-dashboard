@@ -227,7 +227,7 @@
     const J = D.judg;
     $("#v-hint").innerHTML = `${KTAG.ana} ${ym(J.month)} 기준`;
     const ORD = ["penetration", "supply", "domestic", "price", "drivers"], GO = { penetration: "sec-risk", supply: "sec-risk", domestic: "sec-domestic", price: "sec-price", drivers: "sec-drivers" };
-    $("#verdicts").innerHTML = [...J.cards].sort((a, b) => ORD.indexOf(a.id) - ORD.indexOf(b.id)).map((c) =>
+    $("#verdicts").innerHTML = [...J.cards].filter((c) => c.id !== "drivers").sort((a, b) => ORD.indexOf(a.id) - ORD.indexOf(b.id)).map((c) =>
       `<button class="vcard ${c.level}" data-go="${GO[c.id] || "sec-" + c.id}"><span class="vt">${c.title}</span><span class="vb">${c.badge}</span>` +
       `<span class="vx">${c.text}</span><span class="vr">기준: ${refs(c.refs)}</span></button>`).join("");
     $("#verdicts").querySelectorAll(".vcard").forEach((b) => b.onclick = () => goSec(b.dataset.go));
@@ -706,7 +706,7 @@
     C.hbars($("#g-cty"), tops.map((x) => ({ label: cname(x.c), value: x.imp, text: `${nf(x.share, 0)}% · ${x.imp >= 1e7 ? nf(x.imp / 1e8, 2) + "억" : nf(x.imp / 1e6, 1) + "백만"} 달러`,
       onClick: () => { if (g[0] === "total") { S.country = x.c; go("country"); } else openDetail(g[0], g[1]); } })));
   }
-  function renderAll() { renderGlance(); renderIntro(); renderVerdicts(); renderBasic(); renderRisk(); renderDomestic(); renderDist(); renderPrice(); renderDrivers(); }
+  function renderAll() { renderGlance(); renderIntro(); renderVerdicts(); renderBasic(); renderRisk(); renderDomestic(); renderDist(); renderPrice(); }
 
   function renderControls() {
     const years = [...new Set(months().map((m) => m.slice(0, 4)))];
