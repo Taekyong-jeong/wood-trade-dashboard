@@ -403,13 +403,15 @@
     });
     const tc = css("--ink-2");
     o.targets.forEach((t) => {
-      el("rect", { x: x1, y: t.y, width: nw, height: t.h, rx: 2, fill: tc }, svg);
+      const tg = el("g", { "data-tkey": t.key }, svg);
+      el("rect", { x: x1, y: t.y, width: nw, height: t.h, rx: 2, fill: tc }, tg);
       const cy = t.y + t.h / 2;
       const vtxt = `${o.fmt(t.value)} · ${Math.round((t.value / tot) * 100)}%`;
-      const t1 = el("text", { x: x1 + nw + 8, y: cy - 2, "font-size": fs, "font-weight": 700, fill: ink }, svg);
+      const t1 = el("text", { x: x1 + nw + 8, y: cy - 2, "font-size": fs, "font-weight": 700, fill: ink }, tg);
       t1.textContent = narrow ? t.label.replace(/\(.+\)/, "") : t.label + "  ";
       if (!narrow) { const v = el("tspan", { "font-weight": 400, fill: ink2, "font-size": fs - 1 }, t1); v.textContent = vtxt; }
-      const t2 = el("text", { x: x1 + nw + 8, y: cy + fs, "font-size": fs - 1.5, fill: ink2 }, svg);
+      const t2 = el("text", { x: x1 + nw + 8, y: cy + fs, "font-size": fs - 1.5, fill: ink2 }, tg);
+      el("rect", { x: x1 - 2, y: t.y - 2, width: R + nw, height: Math.max(t.h, fs * 2.4) + 4, fill: "transparent" }, tg);
       t2.textContent = narrow ? `${vtxt}${t.sub ? " · " + t.sub : ""}` : (t.sub || "");
     });
   }

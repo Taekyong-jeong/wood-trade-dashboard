@@ -390,3 +390,18 @@ details.fold > .fold-body { padding: 0 16px 16px; }
 .cap-m .cap-t { font-size: 12.5px; letter-spacing: -0.03em; }
 .cap-m .cap-t .sub { color: var(--muted); font-size: 11px; }
 @media (max-width: 560px) { .cap-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* 문장형 텍스트는 줄임표(…) 없이 끝까지 — 넘치면 다음 줄로 (2026-11-01 사용자 요청). 제목·라벨은 한 줄 유지 */
+.lead, .foot, .g-tile .g-sub, .vcard .vr, .vcard .vb, .notable .d, .glance .g-lead.one-line, .intro-lead > .one-line {
+  white-space: normal; overflow: visible; text-overflow: clip; text-wrap: pretty; }
+.foot { line-height: 1.5; }
+.lead { line-height: 1.4; }
+@media (max-width: 640px) { .lead .sub { white-space: normal; overflow: visible; } }
+.title-row { flex-wrap: wrap; row-gap: 2px; }
+.title-row .owner-top { overflow: visible; text-overflow: clip; }
+
+.g-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 2px 0 10px; }
+.g-chips button { font: inherit; font-size: 12px; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); color: var(--ink-2); cursor: pointer; white-space: nowrap; letter-spacing: -0.02em; }
+.g-chips button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+.g-chips button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.cap-m .cap-t.one-line, .kpi .delta.one-line, .hb .nm, .dc .nm, .db .nm { white-space: normal; overflow: visible; text-overflow: clip; line-height: 1.25; }
