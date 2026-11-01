@@ -107,3 +107,33 @@ else:
         except Exception as e:
             print(f"  {tid} {nm}: 오류 {type(e).__name__} {str(e)[:80]}")
     (OUT / "kosis_construction_done.json").write_text(json.dumps(out, ensure_ascii=False), encoding="utf-8")
+
+    # 5) 포장·팔레트 수요 대리지표: 제조업 생산지수(월), 수출물량지수(월)
+    macro = {}
+    want = [("광업제조업동향조사 생산지수", "101", ("생산지수",), ("원지수", "산업별")),
+            ("수출물량지수", "301", ("수출물량지수",), ("",))]
+    for term, org, must, prefer in want:
+        try:
+            d = kosis("https://kosis.kr/openapi/statisticsSearch.do", {"method": "getList", "searchNm": term, "sort": "RANK", "startCount": 1, "resultCount": 40})
+        except Exception as e:
+            print(f"[{term}] 검색 오류 {type(e).__name__}"); continue
+        if isinstance(d, dict):
+            print(f"[{term}] 응답 오류 {d.get('err')}"); continue
+        cands = [x for x in d if str(x.get("ORG_ID")) == org and all(m in (x.get("TBL_NM") or "") for m in must)]
+        for x in cands[:8]:
+            print(f"  [{term}] {x.get('TBL_ID')} | {x.get('TBL_NM')} | {x.get('STRT_PRD_DE')}~{x.get('END_PRD_DE')}")
+        cands.sort(key=lambda x: -sum(p in (x.get("TBL_NM") or "") for p in prefer if p))
+        for x in cands[:3]:
+            tid = x["TBL_ID"]
+            try:
+                prd = kosis("https://kosis.kr/openapi/statisticsData.do", {"method": "getMeta", "type": "PRD", "orgId": org, "tblId": tid})
+                ses = sorted({str(p.get("PRD_SE")) for p in prd}) if isinstance(prd, list) else []
+                if "M" not in ses and "월" not in ses:
+                    print(f"  {tid}: 월별 없음 {ses}"); continue
+                t = kosis_table(org, tid, "M", "201601", "202612", by_year=True)
+                if t["rows"]:
+                    macro[term] = {"tbl": tid, "name": x.get("TBL_NM"), **t}
+                    print(f"  {tid} {x.get('TBL_NM')}: {len(t['rows'])}행 → 사용"); break
+            except Exception as e:
+                print(f"  {tid}: 오류 {type(e).__name__} {str(e)[:80]}")
+    (OUT / "kosis_macro.json").write_text(json.dumps(macro, ensure_ascii=False), encoding="utf-8")
