@@ -415,10 +415,11 @@ def main() -> int:
     ind = judge.industry(survey_csv, {p["key"]: p["name"] for p in CFG["products"]})
     dp = judge.domestic_price(df, months, ROOT / "data" / "external" / "kfcf_price.csv", UNITS)
     kc = judge.kfs_check(df, kfs_csv)
+    gl = judge.glance(survey_csv)
     write_json("judgments.json", {
         "month": months[-1], "cards": judge.summary_cards(sr, pen, pa, dec, ds),
         "supply_risk": sr, "penetration": pen, "price_anomaly": pa, "decomposition": dec, "structure": st,
-        "domestic_supply": ds, "domestic_price": dp, "industry": ind, "kfs_check": kc,
+        "domestic_supply": ds, "domestic_price": dp, "industry": ind, "kfs_check": kc, "glance": gl,
         "criteria": judge.CRIT,
     })
     # 그림 원자료 (논문·보고서용)

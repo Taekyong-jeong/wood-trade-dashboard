@@ -153,6 +153,17 @@ EMP24 = {"p01":5616,"p06":938,"p08":710,"p07":504,"p10":809,"p09":36,"p02":235,"
 for prod,v in EMP24.items():
     rows.append(dict(year=2024,product=prod,metric="employees",value=v,unit="명",source=Q,note=""))
 
+# ---- 2024 국내 목재 이용 현황: 제품별 원자재 출처 (2024 보고서 p.11 표, ㎥; 펠릿 수입은 톤×1.67, 그 외 톤은 1:1 환산)
+USE24 = {  # 제품: (국산 원목, 수입 원목, 원목 외 원자재, 수입 목재제품)
+ "p01":(525135,2061331,0,1902397), "p06":(0,0,0,1391300), "p08":(1148569,484,89530,283790), "p07":(0,0,4104,1346880),
+ "p10":(0,0,0,168688), "p09":(0,0,0,34438), "p02":(800,6815,0,23342), "p03":(40,22,0,1480), "p04":(0,0,150,17763),
+ "p05":(3600,0,0,120545), "p12":(464656,100,780877,1182672), "p11":(85345,0,904887,4678602), "p13":(0,0,0,145),
+ "p14":(0,0,0,9870), "p15":(47140,0,0,115207), "sawdust":(207646,770,3500,69031), "mushroom_log":(55822,0,0,0),
+ "firewood":(858296,0,0,1098), "pulp":(0,0,0,7809739)}
+for prod,(d,i,o,m) in USE24.items():
+    for met,v in (("use_log_domestic",d),("use_log_imported",i),("use_other_raw",o),("use_imported_products",m)):
+        rows.append(dict(year=2024,product=prod,metric=met,value=v,unit="m3",source="2024 보고서 p.11 국내 목재 이용 현황",note="제품별 원자재 출처"))
+
 with open(OUT,"w",newline="",encoding="utf-8") as f:
     w=csv.DictWriter(f,fieldnames=["year","product","metric","value","unit","source","note"]); w.writeheader(); w.writerows(rows)
 print(len(rows),"rows")

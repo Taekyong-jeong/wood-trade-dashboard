@@ -356,5 +356,63 @@
     container.appendChild(wrap);
   }
 
-  global.Charts = { lineChart, barChart, sparkline, hbars, scatterChart, decompBars, color };
+
+  /**
+   * 흐름도(생키): { sources:[{key,label,value,color}], targets:[{key,label,value,sub?}], links:[{s,t,value}],
+   *               fmt:(v)=>str, height, tip:(link)=>html }
+   * 왼쪽 = 출처, 오른쪽 = 쓰임. 띠 두께 = 물량. 띠 색 = 출처.
+   */
+  function sankey(container, o) {
+    container.innerHTML = "";
+    container.classList.add("chart");
+    const W = Math.max(container.clientWidth, 300), narrow = W < 560;
+    const H = o.height || (narrow ? 380 : 360);
+    const L = narrow ? 92 : 132, R = narrow ? 128 : 230, nw = 10, gap = narrow ? 8 : 10;
+    const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, height: H, role: "img", "aria-label": o.aria || "흐름도" }, container);
+    const tip = tooltip(container);
+    const tot = o.sources.reduce((a, s) => a + s.value, 0) || 1;
+    const sc = (H - gap * (Math.max(o.sources.length, o.targets.length) - 1) - 4) / tot;
+    const place = (nodes) => { let y = 2; const sp = (H - 4 - tot * sc) / Math.max(nodes.length - 1, 1); nodes.forEach((n) => { n.y = y; n.h = Math.max(n.value * sc, 1); n.off = 0; y += n.h + sp; }); };
+    place(o.sources); place(o.targets);
+    const x0 = L, x1 = W - R, xm = (x0 + nw + x1) / 2;
+    const S = Object.fromEntries(o.sources.map((s) => [s.key, s])), T = Object.fromEntries(o.targets.map((t) => [t.key, t]));
+    const tIdx = Object.fromEntries(o.targets.map((t, i) => [t.key, i])), sIdx = Object.fromEntries(o.sources.map((s, i) => [s.key, i]));
+    const links = o.links.filter((l) => l.value > 0);
+    // 출처 쪽은 쓰임 순서, 쓰임 쪽은 출처 순서로 쌓아 교차를 줄임
+    const bySrc = [...links].sort((a, b) => sIdx[a.s] - sIdx[b.s] || tIdx[a.t] - tIdx[b.t]);
+    bySrc.forEach((l) => { const s = S[l.s]; l.sy = s.y + s.off; s.off += l.value * sc; });
+    const byTgt = [...links].sort((a, b) => tIdx[a.t] - tIdx[b.t] || sIdx[a.s] - sIdx[b.s]);
+    byTgt.forEach((l) => { const t = T[l.t]; l.ty = t.y + t.off; t.off += l.value * sc; });
+    const gL = el("g", {}, svg);
+    links.forEach((l) => {
+      const h = Math.max(l.value * sc, 0.8), a = x0 + nw, b = x1;
+      const d = `M${a},${l.sy}C${xm},${l.sy} ${xm},${l.ty} ${b},${l.ty}L${b},${l.ty + h}C${xm},${l.ty + h} ${xm},${l.sy + h} ${a},${l.sy + h}Z`;
+      const p = el("path", { d, fill: S[l.s].color, "fill-opacity": 0.38, class: "sk-link" }, gL);
+      const on = (ev) => { gL.querySelectorAll("path").forEach((q) => q.setAttribute("fill-opacity", q === p ? 0.72 : 0.14));
+        const r = container.getBoundingClientRect(); tip.innerHTML = o.tip ? o.tip(l, S[l.s], T[l.t]) : `${S[l.s].label} → ${T[l.t].label}: ${o.fmt(l.value)}`;
+        placeTip(tip, container, ev.clientX - r.left, ev.clientY - r.top); };
+      p.addEventListener("mousemove", on); p.addEventListener("touchstart", (ev) => on(ev.touches[0]), { passive: true });
+      p.addEventListener("mouseleave", () => { tip.style.display = "none"; gL.querySelectorAll("path").forEach((q) => q.setAttribute("fill-opacity", 0.38)); });
+    });
+    const ink = css("--ink"), ink2 = css("--ink-2"), fs = narrow ? 11 : 12.5;
+    o.sources.forEach((s) => {
+      el("rect", { x: x0, y: s.y, width: nw, height: s.h, rx: 2, fill: s.color }, svg);
+      const cy = s.y + s.h / 2;
+      const t1 = el("text", { x: x0 - 8, y: cy - 2, "text-anchor": "end", "font-size": fs, "font-weight": 700, fill: ink }, svg); t1.textContent = s.label;
+      const t2 = el("text", { x: x0 - 8, y: cy + fs, "text-anchor": "end", "font-size": fs - 1.5, fill: ink2 }, svg); t2.textContent = o.fmt(s.value) + ` · ${Math.round((s.value / tot) * 100)}%`;
+    });
+    const tc = css("--ink-2");
+    o.targets.forEach((t) => {
+      el("rect", { x: x1, y: t.y, width: nw, height: t.h, rx: 2, fill: tc }, svg);
+      const cy = t.y + t.h / 2;
+      const vtxt = `${o.fmt(t.value)} · ${Math.round((t.value / tot) * 100)}%`;
+      const t1 = el("text", { x: x1 + nw + 8, y: cy - 2, "font-size": fs, "font-weight": 700, fill: ink }, svg);
+      t1.textContent = narrow ? t.label.replace(/\(.+\)/, "") : t.label + "  ";
+      if (!narrow) { const v = el("tspan", { "font-weight": 400, fill: ink2, "font-size": fs - 1 }, t1); v.textContent = vtxt; }
+      const t2 = el("text", { x: x1 + nw + 8, y: cy + fs, "font-size": fs - 1.5, fill: ink2 }, svg);
+      t2.textContent = narrow ? `${vtxt}${t.sub ? " · " + t.sub : ""}` : (t.sub || "");
+    });
+  }
+
+  global.Charts = { lineChart, barChart, sparkline, hbars, scatterChart, decompBars, sankey, color };
 })(window);

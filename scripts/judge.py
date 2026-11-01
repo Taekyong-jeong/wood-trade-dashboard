@@ -428,6 +428,40 @@ def domestic_price(df: pd.DataFrame, months: list[str], price_csv: Path, units: 
             "species_note": c.get("species_note"), "survey_note": c.get("survey_note"), "source": c["source"]}
 
 
+# ── ⑨ 한눈에 보기: 목재 흐름 (목재이용실태조사 '국내 목재 이용 현황', 원자료 재분류) ──
+GLANCE_GROUPS = [  # (key, 이름, 실태조사 제품 키)
+    ("pulp", "펄프(종이 원료)", ["pulp"]),
+    ("pellet", "목재펠릿(연료)", ["p11"]),
+    ("sawn", "제재목", ["p01"]),
+    ("panel", "합판·보드", ["p06", "p08", "p07", "p09"]),
+    ("chip", "목재칩", ["p12"]),
+    ("other", "기타 목제품·장작·숯", ["p10", "p02", "p03", "p04", "p05", "p13", "p14", "p15", "sawdust", "mushroom_log", "firewood"]),
+]
+GLANCE_SOURCES = [("use_log_domestic", "국산 원목"), ("use_other_raw", "원목 외 원자재"), ("use_log_imported", "수입 원목"), ("use_imported_products", "수입 목재제품")]
+
+
+def glance(survey_csv: Path) -> dict | None:
+    if not survey_csv.exists():
+        return None
+    s = pd.read_csv(survey_csv)
+    u = s[s["metric"].isin([m for m, _ in GLANCE_SOURCES])]
+    if u.empty:
+        return None
+    y = int(u["year"].max())
+    u = u[u["year"] == y]
+    groups = []
+    for key, name, prods in GLANCE_GROUPS:
+        g = u[u["product"].isin(prods)].groupby("metric")["value"].sum()
+        flows = {m: float(g.get(m, 0)) for m, _ in GLANCE_SOURCES}
+        groups.append({"key": key, "label": name, "flows": flows, "total": sum(flows.values())})
+    total = sum(g["total"] for g in groups)
+    src = [{"key": m, "label": lab, "total": float(u[u["metric"] == m]["value"].sum())} for m, lab in GLANCE_SOURCES]
+    imp = sum(x["total"] for x in src if x["key"] in ("use_log_imported", "use_imported_products"))
+    return {"year": y, "total": total, "sources": src, "groups": groups, "import_share": round(imp / total * 100, 1),
+            "note": "단위 ㎥ — 펠릿 수입은 톤×1.67, 그 밖의 톤 단위 제품은 1:1로 환산(실태조사 방식). 폐목재 제외",
+            "source": "산림청·한국임업진흥원 목재이용실태조사 국내 목재 이용 현황"}
+
+
 # ── ⑧ 목재산업 규모 (목재이용실태조사 공표값, 원자료) ─────────
 def industry(survey_csv: Path, labels: dict) -> dict | None:
     if not survey_csv.exists():

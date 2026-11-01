@@ -483,7 +483,65 @@
     el.innerHTML = `<span class="one-line">국내 목재 이용량의 <b>${nf(o.import_share, 0)}%</b>는 수입재입니다 <span class="sub">(${o.year}년, 목재제품·원목 기준, 산림청 목재이용실태조사)</span></span>` +
       `<span class="one-line">본 페이지는 목재 수입의 <b>특정국 의존도</b>와 <b>국내 대체 생산 여력</b>을 공인 기준에 따라 매월 진단합니다</span>`;
   }
-  function renderAll() { renderIntro(); renderVerdicts(); renderSupply(); renderDomestic(); renderPenetration(); renderIndustry(); renderPrice(); renderDrivers(); renderBasic(); renderAlerts(); }
+
+  // ── 한눈에 보기 (시안: ?v=2) ───────────────────────────────
+  const V2 = new URLSearchParams(location.search).get("v") === "2";
+  function renderGlance() {
+    const host = $("#glance");
+    if (!host || !V2) return;
+    const J = D.judg || {}, G = J.glance, IND = J.industry, DS = J.domestic_supply, DC = J.decomposition, PA = J.price_anomaly || [];
+    if (!G) { host.innerHTML = ""; return; }
+    const man = (v) => `${nf(v / 1e4, 0)}만 ㎥`;
+    const tot = entry("total", "all"), L = l12(tot), per = periodL12(), m0 = ym(months()[months().length - 1]);
+    const yoy = L.prev ? ((L.cur / L.prev) - 1) * 100 : null;
+    const share10 = Math.round(G.import_share / 10);
+    const big = [...G.groups].sort((a, b) => b.total - a.total);
+    const pct = (v) => Math.round((v / G.total) * 100);
+    // 1) 핵심 숫자
+    const tile = (lab, val, sub, src) => `<div class="g-tile"><div class="g-lab">${lab}</div><div class="g-val num">${val}</div><div class="g-sub">${sub}</div><div class="g-src">${src}</div></div>`;
+    const indY = IND ? IND.year : null, indI = IND ? IND.years.indexOf(indY) : -1;
+    const tiles = tile("한 해 쓰는 목재", `${nf(G.total / 1e6, 1)}<small>백만 ㎥</small>`, `원목·부산물·수입 제품 합계`, `${G.year}년 · 산림청 실태조사`) +
+      tile("그중 수입", `${nf(G.import_share, 0)}<small>%</small>`, `10㎥ 중 ${share10}㎥가 수입 (원목+제품)`, `${G.year}년 · 산림청 실태조사`) +
+      tile("목재류 수입액", `${nf(L.cur / 1e8, 1)}<small>억 달러</small>`, yoy == null ? "최근 12개월" : `최근 12개월 · 1년 전보다 <b class="${yoy < 0 ? "dn" : "up"}">${yoy > 0 ? "+" : ""}${nf(yoy, 1)}%</b>`, `${per} · 관세청`) +
+      (IND ? tile("목재산업 규모", `${nf(IND.sales[indI] / 1e4, 1)}<small>조 원</small>`, `종사자 ${nf(IND.employees[indI], 0)}명 · 국내 생산 ${nf((IND.domestic[indI] / IND.sales[indI]) * 100, 0)}%`, `${indY}년 매출 · 산림청 실태조사`) : "");
+    // 2) 주의 신호
+    const short = DS ? DS.rows.filter((r) => r.risk_grade === "취약" && r.spare_cover != null && r.spare_cover < 100) : [];
+    const abn = PA.filter((x) => /비정상/.test(x.band || ""));
+    const sig = (lv, ic, title, body, href) => `<a class="g-sig ${lv}" href="${href}"><span class="g-ic" aria-hidden="true">${ic}</span><span><b>${title}</b><span class="g-sb">${body}</span></span></a>`;
+    const sigs =
+      sig(short.length ? "hi" : "lo", short.length ? "!" : "✓", short.length ? `막히면 국내에서 못 메우는 품목 ${short.length}개` : "수입이 막혀도 국내 여력 있음",
+        short.length ? short.map((r) => `${r.label}(${r.top_name} ${nf(r.top_share, 0)}%)`).join(" · ") : "수입 집중 '취약' 품목 모두 국내 여유 설비로 대체 가능", "#sec-domestic") +
+      sig(abn.length ? "mid" : "lo", abn.length ? "↕" : "✓", abn.length ? `가격이 평소와 크게 다른 품목 ${abn.length}개` : "수입 가격 평소 범위",
+        abn.length ? abn.map((x) => `${x.label.replace(/\(.+\)/, "")} ${x.band.replace("비정상 ", "")}`).join(" · ") : "주요 11개 품목 모두 과거 같은 달 대비 정상·다소 높음", "#sec-price") +
+      (DC && DC.available !== false && DC.total ? sig("mid", DC.total.pct < 0 ? "↓" : "↑", `수입 ${DC.total.pct > 0 ? "증가" : "감소"} ${nf(Math.abs(DC.total.pct), 1)}% — ${DC.total.driver.replace(" 주도", "")}이 주도`,
+        `${DC.total.driver === "물량 주도" ? "들여오는 양 자체가 바뀜 (값보다 양의 변화)" : DC.total.driver === "단가 주도" ? "양보다 값이 바뀜" : "양과 값이 함께 바뀜"} · 최근 12개월 vs 직전 12개월`, "#sec-drivers") : "");
+    const lead = `우리가 쓰는 목재 <b>10㎥ 중 ${share10}㎥는 수입</b>이고, ${big.slice(0, 3).map((g) => `${g.label.replace(/\(.+\)/, "")} ${pct(g.total)}%`).join(" · ")} 순으로 쓰입니다`;
+    host.innerHTML = `<div class="g-head"><h2 class="one-line">대한민국 목재산업 한눈에</h2><span class="hint">기준월 ${m0} · 실태조사 ${G.year}년</span></div>
+      <p class="g-lead one-line">${lead}</p>
+      <div class="g-tiles">${tiles}</div>
+      <div class="g-main">
+        <div class="card g-flow"><div class="card-head"><h3 class="one-line">목재는 어디서 와서 무엇이 되나</h3><span class="hint">${G.year}년 · 띠 굵기 = 물량(㎥)</span></div>
+          <div id="g-sankey"></div>
+          <div class="foot">왼쪽 = 원자재 출처, 오른쪽 = 만들어지거나 쓰이는 제품. 띠에 마우스를 올리면 물량 표시 · ${G.note} · 출처: ${G.source}</div></div>
+        <div class="card g-cty"><div class="card-head"><h3 class="one-line">어디서 사오나</h3><span class="hint">목재류 수입액 · 최근 12개월</span></div>
+          <div id="g-cty"></div><div class="foot">${per} · 출처: 관세청 수출입실적 · 국가를 누르면 상세</div></div>
+      </div>
+      <div class="g-sigs">${sigs}</div>
+      <div class="g-more">아래는 판정 근거와 상세 분석 — 각 신호를 누르면 해당 부분으로 이동</div>`;
+    const col = { use_log_domestic: C.color(2), use_other_raw: C.color(3), use_log_imported: C.color(1), use_imported_products: C.color(0) };
+    const srcSub = (g) => { const im = g.flows.use_log_imported + g.flows.use_imported_products; return `수입 ${Math.round((im / g.total) * 100)}%`; };
+    C.sankey($("#g-sankey"), {
+      sources: G.sources.map((s) => ({ key: s.key, label: s.label, value: s.total, color: col[s.key] })),
+      targets: G.groups.map((g) => ({ key: g.key, label: g.label, value: g.total, sub: srcSub(g) })),
+      links: G.groups.flatMap((g) => Object.entries(g.flows).map(([s, v]) => ({ s, t: g.key, value: v }))),
+      fmt: man, aria: "목재 원자재 출처에서 제품으로 가는 흐름",
+      tip: (l, s, t) => `<div class="tt">${s.label} → ${t.label}</div>${man(l.value)} <span class="sub">(${t.label.replace(/\(.+\)/, "")}의 ${Math.round((l.value / t.value) * 100)}%)</span>`,
+    });
+    const tops = topSuppliers("total", "all", 10), t3 = sum(tops.slice(0, 3).map((x) => x.share));
+    $("#g-cty").insertAdjacentHTML("beforebegin", `<div class="lead">상위 3개국 ${nf(t3, 0)}% <span class="sub">${tops.slice(0, 3).map((x) => cname(x.c)).join(" · ")}</span></div>`);
+    C.hbars($("#g-cty"), tops.map((x) => ({ label: cname(x.c), value: x.imp, text: `${nf(x.share, 0)}% · ${nf(x.imp / 1e8, 1)}억 달러`, onClick: () => { S.country = x.c; go("country"); } })));
+  }
+  function renderAll() { renderGlance(); renderIntro(); renderVerdicts(); renderSupply(); renderDomestic(); renderPenetration(); renderIndustry(); renderPrice(); renderDrivers(); renderBasic(); renderAlerts(); }
 
   function renderControls() {
     const years = [...new Set(months().map((m) => m.slice(0, 4)))];
@@ -730,6 +788,24 @@
     if (k) ({ group: () => (S.group = k), product: () => (S.product = k), species: () => (S.sp2 = k), country: () => (S.country = k) }[S.tab] || (() => {}))();
   }
 
+
+  // 시안: 한눈에 보기 아래로 기존 분석을 '자세히 보기'에 접어 넣음
+  function setupV2() {
+    const main = $("#main"), g = $("#glance"), ex = $("#explore");
+    if (!main || !g || $("#deep")) return;
+    g.hidden = false;
+    const det = document.createElement("details");
+    det.className = "fold deep"; det.id = "deep";
+    det.innerHTML = `<summary>자세히 보기 <span class="hint">판정 근거 · 수입 집중 · 국내 공급 여력 · 수입 의존 · 가격 · 변화 요인 · 산업 규모</span></summary><div class="fold-body" id="deep-body"></div>`;
+    main.insertBefore(det, ex);
+    const body = $("#deep-body", det);
+    let n = g.nextElementSibling;
+    while (n && n !== det) { const nx = n.nextElementSibling; body.appendChild(n); n = nx; }
+    document.addEventListener("click", (ev) => { const a = ev.target.closest("a[href^='#sec-']"); if (!a) return; ev.preventDefault(); det.open = true;
+      const tg = document.querySelector(a.getAttribute("href")); if (tg) setTimeout(() => window.scrollTo({ top: tg.getBoundingClientRect().top + scrollY - 70, behavior: "smooth" }), 30); });
+    det.addEventListener("toggle", () => { if (det.open) { renderAll(); } });
+  }
+
   async function init() {
     const get = (f) => fetch(`data/${f}?v=${window.BUILD_ID || ""}`).then((r) => (r.ok ? r.json() : null));
     const [meta, series, countries, insights, supply, judg] = await Promise.all(["meta.json", "series.json", "countries.json", "insights.json", "supply.json", "judgments.json"].map(get));
@@ -743,6 +819,7 @@
     const years = [...new Set(series.months.map((m) => m.slice(0, 4)))];
     S.start = years[0];
     readHash();
+    if (V2) setupV2();
     renderAll();
     renderControls();
     document.querySelectorAll(".tab").forEach((t) => t.onclick = () => go(t.dataset.tab));

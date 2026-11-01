@@ -351,3 +351,37 @@ details.fold > .fold-body { padding: 0 16px 16px; }
 .title-row .owner-top { font-size: 12.5px; letter-spacing: -0.05em; }
 .title-row { gap: 10px; }
 @media (min-width: 1101px) { .meta-chips { gap: 4px; } .meta-chips .chip { padding-left: 8px; padding-right: 8px; letter-spacing: -0.03em; } }
+
+/* ── 한눈에 보기 ───────────────────────────────────────── */
+.glance { margin-top: 14px; }
+.glance .g-head { display: flex; align-items: baseline; gap: 10px; justify-content: space-between; }
+.glance .g-head h2 { font-size: clamp(20px, 2.4vw, 26px); margin: 0; letter-spacing: -0.04em; }
+.glance .g-head .hint { color: var(--muted); font-size: 12px; white-space: nowrap; }
+.glance .g-lead { margin: 6px 0 12px; font-size: clamp(14px, 1.6vw, 17px); color: var(--ink-2); letter-spacing: -0.03em; }
+.glance .g-lead b { color: var(--ink); }
+.g-tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.g-tile { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px 12px; }
+.g-tile .g-lab { font-size: 13px; color: var(--ink-2); letter-spacing: -0.03em; }
+.g-tile .g-val { font-size: clamp(26px, 3.4vw, 38px); font-weight: 700; letter-spacing: -0.04em; line-height: 1.15; margin-top: 4px; }
+.g-tile .g-val small { font-size: 0.42em; font-weight: 500; color: var(--ink-2); margin-left: 3px; letter-spacing: -0.02em; }
+.g-tile .g-sub { font-size: 12.5px; color: var(--ink-2); margin-top: 4px; letter-spacing: -0.03em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.g-tile .g-sub b.dn { color: var(--down); } .g-tile .g-sub b.up { color: var(--up); }
+.g-tile .g-src { font-size: 11px; color: var(--muted); margin-top: 6px; letter-spacing: -0.03em; }
+.g-main { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 12px; margin-top: 12px; }
+.g-main .card { display: flex; flex-direction: column; }
+.g-main .g-cty #g-cty { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+.sk-link { cursor: pointer; transition: fill-opacity .12s; }
+.g-sigs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 12px; }
+.g-sig { display: flex; gap: 10px; align-items: flex-start; text-decoration: none; color: var(--ink); background: var(--surface);
+  border: 1px solid var(--border); border-left: 4px solid var(--muted); border-radius: var(--radius); padding: 12px 14px; }
+.g-sig:hover { background: var(--surface-2); }
+.g-sig.hi { border-left-color: var(--down); } .g-sig.mid { border-left-color: var(--warn); } .g-sig.lo { border-left-color: var(--up); }
+.g-sig .g-ic { flex: none; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 13px;
+  background: var(--surface-2); color: var(--ink); }
+.g-sig.hi .g-ic { background: var(--down); color: #fff; } .g-sig.mid .g-ic { background: var(--warn); color: #000; } .g-sig.lo .g-ic { background: var(--up); color: #fff; }
+.g-sig b { display: block; font-size: 14px; letter-spacing: -0.03em; }
+.g-sig .g-sb { display: block; font-size: 12.5px; color: var(--ink-2); margin-top: 3px; letter-spacing: -0.03em; line-height: 1.45; }
+.g-more { margin: 16px 0 4px; font-size: 12px; color: var(--muted); text-align: center; }
+.fold.deep > summary { font-size: 16px; font-weight: 700; }
+@media (max-width: 900px) { .g-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } .g-main, .g-sigs { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 560px) { .glance .g-lead { white-space: normal; } .glance .g-head .hint { display: none; } .g-tile .g-sub { white-space: normal; } .g-tile { padding: 12px; } }
