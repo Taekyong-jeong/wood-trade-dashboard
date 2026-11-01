@@ -27,7 +27,7 @@ def comtrade(params):
     base = "https://comtradeapi.un.org/data/v1/get/C/M/HS?"
     for a in range(4):
         try:
-            j = get(base + urllib.parse.urlencode(params), {"Ocp-Apim-Subscription-Key": CT})
+            j = get(base + urllib.parse.urlencode(params), {"Ocp-Apim-Subscription-Key": CT}, timeout=300)
             if j.get("error"):
                 print("   응답 오류", j.get("error")); return []
             return [{k: d.get(k) for k in KEEP} for d in j.get("data") or []
@@ -65,10 +65,11 @@ if ES:
             print(f"[{word}] 검색 오류 {type(e).__name__} {str(e)[:80]}")
     seen = set()
     for f in found:
-        if f["id"] in seen or "木材価格" not in (f["stat"] or ""):
+        t = f["title"] or ""
+        if f["id"] in seen or "木材統計" not in (f["stat"] or "") or "月別" not in t:
             continue
         seen.add(f["id"])
-        if not any(w in (f["title"] or "") for w in ("製材", "価格")):
+        if not any(w in t for w in ("木材製品卸売価格", "製材用素材価格")):
             continue
         try:
             j = get("https://api.e-stat.go.jp/rest/3.0/app/json/getStatsData?" + urllib.parse.urlencode({"appId": ES, "statsDataId": f["id"], "limit": 100000}))
@@ -77,6 +78,7 @@ if ES:
             print(f"  {f['id']} {f['title']}: {len(data[f['id']]['values'])}값")
         except Exception as e:
             print(f"  {f['id']} 오류 {type(e).__name__} {str(e)[:80]}")
-        if len(data) >= 6:
+        if len(data) >= 30:
             break
+        time.sleep(1)
     (OUT / "estat_wood_price.json").write_text(json.dumps({"search": found, "data": data}, ensure_ascii=False), encoding="utf-8")
