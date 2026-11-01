@@ -407,7 +407,12 @@ def domestic_price(df: pd.DataFrame, months: list[str], price_csv: Path, units: 
     out = []
     for pr in c["pairs"]:
         dom = None
-        if pr.get("domestic"):                     # domestic: null → 국산 공표가 없음, 수입 단가만 표시
+        dd = pr.get("domestic")
+        if dd and "fixed_krw_m3" in dd:            # 단가표 대신 고정 ㎥ 단가(다른 연도 단가 등) — 연도·환율 별도
+            fx2 = float(dd.get("fx_krw_per_usd", fx)); lo, hi = dd.get("range_krw_m3", [dd["fixed_krw_m3"]] * 2)
+            dom = {"median": round(dd["fixed_krw_m3"] / fx2), "min": round(lo / fx2), "max": round(hi / fx2),
+                   "krw_m3_median": dd["fixed_krw_m3"], "n": None, "year": int(dd["year"]), "desc": dd.get("desc"), "fx": fx2}
+        elif dd:                                   # domestic: null → 국산 공표가 없음, 수입 단가만 표시
             d = t[(t["category"] == pr["domestic"]["category"]) & (t["treatment"] == pr["domestic"]["treatment"]) & t["m3"].notna()]
             if d.empty:
                 continue

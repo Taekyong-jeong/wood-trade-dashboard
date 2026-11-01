@@ -440,14 +440,14 @@
         const bar = (lab, sub, v, col, val, extra = "") => `<div class="dp-r"><div class="dp-l"><b>${lab}</b>${sub ? `<span>${sub}</span>` : ""}</div>` +
           `<div class="dp-t"><i style="width:${w(v)};background:${col}"></i>${extra}</div><div class="dp-v">${val}</div></div>`;
         return `<div class="dp-pair"><div class="dp-h"><b>${pr.label}</b>${r ? `<span class="dp-x">국산이 수입의 <b>${nf(r, 1)}배</b></span>` : `<span class="dp-x sub">${D0 ? "비교할 수입 규모 없음" : "수입 단가만 · 국산 공표가 없음"}</span>`}</div>` +
-          (!D0 ? `<div class="dp-r"><div class="dp-l"><b>국산</b><span>공표 판매가 없음</span></div><div class="dp-t dp-none">${pr.domestic_missing || "국산 공표 판매가 없음"}</div><div class="dp-v">–</div></div>` : bar("국산", `A급 ${pr.domestic.n}규격 중앙값`, pr.domestic.median, cDom, `<b>${nf(pr.domestic.median, 0)}</b><span>${nf(pr.domestic.krw_m3_median / 1e4, 0)}만 원/㎥</span>`,
+          (!D0 ? `<div class="dp-r"><div class="dp-l"><b>국산</b><span>공표 판매가 없음</span></div><div class="dp-t dp-none">${pr.domestic_missing || "국산 공표 판매가 없음"}</div><div class="dp-v">–</div></div>` : bar("국산", pr.domestic.desc || `A급 ${pr.domestic.n}규격 중앙값`, pr.domestic.median, cDom, `<b>${nf(pr.domestic.median, 0)}</b><span>${nf(pr.domestic.krw_m3_median / 1e4, 0)}만 원/㎥</span>`,
             pr.domestic.max > pr.domestic.min ? `<s style="left:${w(pr.domestic.min)};width:${(((pr.domestic.max - pr.domestic.min) / mx) * 100)}%" title="규격별 범위 ${nf(pr.domestic.min, 0)}~${nf(pr.domestic.max, 0)} USD/㎥"></s>` : "")) +
           ok.map((im) => bar("수입", im.label.replace(/^수입\s*/, ""), im.usd_m3, cImp,
             `<b>${nf(im.usd_m3, 0)}</b><span>${im.basis ? "산림청 발표 ㎥" : im.calibrated ? "산림청 환산 비율" : "밀도 잠정"}</span>`)).join("") +
           (small.length ? `<div class="dp-n">${small.map((im) => `${im.label}: 최근 12개월 ${usd(im.usd)} — 100만 달러 미만이라 비교 제외`).join(" · ")}</div>` : "") + `</div>`;
       };
-      const lead = DP.pairs.filter((pr) => ratioOf(pr)).map((pr) => `${pr.label.replace(/\(.+\)/, "")} ${nf(ratioOf(pr), 1)}배`).join(" · ");
-      $("#a-price").insertAdjacentHTML("beforeend", card("국산·수입 가격 수준", `USD/㎥ · 국산 ${(DP.pairs.find((x) => x.domestic) || DP.pairs[0]).domestic.year} 단가표 · 수입 ${ym(DP.period.slice(0, 7))}~${ym(DP.period.slice(8))}`,
+      const lead = DP.pairs.filter((pr) => ratioOf(pr)).map((pr) => `${pr.label.replace(/\(.+\)/, "")} ${nf(ratioOf(pr), 1)}배${pr.domestic.desc ? `<span class="sub">(${pr.domestic.year} 단가)</span>` : ""}`).join(" · ");
+      $("#a-price").insertAdjacentHTML("beforeend", card("국산·수입 가격 수준", `USD/㎥ · 국산 ${[...new Set(DP.pairs.filter((x) => x.domestic).map((x) => x.domestic.year))].sort().reverse().join("·")} 단가 · 수입 ${ym(DP.period.slice(0, 7))}~${ym(DP.period.slice(8))}`,
         `<div class="legend"><span><i style="background:${cDom}"></i>국산 (산림조합 판매가, 면세)</span><span><i style="background:${cImp}"></i>수입 (도착 가격 CIF)</span><span class="sub">회색 띠 = 국산 규격별 범위</span></div>` +
         DP.pairs.map(pairHtml).join("") +
         rule(`국산 = 산림조합중앙회 목재유통센터 판매단가(A급·면세) ÷ 규격 부피(T×W×L), 원/달러 ${nf(DP.fx, 0)} (${DP.fx_basis.replace(/^.*?\(/, "").replace(/\)$/, "")}) · 수입 = CIF 단가 — 관세·통관·내륙운송·유통 마진 전이라 같은 단계 가격이 아님. 가격 수준 참고용이며 경쟁력 판정에 쓰지 않음 · ${DP.note.replace(/^.*?쓰지 않음\.\s*/, "")} · ${DP.species_note} · ${DP.survey_note || ""}`), "",
@@ -859,7 +859,7 @@
     let n = g.nextElementSibling;
     while (n && n !== det) { const nx = n.nextElementSibling; body.appendChild(n); n = nx; }
     // 안쪽 구역(판정 요약·수입 집중·…)도 각각 접기 — 처음엔 모두 접힘, 제목을 누르면 펼침
-    [...body.querySelectorAll(":scope > .sec-title")].forEach((st) => {
+    [...body.querySelectorAll(":scope > .sec-title")].filter((st) => !(st.nextElementSibling && st.nextElementSibling.id === "verdicts")).forEach((st) => {   // 판정 요약은 접지 않고 고정
       const sub = document.createElement("details"); sub.className = "sub-fold";
       const sm = document.createElement("summary");
       st.parentNode.insertBefore(sub, st);
