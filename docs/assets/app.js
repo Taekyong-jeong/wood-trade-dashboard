@@ -565,6 +565,7 @@
           <div id="g-cty-lead"></div><div id="g-cty"></div><div class="foot">${per} · 출처: 관세청 수출입실적 · 품목 버튼이나 흐름도 오른쪽 제품 이름을 누르면 바뀜 · 국가를 누르면 상세</div></div>
       </div>
       <div class="g-sigs">${sigs}</div>
+      <div class="feedback">추가·수정·삭제 의견은 언제든 메일(<a href="mailto:jty2533@naver.com">jty2533@naver.com</a>)로 주세요. 필요에 따라 의견 주신 분의 소속·성함을 함께 넣어드릴 수 있습니다.</div>
       <div class="g-more">아래는 판정 근거와 상세 분석 — 각 신호를 누르면 해당 부분으로 이동</div>`;
     const col = { use_log_domestic: C.color(2), use_other_raw: C.color(3), use_log_imported: C.color(1), use_imported_products: C.color(0) };
     const srcSub = (g) => { const im = g.flows.use_log_imported + g.flows.use_imported_products; return `수입 ${Math.round((im / g.total) * 100)}%`; };
