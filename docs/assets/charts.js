@@ -223,7 +223,8 @@
           const tx = el("text", { x: X(i), y: pad.t + 11 + (near && k ? 14 : 0), "text-anchor": X(i) > W - 60 ? "end" : X(i) < pad.l + 40 ? "start" : "middle", style: `fill:${css("--ink")};font-size:11px;font-weight:700` }, layer);
           tx.textContent = (k ? "B " : "A ") + xfmt(opts.x[i], true);
         });
-        if (!pins.length) { box.innerHTML = `<span class="pin-hint">그래프를 누르면 그 달이 고정됨 · 다른 달을 누르면 두 달을 비교</span>`; return; }
+        box.style.display = pins.length ? "" : "none";
+        if (!pins.length) { box.innerHTML = ""; return; }
         const [a, b] = pins;
         box.innerHTML = series.map((s) => {
           const va = s.values[a], vb = b != null ? s.values[b] : null;
@@ -354,7 +355,7 @@
     rows.forEach((r, i) => {
       const d = document.createElement("div");
       d.className = "hb";
-      d.innerHTML = `<span class="rk">${i + 1}</span><span class="nm" title="${r.label}">${r.label}</span>` +
+      d.innerHTML = `<span class="rk">${r.rk != null ? r.rk : i + 1}</span><span class="nm" title="${r.label}">${r.label}</span>` +
         `<span class="bar"><i style="width:${((r.value || 0) / max) * 100}%;background:${r.color || opts.color || css("--s1")}"></i></span>` +
         `<span class="vl">${r.text}</span>`;
       if (r.onClick) { d.style.cursor = "pointer"; d.addEventListener("click", r.onClick); }

@@ -543,8 +543,8 @@
       card("목재류 수입·수출 추이", "12개월 누적 · 억 달러", `<div id="bs-trade"></div>` +
         rule(`HS 44류 전체 · 수입 CIF, 수출 FOB · 출처: ${SRC}`), "",
         `최근 12개월 수입 ${nf(L.cur / 1e8, 1)}억 달러 · ${nf(Lk.cur / 1e9, 1)}백만 톤 <span class="sub">수출 ${nf(Lexp / 1e8, 1)}억 달러</span>`) +
-      card("목재제품별 수입액", `${per} · 누르면 상세`, `<div id="bs-prod"></div>` +
-        rule(`목재이용법 15종 + CLT + LVL 기준 HS 코드 합계 · 괄호 = 1년 전 대비 · 원목·칩 등 원자재와 펄프는 제외 · 출처: ${SRC}`), "",
+      card("품목별 수입액", `${per} · 누르면 상세`, `<div id="bs-prod"></div>` +
+        rule(`목재이용법 15종 + CLT + LVL 기준 HS 코드 합계 + 원목(HS 4403) · 주황 = 원목·구조용 집성재·CLT (순위 밖이어도 항상 표시) · 괄호 = 1년 전 대비 · 펄프 제외 · 출처: ${SRC}`), "",
         pr.length ? `1위 ${pr[0].n} ${nf((pr[0].v / ptot) * 100, 0)}% <span class="sub">상위 3개 ${nf((sum(pr.slice(0, 3).map((x) => x.v)) / ptot) * 100, 0)}%</span>` : "");
     if (U.length) {
       C.barChart($("#bs-use"), { x: U.map((d) => String(d.y)), series: [{ name: "국산", values: U.map((d) => d.dom / 1e4), color: C.color(2) }, { name: "수입 원목", values: U.map((d) => d.lim / 1e4), color: C.color(1) },
@@ -560,8 +560,14 @@
     }
     C.lineChart($("#bs-trade"), { x: ms.slice(pk), series: [{ name: "수입액", values: ru.slice(pk).map((v) => v / 1e8) }, { name: "수출액", values: re.slice(pk).map((v) => v / 1e8) }],
       yFmt: (v) => nf(v, 0), tipFmt: (v) => nf(v, 2) + "억 달러", diffFmt: (v) => (v > 0 ? "+" : "") + nf(v, 2) + "억 달러", height: 250, xLabelFmt: xFmt, pin: true });
-    C.hbars($("#bs-prod"), pr.slice(0, 10).map((x) => ({ label: x.n, value: x.v,
-      text: `${nf(x.v / 1e8, 2)}억 달러 <span class="sub">(${x.pv ? ((g) => (g >= 0 ? "+" : "") + nf(g, Math.abs(g) < 10 ? 1 : 0) + "%")((x.v / x.pv - 1) * 100) : "–"})</span>`, onClick: () => openDetail("product", x.k) })));
+    // 상위 10개 + 원목(원자재) · 구조용 집성재 · CLT는 순위 밖이어도 항상 표시
+    const ew = entry("heading", "4403"), lw = ew ? l12(ew) : {};
+    const all = [...pr, ...(lw.cur ? [{ k: "4403", ax: "heading", n: "원목", v: lw.cur, pv: lw.prev || 0, raw: true }] : [])].sort((a, b) => b.v - a.v);
+    const MUST = ["4403", "p05", "p16"], top = all.slice(0, 10), extra = all.filter((x) => MUST.includes(x.k) && !top.includes(x));
+    const nmB = (x) => (x.k === "p05" ? "구조용 집성재" : x.k === "p16" ? "CLT" : x.n) + (x.raw ? " (원자재)" : "");
+    const row = (x) => ({ rk: all.indexOf(x) + 1, label: `${nmB(x)}`, value: x.v, color: MUST.includes(x.k) ? C.color(1) : undefined,
+      text: `${nf(x.v / 1e8, 2)}억 달러 <span class="sub">(${x.pv ? ((g) => (g >= 0 ? "+" : "") + nf(g, Math.abs(g) < 10 ? 1 : 0) + "%")((x.v / x.pv - 1) * 100) : "–"})</span>`, onClick: () => openDetail(x.ax || "product", x.k) });
+    C.hbars($("#bs-prod"), [...top, ...extra].map(row));
   }
   function renderAlerts() {
     const al = D.insights.alerts;
