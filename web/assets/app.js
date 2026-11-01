@@ -417,13 +417,28 @@
       $("#ds-tbl").querySelectorAll("tr[data-axis]").forEach((tr) => tr.onclick = () => openDetail(tr.dataset.axis, tr.dataset.key));
     };
     host.innerHTML = "";
-    const UTIL_KEYS = ["p01", "p06", "p07", "p08", "p10", "p12"];   // 업체 수가 적은 소량 품목(집성재·WPC·난연)은 해마다 출렁여 제외
-    const utilRows = rows.filter((d) => UTIL_KEYS.includes(d.key) && d.util_years.length >= 8);
+    const UTIL_DEF = ["p01", "p06", "p07", "p08", "p10", "p12"];   // 기본 표시: 2014년부터 공표값·산출값이 이어지는 제품
+    const utilRows = rows.filter((d) => d.util_years.length >= 5).sort((a, b) => b.utilization - a.utilization);
     const uy = [...new Set(utilRows.flatMap((d) => d.util_years))].sort();
+    const ref = (d) => /참고치/.test(d.util_note || "");
+    if (!S.uts) S.uts = new Set(UTIL_DEF);
+    const uHi = utilRows[0], uLo = utilRows[utilRows.length - 1];
     host.insertAdjacentHTML("beforeend",
-      card(`국내 설비 가동률 추이 ${q("util")}`, `${uy[0]}~${uy[uy.length - 1]} · %`, `<div id="ds-util"></div>` +
-        rule(`가동률 = 연 생산량 ÷ 최대 생산가능량 (실태조사 정의, 응답업체 기준) · 제재목·목재칩은 일평균 생산량 × 월 가동일 × 12로 산출 · 합판 3개·파티클보드 2개·섬유판 5개 업체라 해마다 출렁임 · 집성재·WPC·난연목재는 표에만 표시`), "",
-        `${uy[uy.length - 1]}년 ` + utilRows.map((d) => `${short(d.label)} ${nf(d.utilization, 0)}`).join(" · ") + ` <span class="sub">(%)</span>`));
+      card(`국내 설비 가동률 추이 ${q("util")}`, `${uy[0]}~${uy[uy.length - 1]} · % · 이름을 눌러 켜고 끔`, `<div id="ut-chips" class="dp-chips"></div><div id="ds-util"></div>` +
+        rule(`가동률 = 연 생산량 ÷ 최대 생산가능량 (실태조사 정의, 응답업체 기준) · 제재목·목재칩은 일평균 생산량 × 월 가동일 × 12로 산출 · * 참고치(전국 생산량 ÷ 최대 생산가능량 합계) · 업체 수가 적은 제품(합판 3개·파티클보드 2개 등)은 해마다 출렁임 · 이름 옆 숫자 = ${uy[uy.length - 1]}년 가동률`), "",
+        `${uy[uy.length - 1]}년 최고 ${short(uHi.label)} ${nf(uHi.utilization, 0)}% · 최저 ${short(uLo.label)} ${nf(uLo.utilization, 0)}% <span class="sub">(${utilRows.length}개 제품)</span>`));
+    const drawUtil = () => {
+      const on = utilRows.filter((d) => S.uts.has(d.key)), pal = {}; on.forEach((d, i) => { pal[d.key] = C.color(i); });
+      $("#ut-chips").innerHTML = utilRows.map((d) => `<button type="button" class="dp-chip${S.uts.has(d.key) ? " on" : ""}" data-k="${d.key}"${pal[d.key] ? ` style="--c:${pal[d.key]}"` : ""}><i></i>${short(d.label)} <b>${nf(d.utilization, 0)}%${ref(d) ? "*" : ""}</b></button>`).join("") +
+        `<button type="button" class="dp-chip dp-all" data-k="*">${S.uts.size ? "모두 끄기" : "기본 6개"}</button>`;
+      $("#ut-chips").querySelectorAll(".dp-chip").forEach((b) => b.onclick = () => { const k = b.dataset.k;
+        if (k === "*") S.uts = S.uts.size ? new Set() : new Set(UTIL_DEF); else S.uts.has(k) ? S.uts.delete(k) : S.uts.add(k); drawUtil(); });
+      const box = $("#ds-util"); box.innerHTML = "";
+      if (!on.length) { box.innerHTML = `<div class="empty" style="height:300px">제품 이름을 눌러 선택</div>`; return; }
+      C.lineChart(box, { x: uy.map(String), noLegend: true, series: on.map((d) => ({ name: short(d.label) + (ref(d) ? "*" : ""), color: pal[d.key],
+        values: uy.map((y) => { const i = d.util_years.indexOf(y); return i < 0 ? null : d.util_series[i]; }) })),
+        yFmt: (v) => nf(v, 0) + "%", tipFmt: (v) => nf(v, 1) + "%", height: 300, yMaxMin: 100 });
+    };
     const CAPS = DS.capacity || [];
     if (CAPS.length) {
       const chg = CAPS.map((c) => ({ c, r: c.capacity[c.capacity.length - 1] / c.capacity[0] - 1 }));
@@ -445,9 +460,7 @@
     host.insertAdjacentHTML("beforeend", tblCard);
     $("#ds-yr").onchange = (ev) => { S.dsy = ev.target.value; drawDs(); };
     drawDs();
-    C.lineChart($("#ds-util"), { x: uy.map(String), series: utilRows.map((d) => ({ name: short(d.label),
-      values: uy.map((y) => { const i = d.util_years.indexOf(y); return i < 0 ? null : d.util_series[i]; }) })),
-      yFmt: (v) => nf(v, 0) + "%", tipFmt: (v) => nf(v, 1) + "%", height: 300 });
+    drawUtil();
     host.querySelectorAll("tr[data-axis]").forEach((tr) => tr.onclick = () => openDetail(tr.dataset.axis, tr.dataset.key));
   }
 
