@@ -439,7 +439,7 @@ def domestic_price(df: pd.DataFrame, months: list[str], price_csv: Path, units: 
             dens = it.get("density")
             per_t = usd * 1000 / kg
             per_m3 = per_t * dens if dens else None
-            imps.append({"label": im["label"], "usd": round(usd), "usd_t": round(per_t), "usd_m3": None if per_m3 is None else round(per_m3),
+            imps.append({"label": im["label"], "supply": im.get("supply"), "usd": round(usd), "usd_t": round(per_t), "usd_m3": None if per_m3 is None else round(per_m3),
                          "density": dens, "calibrated": bool(it.get("calibrated")),
                          "ratio": None if not (per_m3 and dom) else round(dom["median"] / per_m3, 2)})
         out.append({"label": pr["label"], "domestic": dom, "domestic_missing": pr.get("domestic_missing"), "imports": imps})
