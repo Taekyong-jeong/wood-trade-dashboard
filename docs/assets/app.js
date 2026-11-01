@@ -443,7 +443,7 @@
           (!D0 ? `<div class="dp-r"><div class="dp-l"><b>국산</b><span>공표 판매가 없음</span></div><div class="dp-t dp-none">${pr.domestic_missing || "국산 공표 판매가 없음"}</div><div class="dp-v">–</div></div>` : bar("국산", `A급 ${pr.domestic.n}규격 중앙값`, pr.domestic.median, cDom, `<b>${nf(pr.domestic.median, 0)}</b><span>${nf(pr.domestic.krw_m3_median / 1e4, 0)}만 원/㎥</span>`,
             pr.domestic.max > pr.domestic.min ? `<s style="left:${w(pr.domestic.min)};width:${(((pr.domestic.max - pr.domestic.min) / mx) * 100)}%" title="규격별 범위 ${nf(pr.domestic.min, 0)}~${nf(pr.domestic.max, 0)} USD/㎥"></s>` : "")) +
           ok.map((im) => bar("수입", im.label.replace(/^수입\s*/, ""), im.usd_m3, cImp,
-            `<b>${nf(im.usd_m3, 0)}</b><span>${im.basis ? "공표 ㎥" : im.calibrated ? "산림청 계수" : "밀도 잠정"}</span>`)).join("") +
+            `<b>${nf(im.usd_m3, 0)}</b><span>${im.basis ? "산림청 발표 ㎥" : im.calibrated ? "산림청 환산 비율" : "밀도 잠정"}</span>`)).join("") +
           (small.length ? `<div class="dp-n">${small.map((im) => `${im.label}: 최근 12개월 ${usd(im.usd)} — 100만 달러 미만이라 비교 제외`).join(" · ")}</div>` : "") + `</div>`;
       };
       const lead = DP.pairs.filter((pr) => ratioOf(pr)).map((pr) => `${pr.label.replace(/\(.+\)/, "")} ${nf(ratioOf(pr), 1)}배`).join(" · ");
