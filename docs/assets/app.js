@@ -406,7 +406,9 @@
     renderPuSeg();
     const PA = D.judg.price_anomaly, ms = months();
     const ready = PA.filter((d) => d.band !== "판정 보류");
-    const opts = PA.map((d) => [d.axis, d.key, d.label]);
+    // 지도 품목 = 이상 판정 품목 + 국산 가격이 있는 구조용 집성재·CLT (월 수입이 작아 이상 판정은 하지 않음)
+    const opts = [...PA.map((d) => [d.axis, d.key, d.label]), ...["p05", "p16"].map((k) => D.meta.products.find((p) => p.key === k)).filter((p) => p && entry("product", p.key))
+      .map((p) => ["product", p.key, p.key === "p05" ? "구조용 집성재" : p.name])];
     if (!S.pmap || !opts.find((o) => `${o[0]}:${o[1]}` === S.pmap)) S.pmap = "product:p11";
     // 단가 지수 (12개월 평균, 시작=100)
     const pitems = [["heading", "4403", "원목"], ["heading", "4407", "제재목"], ["product", "p06", "합판"], ["product", "p11", "목재펠릿"]].filter(([a, k]) => entry(a, k));
@@ -423,7 +425,7 @@
         ready.length ? `판정 ${ready.length}개 품목 중 비정상 ${ready.filter((d) => /비정상/.test(d.band)).length}개 · 다소 높음·낮음 ${ready.filter((d) => /다소/.test(d.band)).length}개 · 정상 ${ready.filter((d) => d.band === "정상").length}개` : `판정 보류 <span class="sub">과거 데이터 수집 후 자동 판정</span>`) +
       card(`공급국 가격대 지도 ${q("price")}`, `${periodL12()}`,
         `<div class="inline-sel"><span class="ctl-label">품목</span><select id="pmapSel">${opts.map(([a, k, n]) => `<option value="${a}:${k}" ${`${a}:${k}` === S.pmap ? "selected" : ""}>${n}</option>`).join("")}</select></div>` +
-        `<div id="pmap"></div>` + rule(`점 = 공급국 (최근 12개월 점유율 1% 이상) · 가로 = 점유율, 세로 = 단가 · 빨간 점선 = 수입 평균 · <b>주황 실선·띠 = 같은 품목 국산 판매가</b>(산림조합 A급 중앙값·규격별 범위, 면세 — 수입 CIF와 유통 단계가 달라 수준 참고용, 제재목만 해당) · ${PU_RULE}`), "", `<span id="pmap-lead"></span>`) +
+        `<div id="pmap"></div>` + rule(`점 = 공급국 (최근 12개월 점유율 1% 이상) · 가로 = 점유율, 세로 = 단가 · 빨간 점선 = 수입 평균 · <b>주황 실선·띠 = 같은 품목 국산 판매가</b>(산림조합 A급 중앙값·규격별 범위, 면세 — 수입 CIF와 유통 단계가 달라 수준 참고용 · 제재목은 2026 단가표, 구조용 집성재·CLT는 2026 단가 공란이라 2024 중부목재유통센터 낙엽송 단가 · 그 밖의 품목은 국산 공표가 없어 기준선 없음) · ${PU_RULE}`), "", `<span id="pmap-lead"></span>`) +
       card(`단가 지수 ${q("idx")}`, "12개월 평균 단가, 시작 = 100", `<div id="pidx"></div>` +
         `<div class="foot">현재 단가: ${now.filter((x) => x.v != null).map((x) => `${x.n} ${x.f(x.v)} ${x.u}`).join(" · ")}</div>` + rule(PU_RULE), "",
         (() => { const y = pser.map((p) => { const i = ms.length - 1; const a = p.raw[i], b = p.raw[i - 12]; return { n: p.name, p: a && b ? (a / b - 1) * 100 : null }; }).filter((x) => x.p != null).sort((a, b) => b.p - a.p);
@@ -464,17 +466,17 @@
         .map(([c, r]) => ({ c, share: (r.l12[0] / tot) * 100, price: cv(r.l12[0], r.l12[1]), imp: r.l12[0] }));
       const avg = tot ? cv(tot, sum(Object.values(rows).map((r) => r.l12[1]))) : null;
       // 국산 기준선: 같은 품목의 국산 판매가(산림조합, USD/㎥) — ㎥ 단위일 때만 (톤 단위는 국산 밀도를 몰라 환산 불가)
-      const DOMMAP = { "heading:4407": "낙엽송 제재목", "product:p01": "낙엽송 제재목" };  // 4418.81(구조용 집성재)은 국산 공표가 없어 기준선 없음
+      const DOMMAP = { "heading:4407": "낙엽송 제재목", "product:p01": "낙엽송 제재목", "product:p05": "구조용 집성재", "product:p16": "CLT(직교적층재)" };
       const dp = (D.judg.domestic_price || {}).pairs || [], dl = DOMMAP[S.pmap];
       const dom = dl && pl === "USD/㎥" ? dp.find((x) => x.label === dl) : null;
       const domNote = dl && !dom ? " · 국산 기준선은 ㎥ 환산 단위에서만 표시" : "";
       C.scatterChart($("#pmap"), { points: pts.map((p) => ({ x: p.share, y: p.price, label: cname(p.c), size: 4 + Math.sqrt(p.share) * 1.6, labelOn: p.share >= 8,
           color: C.color(0), d: p })), xMin: 0, xMax: Math.max(10, Math.ceil((Math.max(...pts.map((p) => p.share), 10) * 1.25) / 10) * 10), height: 270,
-        xTitle: "점유율 (%)", yTitle: pl, xFmt: (v) => v + "%", yFmt: pf, refY: [...(avg ? [{ v: avg, label: `수입 평균 ${pf(avg)}`, below: true }] : []), ...(dom ? [{ v: dom.domestic.median, band: [dom.domestic.min, dom.domestic.max], color: C.color(1), solid: true, label: `국산 ${dom.label} ${pf(dom.domestic.median)}` }] : [])],
+        xTitle: "점유율 (%)", yTitle: pl, xFmt: (v) => v + "%", yFmt: pf, refY: [...(avg ? [{ v: avg, label: `수입 평균 ${pf(avg)}`, below: true }] : []), ...(dom ? [{ v: dom.domestic.median, band: [dom.domestic.min, dom.domestic.max], color: C.color(1), solid: true, label: `국산 ${dom.label.replace(/\(.+\)/, "")}${dom.domestic.desc ? ` (${dom.domestic.year})` : ""} ${pf(dom.domestic.median)}` }] : [])],
         tip: (p) => `<div class="tt">${p.label}</div><div class="tr"><span>점유율</span><b>${nf(p.d.share, 1)}%</b></div><div class="tr"><span>단가</span><b>${pf(p.d.price)} ${pl}</b></div><div class="tr"><span>수입액</span><b>${usd(p.d.imp)}</b></div>` });
       const big = pts.filter((p) => p.share >= 5).sort((x, y) => x.price - y.price);
       $("#pmap-lead").innerHTML = (big.length >= 2 ? `점유율 5%↑ 중 최저 ${cname(big[0].c)} ${pf(big[0].price)} · 최고 ${cname(big[big.length - 1].c)} ${pf(big[big.length - 1].price)}` : "") +
-        (dom ? ` · 국산 ${dom.label.replace(/\(.+\)/, "")} ${pf(dom.domestic.median)}` : "") + ` <span class="sub">${pl}${domNote}</span>`;
+        (dom ? ` · 국산 ${dom.label.replace(/\(.+\)/, "")}${dom.domestic.desc ? ` (${dom.domestic.year} 단가)` : ""} ${pf(dom.domestic.median)}` : "") + ` <span class="sub">${pl}${domNote}</span>`;
     };
     drawMap();
     $("#pmapSel").onchange = (ev) => { S.pmap = ev.target.value; drawMap(); };
