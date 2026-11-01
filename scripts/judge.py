@@ -556,7 +556,30 @@ def glance(survey_csv: Path, wus_csv: Path | None = None) -> dict | None:
             d["inputs_total"] = sum(inp.values())
             d["inputs_detail"] = [[r["category"], r["origin"], float(r["value_m3"])] for _, r in g.iterrows()]
     prods.sort(key=lambda d: -d["total"])
-    return {"year": y, "total": total, "sources": src, "groups": groups, "products": prods, "import_share": round(imp / total * 100, 1),
+    # 연도별(제품별 원자재 투입 표가 있는 해): 국내 생산 몫 = 원자재 투입, 수입 제품 = 실태조사 수입량(펠릿 톤×1.67, 그 밖의 톤 1:1)
+    by_year = {str(y): [{"key": d["key"], "flows": d.get("inputs") or {"in_log_dom": d["flows"].get("use_log_domestic", 0), "in_sec_dom": d["flows"].get("use_other_raw", 0),
+                         "in_log_imp": d["flows"].get("use_log_imported", 0), "in_mid_imp": 0, "in_unk": 0, "use_imported_products": d["flows"].get("use_imported_products", 0)}} for d in prods]}
+    if wus_csv is not None and wus_csv.exists():
+        w = pd.read_csv(wus_csv)
+        for yy in sorted(set(w["year"]) - {y}):
+            out = []
+            for k in sorted(set(s[(s["year"] == yy) & (s["metric"] == "imports")]["product"])):
+                im = s[(s["year"] == yy) & (s["product"] == k) & (s["metric"] == "imports")]
+                pr = s[(s["year"] == yy) & (s["product"] == k) & (s["metric"] == "production")]["value"].sum()
+                g = w[(w["year"] == yy) & (w["product"] == k)]
+                if g.empty and pr > 0:
+                    continue                      # 국내 생산이 있는데 원자재 투입 표가 없으면 제외
+                isl = g["category"].str.endswith("원목")
+                iv = float(im["value"].iloc[0]) * (1.67 if k == "p11" else 1)
+                f = {"in_log_dom": float(g[isl & (g["origin"] == "국산")]["value_m3"].sum()),
+                     "in_sec_dom": float(g[~isl & (g["origin"] == "국산")]["value_m3"].sum()),
+                     "in_log_imp": float(g[isl & (g["origin"] == "수입")]["value_m3"].sum()),
+                     "in_mid_imp": float(g[~isl & (g["origin"] == "수입")]["value_m3"].sum()),
+                     "in_unk": float(g[~g["origin"].isin(["국산", "수입"])]["value_m3"].sum()),
+                     "use_imported_products": iv}
+                out.append({"key": k, "flows": f})
+            by_year[str(yy)] = out
+    return {"year": y, "total": total, "sources": src, "groups": groups, "products": prods, "products_by_year": by_year, "import_share": round(imp / total * 100, 1),
             "note": "단위 ㎥ — 펠릿 수입은 톤×1.67, 그 밖의 톤 단위 제품은 1:1로 환산(실태조사 방식). 폐목재 제외",
             "source": "산림청·한국임업진흥원 목재이용실태조사 국내 목재 이용 현황"}
 
