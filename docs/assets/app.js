@@ -118,12 +118,12 @@
     const a = e[field], i = iLast();
     return { cur: i >= 11 ? sum(a.slice(i - 11, i + 1)) : null, prev: i >= 23 ? sum(a.slice(i - 23, i - 11)) : null };
   }
-  function topSuppliers(axis, key, n = 10) {
-    const rows = (D.countries[axis] || {})[key] || {};
-    const tot = sum(Object.values(rows).map((r) => r.l12[0]));
+  function topSuppliers(axis, key, n = 10, m = "usd") {   // m = "usd"(수입액) | "kg"(물량·중량)
+    const rows = (D.countries[axis] || {})[key] || {}, j = m === "kg" ? 1 : 0;
+    const tot = sum(Object.values(rows).map((r) => r.l12[j]));
     return Object.entries(rows)
-      .map(([c, r]) => ({ c, imp: r.l12[0], kg: r.l12[1], prev: r.p12[0], share: tot ? (r.l12[0] / tot) * 100 : 0 }))
-      .filter((r) => r.imp > 0).sort((a, b) => b.imp - a.imp).slice(0, n);
+      .map(([c, r]) => ({ c, imp: r.l12[0], kg: r.l12[1], v: r.l12[j], prev: r.p12[j], share: tot ? (r.l12[j] / tot) * 100 : 0 }))
+      .filter((r) => r.v > 0).sort((a, b) => b.v - a.v).slice(0, n);
   }
 
   // ── 공통 렌더 ───────────────────────────────────────────
@@ -845,8 +845,8 @@
       `</div><div class="grid g-2" style="margin-top:12px">` +
       card(`수입·수출 추이`, trendTitle([axis, key]), `<div id="d-trend"></div>`, "span-2",
         L.prev ? `최근 12개월 수입 ${usd(L.cur)} <span class="sub">직전 12개월 대비 ${delta(L.cur, L.prev)}</span>` : `최근 12개월 수입 ${usd(L.cur)}`) +
-      card(`주요 공급국 ${q("share")}`, "최근 12개월 · 점유율 · 전년 대비", `<div id="d-sup"></div>`, "",
-        tops[0] ? `1위 ${cname(tops[0].c)} ${nf(tops[0].share, 1)}% <span class="sub">상위 3개국 ${nf(sum(tops.slice(0, 3).map((t) => t.share)), 0)}%</span>` : "") +
+      card(`주요 공급국 ${q("share")}`, `<span class="yr-seg" id="sup-m"><button type="button" data-m="usd">수입액</button><button type="button" data-m="kg">물량</button></span> 최근 12개월 · 전년 대비`, `<div id="d-sup"></div>`, "",
+        `<span id="d-sup-lead"></span>`) +
       card(`공급국별 수입 단가 ${q("price")}`, `연간 · 상위 5개국 · ${pl}`, `<div id="d-price"></div>`, "", "<span id='d-price-lead'></span>") +
       card(`공급국 집중도 (HHI) ${q("hhi")}`, "12개월 누적", (e.hhi[i] != null ? hhiScale(e.hhi[i]) : "") + `<div id="d-hhi"></div>` +
         rule(`HHI(허핀달-허쉬만 지수) = 공급국별 점유율(%)을 제곱해 더한 값 — 1개국이 100%면 10,000, 2개국이 반반이면 5,000, 4개국이 25%씩이면 2,500, 10개국이 10%씩이면 1,000 · <b>10,000 ÷ HHI = 같은 크기 나라 몇 곳에서 나눠 사오는 것과 같은지</b> · 1,500 미만 분산 · 1,500~2,500 보통 · 2,500 이상 집중 (미국 법무부·FTC 2010 기준)`), "span-2",
@@ -857,9 +857,16 @@
     const a = seriesOf(e, "imp", S.measure, S.agg, since, [axis, key]), b = seriesOf(e, "exp", S.measure, S.agg, since, [axis, key]);
     C.lineChart($("#d-trend"), { x: a.x, series: [{ name: "수입", values: a.v }, { name: "수출", values: b.v }],
       yFmt: S.measure === "price" ? pf : yFmt(S.measure), markers: S.agg === "year" ? [] : revMarkers(a.x), xLabelFmt: xFmt, height: 260 });
-    C.hbars($("#d-sup"), tops.map((t) => ({ label: cname(t.c), value: t.imp,
-      text: `${usd(t.imp)} · ${nf(t.share, 1)}% · ${t.prev ? ((t.imp / t.prev - 1) * 100 >= 0 ? "▲" : "▼") + nf(Math.abs((t.imp / t.prev - 1) * 100), 0) + "%" : "신규"}`,
-      onClick: () => { S.country = t.c; go("country"); } })));
+    const drawSup = () => {
+      const m = S.supm || "usd", ts = topSuppliers(axis, key, 10, m), fmtV = m === "kg" ? ton : usd;
+      $("#sup-m").querySelectorAll("button").forEach((b) => b.classList.toggle("on", b.dataset.m === m));
+      $("#d-sup-lead").innerHTML = ts[0] ? `1위 ${cname(ts[0].c)} ${nf(ts[0].share, 1)}% <span class="sub">${m === "kg" ? "물량" : "수입액"} 기준 · 상위 3개국 ${nf(sum(ts.slice(0, 3).map((x) => x.share)), 0)}%</span>` : "";
+      C.hbars($("#d-sup"), ts.map((x) => ({ label: cname(x.c), value: x.v,
+        text: `${fmtV(x.v)} · ${nf(x.share, 1)}% · ${x.prev ? ((x.v / x.prev - 1) * 100 >= 0 ? "▲" : "▼") + nf(Math.abs((x.v / x.prev - 1) * 100), 0) + "%" : "신규"}`,
+        onClick: () => { S.country = x.c; go("country"); } })));
+    };
+    $("#sup-m").querySelectorAll("button").forEach((b) => b.onclick = (ev) => { ev.stopPropagation(); S.supm = b.dataset.m; drawSup(); });
+    drawSup();
     // 국가별 단가 (연간)
     const rows = (D.countries[axis] || {})[key] || {};
     const top5 = tops.slice(0, 5).map((t) => t.c);
