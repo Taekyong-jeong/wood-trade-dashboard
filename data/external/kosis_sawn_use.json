@@ -1,0 +1,172 @@
+{
+ "axes": [
+  "A"
+ ],
+ "rows": [
+  {
+   "PRD_DE": "2022",
+   "ITM_NM": "제재목 용도별 판매량",
+   "UNIT_NM": "개소",
+   "C1_NM": "업체 수",
+   "C2_NM": null,
+   "C3_NM": null,
+   "C1_OBJ_NM": "용도별",
+   "C2_OBJ_NM": null,
+   "DT": "154"
+  },
+  {
+   "PRD_DE": "2023",
+   "ITM_NM": "제재목 용도별 판매량",
+   "UNIT_NM": "개소",
+   "C1_NM": "업체 수",
+   "C2_NM": null,
+   "C3_NM": null,
+   "C1_OBJ_NM": "용도별",
+   "C2_OBJ_NM": null,
+   "DT": "194"
+  },
+  {
+   "PRD_DE": "2024",
+   "ITM_NM": "제재목 용도별 판매량",
+   "UNIT_NM": "개소",
+   "C1_NM": "업체 수",
+   "C2_NM": null,
+   "C3_NM": null,
+   "C1_OBJ_NM": "용도별",
+   "C2_OBJ_NM": null,
+   "DT": "195"
+  },
+  {
+   "PRD_DE": "2022",
+   "ITM_NM": "제재목 용도별 판매량",
+   "UNIT_NM": "㎥",
+   "C1_NM": "합계",
+   "C2_NM": null,
+   "C3_NM": null,
+   "C1_OBJ_NM": "용도별",
+   "C2_OBJ_NM": null,
+   "DT": "1949258"
+  },
+  {
+   "PRD_DE": "2023",
+   "ITM_NM": "제재목 용도별 판매량",
+   "UNIT_NM": "㎥",
+   "C1_NM": "합계",
+   "C2_NM": null,
+   "C3_NM": null,
+   "C1_OBJ_NM": "용도별",
+   "C2_OBJ_NM": null,
+   "DT": "2549445"
+  },
+  {
+   "PRD_DE": "2024",
+   "ITM_NM": "제재목 용도별 판매량",
+   "UNIT_NM": "㎥",
+   "C1_NM": "합계",
+   "C2_NM": null,
+   "C3_NM": null,
+   "C1_OBJ_NM": "용도별",
+   "C2_OBJ_NM": null,
+   "DT": "1905278"
+  },
+  {
+   "PRD_DE": "2022",
+   "ITM_NM": "제재목 용도별 판매량",
+   "UNIT_NM": "㎥",
+   "C1_NM": "수장용재",
+   "C2_NM": null,
+   "C3_NM": null,
+   "C1_OBJ_NM": "용도별",
+   "C2_OBJ_NM": null,
+   "DT": "447502"
+  },
+  {
+   "PRD_DE": "2023",
+   "ITM_NM": "제재목 용도별 판매량",
+   "UNIT_NM": "㎥",
+   "C1_NM": "수장용재",
+   "C2_NM": null,
+   "C3_NM": null,
+   "C1_OBJ_NM": "용도별",
+   "C2_OBJ_NM": null,
+   "DT": "437945"
+  },
+  {
+   "PRD_DE": "2024",
+   "ITM_NM": "제재목 용도별 판매량",
+   "UNIT_NM": "㎥",
+   "C1_NM": "수장용재",
+   "C2_NM": null,
+   "C3_NM": null,
+   "C1_OBJ_NM": "용도별",
+   "C2_OBJ_NM": null,
+   "DT": "500549"
+  },
+  {
+   "PRD_DE": "2022",
+   "ITM_NM": "제재목 용도별 판매량",
+   "UNIT_NM": "㎥",
+   "C1_NM": "구조용재",
+   "C2_NM": null,
+   "C3_NM": null,
+   "C1_OBJ_NM": "용도별",
+   "C2_OBJ_NM": null,
+   "DT": "478716"
+  },
+  {
+   "PRD_DE": "2023",
+   "ITM_NM": "제재목 용도별 판매량",
+   "UNIT_NM": "㎥",
+   "C1_NM": "구조용재",
+   "C2_NM": null,
+   "C3_NM": null,
+   "C1_OBJ_NM": "용도별",
+   "C2_OBJ_NM": null,
+   "DT": "636770"
+  },
+  {
+   "PRD_DE": "2024",
+   "ITM_NM": "제재목 용도별 판매량",
+   "UNIT_NM": "㎥",
+   "C1_NM": "구조용재",
+   "C2_NM": null,
+   "C3_NM": null,
+   "C1_OBJ_NM": "용도별",
+   "C2_OBJ_NM": null,
+   "DT": "469873"
+  },
+  {
+   "PRD_DE": "2022",
+   "ITM_NM": "제재목 용도별 판매량",
+   "UNIT_NM": "㎥",
+   "C1_NM": "일반용재",
+   "C2_NM": null,
+   "C3_NM": null,
+   "C1_OBJ_NM": "용도별",
+   "C2_OBJ_NM": null,
+   "DT": "1023039"
+  },
+  {
+   "PRD_DE": "2023",
+   "ITM_NM": "제재목 용도별 판매량",
+   "UNIT_NM": "㎥",
+   "C1_NM": "일반용재",
+   "C2_NM": null,
+   "C3_NM": null,
+   "C1_OBJ_NM": "용도별",
+   "C2_OBJ_NM": null,
+   "DT": "1474730"
+  },
+  {
+   "PRD_DE": "2024",
+   "ITM_NM": "제재목 용도별 판매량",
+   "UNIT_NM": "㎥",
+   "C1_NM": "일반용재",
+   "C2_NM": null,
+   "C3_NM": null,
+   "C1_OBJ_NM": "용도별",
+   "C2_OBJ_NM": null,
+   "DT": "934856"
+  }
+ ]
+}
