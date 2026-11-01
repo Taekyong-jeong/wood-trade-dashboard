@@ -282,7 +282,25 @@
     host.insertAdjacentHTML("beforeend",
       card(`국내 설비 가동률 추이 ${q("util")}`, `${uy[0]}~${uy[uy.length - 1]} · %`, `<div id="ds-util"></div>` +
         rule(`가동률 = 연 생산량 ÷ 최대 생산가능량 (실태조사 정의, 응답업체 기준) · 제재목·목재칩은 일평균 생산량 × 월 가동일 × 12로 산출 · 합판 3개·파티클보드 2개·섬유판 5개 업체라 해마다 출렁임 · 집성재·WPC·난연목재는 표에만 표시`), "",
-        utilRows.map((d) => `${short(d.label)} ${nf(d.utilization, 0)}%`).join(" · "), "span-2"));
+        utilRows.map((d) => `${short(d.label)} ${nf(d.utilization, 0)}%`).join(" · ")));
+    const CAPS = DS.capacity || [];
+    if (CAPS.length) {
+      const chg = CAPS.map((c) => ({ c, r: c.capacity[c.capacity.length - 1] / c.capacity[0] - 1 }));
+      const down = chg.filter((x) => x.r <= -0.15).sort((a, b) => a.r - b.r), up = chg.filter((x) => x.r >= 0.15);
+      const cy0 = CAPS[0].years[0], cy1 = CAPS[0].years[CAPS[0].years.length - 1];
+      const leadCap = [down.length ? `설비 감소 ${down.slice(0, 3).map((x) => `${short(x.c.label)} ${nf(x.r * 100, 0)}%`).join(" · ")}` : "",
+        up.length ? `증가 ${up.map((x) => `${short(x.c.label)} ${x.r >= 1 ? nf(x.r + 1, 0) + "배" : "+" + nf(x.r * 100, 0) + "%"}`).join(" · ")}` : ""].filter(Boolean).join(" / ");
+      host.insertAdjacentHTML("beforeend",
+        card(`국내 생산능력과 생산량`, `${cy0}~${cy1} · 업체 수 × 업체 평균 최대 생산가능량`,
+          `<div class="legend"><span><i class="line" style="background:${C.color(7)}"></i>생산능력</span><span><i class="line" style="background:${C.color(0)}"></i>생산량</span><span class="sub">두 선 사이 = 놀고 있는 설비</span></div>` +
+          `<div class="cap-grid">${CAPS.map((c, i) => { const f0 = c.firms[0], f1 = c.firms[c.firms.length - 1];
+            return `<div class="cap-m"><div class="cap-t one-line"><b>${short(c.label)}</b> <span class="sub">업체 ${f0 === f1 ? f1 : `${f0}→${f1}`}개 · ${c.unit === "t" ? "만 톤" : "만 ㎥"}</span></div><div id="cap-${i}"></div></div>`; }).join("")}</div>` +
+          rule(`가동률은 생산량 ÷ 생산능력이라 생산량이 그대로여도 공장이 문을 닫으면(생산능력 감소) 올라감 — 가동률 변화는 이 그림과 함께 읽을 것 · 생산능력 = 업체 수 × 업체 평균 최대 생산가능량(실태조사 응답업체 기준), 생산량 = 전국 추계라 비율이 왼쪽 가동률과 다를 수 있음(제재목) · 출처: 산림청 목재이용실태조사(2024년 기준)`),
+          "", leadCap));
+      CAPS.forEach((c, i) => C.lineChart($(`#cap-${i}`), { x: c.years.map((y) => "’" + String(y).slice(2)), noLegend: true, height: 128, ticks: 2,
+        series: [{ name: "생산능력", values: c.capacity.map((v) => v / 1e4), color: C.color(7) }, { name: "생산량", values: c.production.map((v) => v / 1e4), color: C.color(0) }],
+        yFmt: (v) => nf(v, 0), tipFmt: (v) => nf(v, 1) + (c.unit === "t" ? "만 톤" : "만 ㎥") }));
+    }
     C.scatterChart($("#ds-map"), {
       points: pts.map((d) => ({ x: d.top_share, y: Math.min(d.spare_cover, CAP), label: short(d.label), color: col[d.risk_grade] || C.color(0),
         size: 7, labelOn: d.risk_grade === "취약" || d.spare_cover >= 30 || d.top_share >= 50, onClick: () => openDetail(d.axis, d.key), d })),
@@ -295,7 +313,7 @@
         `<div class="tr"><span>대체 여력</span><b>${nf(p.d.spare_cover, 0)}%</b></div>` });
     C.lineChart($("#ds-util"), { x: uy.map(String), series: utilRows.map((d) => ({ name: short(d.label),
       values: uy.map((y) => { const i = d.util_years.indexOf(y); return i < 0 ? null : d.util_series[i]; }) })),
-      yFmt: (v) => nf(v, 0) + "%", tipFmt: (v) => nf(v, 1) + "%", height: 250 });
+      yFmt: (v) => nf(v, 0) + "%", tipFmt: (v) => nf(v, 1) + "%", height: 300 });
     host.querySelectorAll("tr[data-axis]").forEach((tr) => tr.onclick = () => openDetail(tr.dataset.axis, tr.dataset.key));
   }
 

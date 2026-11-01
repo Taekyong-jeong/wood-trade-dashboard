@@ -385,3 +385,8 @@ details.fold > .fold-body { padding: 0 16px 16px; }
 .fold.deep > summary { font-size: 16px; font-weight: 700; }
 @media (max-width: 900px) { .g-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } .g-main, .g-sigs { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 560px) { .glance .g-lead { white-space: normal; } .glance .g-head .hint { display: none; } .g-tile .g-sub { white-space: normal; } .g-tile { padding: 12px; } }
+
+.cap-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px 14px; margin-top: 4px; }
+.cap-m .cap-t { font-size: 12.5px; letter-spacing: -0.03em; }
+.cap-m .cap-t .sub { color: var(--muted); font-size: 11px; }
+@media (max-width: 560px) { .cap-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }

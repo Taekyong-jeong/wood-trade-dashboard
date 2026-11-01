@@ -293,6 +293,18 @@ def domestic_supply(survey_csv: Path, sr: list[dict], labels: dict) -> dict | No
             "top_name": risk["top_name"] if risk else None, "top_share": risk["top_share"] if risk else None,
         })
     rows.sort(key=lambda d: (d["unit"] != "m3", -d["imports"]))
+    # 생산능력 추이: 총 생산능력(업체 수 × 업체 평균 최대 생산가능량)과 생산량 — 가동률 변화가 생산 변화인지 설비 변화인지 구분
+    capacity = []
+    for prod in ["p01", "p06", "p08", "p07", "p11", "p02"]:
+        cp, unit, _ = get(prod, "capacity_total")
+        pr, _, _ = get(prod, "production")
+        fm, _, _ = get(prod, "firms")
+        yy = sorted(set(cp) & set(pr))
+        if len(yy) < 5:
+            continue
+        capacity.append({"key": prod, "label": labels.get(prod, prod), "unit": unit, "years": yy,
+                         "capacity": [round(cp[y]) for y in yy], "production": [round(pr[y]) for y in yy],
+                         "firms": [int(fm[y]) if y in fm else None for y in yy]})
     tot, _, _ = get("total", "wood_use_total")
     imp, _, _ = get("total", "imported_products")
     ld, _, _ = get("total", "log_use_domestic")
@@ -300,7 +312,7 @@ def domestic_supply(survey_csv: Path, sr: list[dict], labels: dict) -> dict | No
     ty = sorted(tot)
     overall = [{"year": y, "total": tot[y], "imported_products": imp.get(y), "log_imported": li.get(y), "log_domestic": ld.get(y),
                 "import_share": _r((imp.get(y, 0) + li.get(y, 0)) / tot[y] * 100)} for y in ty]
-    return {"rows": rows, "overall": overall, "source": c["source"], "line": c["spare_cover_line"]}
+    return {"rows": rows, "overall": overall, "capacity": capacity, "source": c["source"], "line": c["spare_cover_line"]}
 
 
 def calibrate_density(df: pd.DataFrame, kfs_csv: Path, survey_csv: Path, units: dict) -> list[dict]:

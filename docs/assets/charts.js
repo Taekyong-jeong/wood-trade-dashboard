@@ -68,7 +68,7 @@
     container.innerHTML = "";
     container.classList.add("chart");
     const series = opts.series.map((s, i) => ({ ...s, color: s.color || color(i) }));
-    legend(container, series, "line");
+    if (!opts.noLegend) legend(container, series, "line");
     const W = Math.max(container.clientWidth, 280);
     const H = opts.height || 240;
     const pad = { l: 52, r: 12, t: 10, b: 26 };
