@@ -37,7 +37,7 @@ def comtrade(params):
     return []
 
 
-if CT:
+if CT and os.environ.get("SKIP_COMTRADE", "") != "1":
     res = {"exports": [], "imports_from_ru": []}
     exporters = "152,554,124,246,752,276,643"  # 칠레, 뉴질랜드, 캐나다, 핀란드, 스웨덴, 독일, 러시아
     for y in range(2016, 2025):
@@ -50,9 +50,10 @@ if CT:
 
 if ES:
     found, data = [], {}
-    for word in ["木材価格", "製材品 価格"]:
+    queries = [(w, y) for y in range(2016, 2025) for w in ("ホワイトウッド集成管柱", "米まつ平角", "すぎ正角 木材製品卸売価格", "北洋えぞまつ板")]
+    for word, yr in queries:
         try:
-            j = get("https://api.e-stat.go.jp/rest/3.0/app/json/getStatsList?" + urllib.parse.urlencode({"appId": ES, "searchWord": word, "limit": 50}))
+            j = get("https://api.e-stat.go.jp/rest/3.0/app/json/getStatsList?" + urllib.parse.urlencode({"appId": ES, "searchWord": word, "surveyYears": str(yr), "limit": 20}))
             tl = j["GET_STATS_LIST"]["DATALIST_INF"].get("TABLE_INF", [])
             tl = tl if isinstance(tl, list) else [tl]
             for t in tl:
@@ -78,7 +79,7 @@ if ES:
             print(f"  {f['id']} {f['title']}: {len(data[f['id']]['values'])}값")
         except Exception as e:
             print(f"  {f['id']} 오류 {type(e).__name__} {str(e)[:80]}")
-        if len(data) >= 30:
+        if len(data) >= 60:
             break
         time.sleep(1)
     (OUT / "estat_wood_price.json").write_text(json.dumps({"search": found, "data": data}, ensure_ascii=False), encoding="utf-8")

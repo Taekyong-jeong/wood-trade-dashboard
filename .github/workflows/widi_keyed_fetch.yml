@@ -2,6 +2,10 @@ name: WIDI 해설 외부 지표 수집 (키 필요)
 
 on:
   workflow_dispatch:
+    inputs:
+      skip_comtrade:
+        description: "Comtrade 건너뛰기(1=건너뜀, 0=수집)"
+        default: ""
   push:
     branches: [main]
     paths: ["scripts/external/widi_keyed_fetch.py", ".github/workflows/widi_keyed_fetch.yml"]
@@ -26,6 +30,7 @@ jobs:
         env:
           COMTRADE_KEY: ${{ secrets.COMTRADE_KEY || secrets.UN_COMTRADE_KEY || secrets.COMTRADE || secrets.UN_COMTRADE || secrets.UN }}
           ESTAT_APP_ID: ${{ secrets.ESTAT_APP_ID || secrets.ESTAT_KEY || secrets.ESTAT || secrets.E_STAT }}
+          SKIP_COMTRADE: ${{ github.event.inputs.skip_comtrade || '1' }}
         run: python scripts/external/widi_keyed_fetch.py
       - name: 결과 커밋
         run: |
