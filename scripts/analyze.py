@@ -406,6 +406,7 @@ def main() -> int:
                [("product", p["key"], p["name"]) for p in CFG["products"] if p["prefixes"] and p["key"] != "p01"] + \
                [("product", "p01", "제재목")]
     sr = judge.supply_risk(long, months, sr_items, names)
+    sh = judge.supply_hist(long, months, sr_items, names)
     pen = judge.import_penetration(ROOT / "data" / "external" / "kosis_wood_supply.csv")
     pa = judge.price_anomaly(series, months, lambda ax, k: "원목" if (ax, k) == ("heading", "4403") else label_of(ax, k))
     dec = judge.decomposition(df, months, lambda h: classify(h)["group"],
@@ -420,7 +421,7 @@ def main() -> int:
                           {p["key"]: p["name"].replace("배향성스트랜드보드(OSB)", "OSB").replace("목재플라스틱복합재", "목재플라스틱(WPC)").split("(")[0] if p["key"] != "p04" else "목재플라스틱(WPC)" for p in CFG["products"] if p["status"] != "pending" or p["key"] == "p04"})
     write_json("judgments.json", {
         "month": months[-1], "cards": judge.summary_cards(sr, pen, pa, dec, ds),
-        "supply_risk": sr, "penetration": pen, "price_anomaly": pa, "decomposition": dec, "structure": st,
+        "supply_risk": sr, "supply_hist": sh, "penetration": pen, "price_anomaly": pa, "decomposition": dec, "structure": st,
         "domestic_supply": ds, "domestic_price": dp, "industry": ind, "kfs_check": kc, "glance": gl, "self_suff": ssf,
         "criteria": judge.CRIT,
     })

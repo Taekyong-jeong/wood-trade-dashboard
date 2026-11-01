@@ -80,6 +80,37 @@ def supply_risk(long: pd.DataFrame, months: list[str], items: list[tuple[str, st
     return out
 
 
+def supply_hist(long: pd.DataFrame, months: list[str], items: list[tuple[str, str, str]], names: dict) -> dict:
+    """연도별(1~12월이 모두 있는 해) 수입 집중 — supply_risk와 같은 규칙을 연간 수입액에 적용 (분석)"""
+    c = CRIT["supply_risk"]
+    yrs = sorted({m[:4] for m in months})
+    full = [y for y in yrs if sum(1 for m in months if m.startswith(y)) == 12]
+    d = long[long["month"].str[:4].isin(full)].assign(year=lambda x: x["month"].str[:4])
+    out = {}
+    for axis, key, _ in items:
+        sub = d[(d["axis"] == axis) & (d["key"] == key)]
+        hhi, grade, top = [], [], []
+        for y in full:
+            g = sub[sub["year"] == y].groupby("cnty")["imp_usd"].sum()
+            g = g[g > 0]
+            tot = float(g.sum())
+            if tot <= 0:
+                hhi.append(None); grade.append(None); top.append(None); continue
+            share = g / tot * 100
+            h = float((share ** 2).sum()); ts = float(share.max())
+            hhi.append(_r(h, 0)); top.append([names.get(share.idxmax(), share.idxmax()), _r(ts), round(tot)])
+            if tot < c["vulnerable"]["min_import_usd"]:
+                grade.append("판정 제외")
+            elif ts >= c["vulnerable"]["top_country_share_pct"]:
+                grade.append("취약")
+            elif h >= c["caution_hhi"]:
+                grade.append("주의")
+            else:
+                grade.append("안정")
+        out[f"{axis}:{key}"] = {"hhi": hhi, "grade": grade, "top": top}
+    return {"years": full, "items": out}
+
+
 # ── ② 수입 의존 (원목) ───────────────────────────────────────
 def import_penetration(supply_csv: Path) -> dict | None:
     if not supply_csv.exists():
