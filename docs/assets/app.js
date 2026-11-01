@@ -1039,7 +1039,8 @@
     window.addEventListener("resize", () => { if (Math.abs(window.innerWidth - w) > 40) { w = window.innerWidth; renderAll(); renderTab(); } });
     matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { renderAll(); renderTab(); });
     $("#explore").addEventListener("toggle", () => { if ($("#explore").open) renderTab(); });
-    if (location.hash) $("#explore").open = true;
+    // 상세 탐색은 처음엔 접어 둠 — 특정 품목·국가를 가리키는 링크(#…&k=…)로 들어왔을 때만 펼침
+    if (/[#&]k=/.test(location.hash)) { $("#explore").open = true; setTimeout(() => goSec("explore"), 300); }
   }
   init();
 })();
