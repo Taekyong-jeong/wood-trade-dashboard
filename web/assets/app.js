@@ -538,9 +538,8 @@
       card("목재류 수입·수출 추이", "12개월 누적 · 억 달러", `<div id="bs-trade"></div>` +
         rule(`HS 44류 전체 · 수입 CIF, 수출 FOB · 출처: ${SRC}`), "",
         `최근 12개월 수입 ${nf(L.cur / 1e8, 1)}억 달러 · ${nf(Lk.cur / 1e9, 1)}백만 톤 <span class="sub">수출 ${nf(Lexp / 1e8, 1)}억 달러</span>`) +
-      card("품목별 수입액", `${per} · 누르면 상세`, `<div id="bs-prod"></div>` +
-        rule(`목재이용법 15종 + CLT + LVL 기준 HS 코드 합계 + 원목(HS 4403) · 점선 아래 = 상위 10위 밖이지만 함께 보는 품목(구조용 집성재·CLT) · 괄호 = 1년 전 대비 · 펄프 제외 · 출처: ${SRC}`), "",
-        pr.length ? `1위 ${pr[0].n} ${nf((pr[0].v / ptot) * 100, 0)}% <span class="sub">상위 3개 ${nf((sum(pr.slice(0, 3).map((x) => x.v)) / ptot) * 100, 0)}%</span>` : "");
+      card("품목별 수입액", `<span class="yr-seg" id="pr-per"><button type="button" data-p="l12"${(S.prp || "l12") === "l12" ? ' class="on"' : ""}>최근 1년</button></span> <select id="pr-yr" class="mini-sel"><option value="">연도 선택</option>${[...new Set(months().map((m) => m.slice(0, 4)))].filter((y) => months().filter((m) => m.startsWith(y)).length === 12).reverse().map((y) => `<option value="${y}"${S.prp === y ? " selected" : ""}>${y}년</option>`).join("")}</select>`, `<div id="bs-prod-lead" class="lead"></div><div id="bs-prod"></div>` +
+        rule(`목재이용법 15종 + CLT + LVL 기준 HS 코드 합계 + 원목(HS 4403) · 점선 아래 = 상위 10위 밖이지만 함께 보는 품목(구조용 집성재·CLT), 점선을 누르면 사이 순위도 펼침 · 괄호 = 바로 앞 같은 기간 대비 · 펄프 제외 · 출처: ${SRC}`), "");
     if (U.length) {
       C.barChart($("#bs-use"), { x: U.map((d) => String(d.y)), series: [{ name: "국산", values: U.map((d) => d.dom / 1e4), color: C.color(2) }, { name: "수입 원목", values: U.map((d) => d.lim / 1e4), color: C.color(1) },
         { name: "수입 목재제품", values: U.map((d) => d.ip / 1e4), color: C.color(0) }], stacked: true, yFmt: (v) => nf(v, 0), tipFmt: (v) => nf(v, 0) + "만 ㎥", height: 250 });
@@ -559,14 +558,33 @@
     $("#ss-yr") && $("#ss-yr").querySelectorAll("button").forEach((b) => b.onclick = () => { S.ssy = b.dataset.y; $("#ss-yr").querySelectorAll("button").forEach((x) => x.classList.toggle("on", x === b)); drawSS(); });
     C.lineChart($("#bs-trade"), { x: ms.slice(pk), series: [{ name: "수입액", values: ru.slice(pk).map((v) => v / 1e8) }, { name: "수출액", values: re.slice(pk).map((v) => v / 1e8) }],
       yFmt: (v) => nf(v, 0), tipFmt: (v) => nf(v, 2) + "억 달러", diffFmt: (v) => (v > 0 ? "+" : "") + nf(v, 2) + "억 달러", height: 250, xLabelFmt: xFmt, pin: true });
-    // 상위 10개 + 원목(원자재) · 구조용 집성재 · CLT는 순위 밖이어도 항상 표시
-    const ew = entry("heading", "4403"), lw = ew ? l12(ew) : {};
-    const all = [...pr, ...(lw.cur ? [{ k: "4403", ax: "heading", n: "원목", v: lw.cur, pv: lw.prev || 0, raw: true }] : [])].sort((a, b) => b.v - a.v);
-    const MUST = ["4403", "p05", "p16"], top = all.slice(0, 10), extra = all.filter((x) => MUST.includes(x.k) && !top.includes(x));
-    const nmB = (x) => (x.k === "p05" ? "구조용 집성재" : x.k === "p16" ? "CLT" : x.n) + (x.raw ? " (원자재)" : "");
-    const row = (x) => ({ rk: all.indexOf(x) + 1, label: `${nmB(x)}`, value: x.v, sep: x === extra[0],
-      text: `${nf(x.v / 1e8, 2)}억 달러 <span class="sub">(${x.pv ? ((g) => (g >= 0 ? "+" : "") + nf(g, Math.abs(g) < 10 ? 1 : 0) + "%")((x.v / x.pv - 1) * 100) : "–"})</span>`, onClick: () => openDetail(x.ax || "product", x.k) });
-    C.hbars($("#bs-prod"), [...top, ...extra].map(row));
+    // 품목별 수입액 — 기간: 최근 1년(기본) 또는 연도. 상위 10개 + 원목·구조용 집성재·CLT(순위 밖이어도), 점선을 누르면 사이 순위 펼침
+    const drawProd = () => {
+      const ms = months(), P = S.prp || "l12";
+      const sumIdx = (arr, idx) => idx.reduce((s, i) => s + (arr[i] || 0), 0);
+      let cur, prev, perLab;
+      if (P === "l12") { const n = ms.length; cur = [...Array(12).keys()].map((k) => n - 12 + k); prev = cur.map((i) => i - 12); perLab = periodL12(); }
+      else { cur = ms.map((m, i) => (m.startsWith(P) ? i : -1)).filter((i) => i >= 0); prev = ms.map((m, i) => (m.startsWith(String(+P - 1)) ? i : -1)).filter((i) => i >= 0); perLab = `${P}년 (전년 ${+P - 1}년 대비)`; }
+      const val = (e) => ({ v: sumIdx(e.imp_usd, cur), pv: prev.length === cur.length ? sumIdx(e.imp_usd, prev) : 0 });
+      const prs = D.meta.products.filter((p) => p.status !== "pending").map((p) => { const e = entry("product", p.key); return e ? { k: p.key, n: p.name.replace(/\(.+\)/, ""), ...val(e) } : null; }).filter((x) => x && x.v > 0);
+      const ew = entry("heading", "4403");
+      const all = [...prs, ...(ew ? [{ k: "4403", ax: "heading", n: "원목", raw: true, ...val(ew) }] : [])].filter((x) => x.v > 0).sort((a, b) => b.v - a.v);
+      const MUST = ["4403", "p05", "p16"], top = all.slice(0, 10), extra = all.filter((x) => MUST.includes(x.k) && !top.includes(x));
+      const lastRk = extra.length ? Math.max(...extra.map((x) => all.indexOf(x))) : 9;
+      const mid = all.slice(10, lastRk + 1).filter((x) => !extra.includes(x));   // 점선 사이 순위 (평소 접힘)
+      const nmB = (x) => ({ p05: "구조용 집성재", p16: "CLT", p09: "OSB", p17: "LVL", p04: "목재플라스틱(WPC)" }[x.k] || x.n) + (x.raw ? " (원자재)" : "");
+      const row = (x) => ({ rk: all.indexOf(x) + 1, label: nmB(x), value: x.v,
+        text: `${nf(x.v / 1e8, 2)}억 달러 <span class="sub">(${x.pv ? ((g) => (g >= 0 ? "+" : "") + nf(g, Math.abs(g) < 10 ? 1 : 0) + "%")((x.v / x.pv - 1) * 100) : "–"})</span>`, onClick: () => openDetail(x.ax || "product", x.k) });
+      const after = S.prx ? all.slice(10, lastRk + 1) : extra;
+      const rows = [...top.map(row), ...after.map(row)];
+      if (after.length) rows[top.length] = { ...rows[top.length], sep: true, sepLabel: mid.length ? (S.prx ? `▾ 접기` : `▸ ${mid.map((x) => all.indexOf(x) + 1).join("·")}위 펼치기`) : "", sepClick: mid.length ? () => { S.prx = !S.prx; drawProd(); } : null };
+      C.hbars($("#bs-prod"), rows, { max: all[0] ? all[0].v : 1 });
+      const pt = sum(prs.map((x) => x.v)), p0 = [...prs].sort((a, b) => b.v - a.v);
+      $("#bs-prod-lead").innerHTML = p0.length ? `1위 ${p0[0].n} ${nf((p0[0].v / pt) * 100, 0)}% <span class="sub">상위 3개 ${nf((sum(p0.slice(0, 3).map((x) => x.v)) / pt) * 100, 0)}% · ${perLab}</span>` : "";
+    };
+    drawProd();
+    $("#pr-per").querySelector("button").onclick = () => { S.prp = "l12"; $("#pr-yr").value = ""; $("#pr-per button").classList.add("on"); drawProd(); };
+    $("#pr-yr").onchange = (ev) => { if (!ev.target.value) return; S.prp = ev.target.value; $("#pr-per button").classList.remove("on"); drawProd(); };
   }
   function renderAlerts() {
     const al = D.insights.alerts;

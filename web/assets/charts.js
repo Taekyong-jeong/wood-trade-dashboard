@@ -353,7 +353,10 @@
     const wrap = document.createElement("div");
     wrap.className = "hbars";
     rows.forEach((r, i) => {
-      if (r.sep) { const s = document.createElement("div"); s.className = "hb-sep"; wrap.appendChild(s); }
+      if (r.sep) { const s = document.createElement("div"); s.className = "hb-sep" + (r.sepClick ? " click" : "");
+        if (r.sepLabel) s.innerHTML = `<span>${r.sepLabel}</span>`;
+        if (r.sepClick) s.addEventListener("click", r.sepClick);
+        wrap.appendChild(s); }
       const d = document.createElement("div");
       d.className = "hb";
       d.innerHTML = `<span class="rk">${r.rk != null ? r.rk : i + 1}</span><span class="nm" title="${r.label}">${r.label}</span>` +

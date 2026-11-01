@@ -196,7 +196,11 @@ select { font: inherit; font-size: 12.5px; padding: 6px 28px 6px 10px; border-ra
 .hbars { display: grid; grid-template-columns: 22px minmax(70px, 120px) minmax(0, 1fr) auto; gap: 6px 8px; align-items: center;
   font-size: 12.5px; letter-spacing: -0.02em; }
 .hb { display: contents; }
-.hb-sep { grid-column: 1 / -1; height: 0; border-top: 1px dashed var(--border); margin: 2px 0; }
+.hb-sep { grid-column: 1 / -1; position: relative; height: 0; border-top: 1px dashed var(--border); margin: 6px 0; }
+.hb-sep span { position: absolute; left: 50%; top: -9px; transform: translateX(-50%); background: var(--surface); padding: 0 8px; font-size: 11px; color: var(--muted); white-space: nowrap; }
+.hb-sep.click { cursor: pointer; border-top-color: var(--muted); }
+.hb-sep.click:hover span { color: var(--accent); }
+.mini-sel { font: inherit; font-size: 11.5px; color: var(--ink-2); background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 1px 6px; vertical-align: middle; }
 .hb .rk { color: var(--muted); text-align: right; font-variant-numeric: tabular-nums; }
 .hb .nm { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .hb .bar { height: 14px; background: var(--surface-2); border-radius: 0 4px 4px 0; overflow: hidden; }
