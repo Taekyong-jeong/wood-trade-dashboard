@@ -1,0 +1,1234 @@
+{
+ "DT_1FP1124A": {
+  "name": "광업제조업조사 품목편 2024",
+  "org": "101",
+  "objs": [
+   [
+    "A",
+    "행정구역별"
+   ],
+   [
+    "B",
+    "품목별"
+   ],
+   [
+    "ITEM",
+    "항목"
+   ]
+  ],
+  "items": [
+   {
+    "UNIT_ID": "14STD03222",
+    "OBJ_NM_ENG": "Item code list",
+    "UNIT_NM": "개",
+    "ITM_NM_ENG": "Number of establishments",
+    "ITM_ID": "T01",
+    "TBL_ID": "DT_1FP1124A",
+    "OBJ_NM": "항목",
+    "UNIT_ENG_NM": "Establishment",
+    "ITM_NM": "사업체수",
+    "ORG_ID": "101",
+    "OBJ_ID": "ITEM"
+   },
+   {
+    "UNIT_ID": "14STD05052",
+    "OBJ_NM_ENG": "Item code list",
+    "UNIT_NM": "백만원",
+    "ITM_NM_ENG": "Gross Output",
+    "ITM_ID": "T02",
+    "TBL_ID": "DT_1FP1124A",
+    "OBJ_NM": "항목",
+    "UNIT_ENG_NM": "1,000,000won",
+    "ITM_NM": "생산액",
+    "ORG_ID": "101",
+    "OBJ_ID": "ITEM"
+   },
+   {
+    "UNIT_ID": "14STD05052",
+    "OBJ_NM_ENG": "Item code list",
+    "UNIT_NM": "백만원",
+    "ITM_NM_ENG": "Value of Shipments",
+    "ITM_ID": "T05",
+    "TBL_ID": "DT_1FP1124A",
+    "OBJ_NM": "항목",
+    "UNIT_ENG_NM": "1,000,000won",
+    "ITM_NM": "출하액",
+    "ORG_ID": "101",
+    "OBJ_ID": "ITEM"
+   },
+   {
+    "UNIT_ID": "14STD05052",
+    "OBJ_NM_ENG": "Item code list",
+    "UNIT_NM": "백만원",
+    "ITM_NM_ENG": "Finished Goods Inventories at end of year",
+    "ITM_ID": "T06",
+    "TBL_ID": "DT_1FP1124A",
+    "OBJ_NM": "항목",
+    "UNIT_ENG_NM": "1,000,000won",
+    "ITM_NM": "완제품 연말재고액",
+    "ORG_ID": "101",
+    "OBJ_ID": "ITEM"
+   }
+  ],
+  "wood_classes": [
+   {
+    "OBJ_NM_ENG": "By product",
+    "UP_ITM_ID": "C13",
+    "ITM_NM_ENG": "Rugs and Similar products",
+    "ITM_ID": "C13910102",
+    "TBL_ID": "DT_1FP1124A",
+    "OBJ_NM": "품목별",
+    "ITM_NM": "마루덮개 및 유사제품",
+    "ORG_ID": "101",
+    "OBJ_ID_SN": "2",
+    "OBJ_ID": "B"
+   },
+   {
+    "OBJ_NM_ENG": "By product",
+    "UP_ITM_ID": "C",
+    "ITM_NM_ENG": "Manufacture of wood and of products of wood and cork; except furniture",
+    "ITM_ID": "C16",
+    "TBL_ID": "DT_1FP1124A",
+    "OBJ_NM": "품목별",
+    "ITM_NM": "목재 및 나무제품 제조업; 가구 제외",
+    "ORG_ID": "101",
+    "OBJ_ID_SN": "2",
+    "OBJ_ID": "B"
+   },
+   {
+    "OBJ_NM_ENG": "By product",
+    "UP_ITM_ID": "C16",
+    "ITM_NM_ENG": "Byproducts of sawmill products",
+    "ITM_ID": "C16101900",
+    "TBL_ID": "DT_1FP1124A",
+    "OBJ_NM": "품목별",
+    "ITM_NM": "제재부산물",
+    "ORG_ID": "101",
+    "OBJ_ID_SN": "2",
+    "OBJ_ID": "B"
+   },
+   {
+    "OBJ_NM_ENG": "By product",
+    "UP_ITM_ID": "C16",
+    "ITM_NM_ENG": "Boards for flooring",
+    "ITM_ID": "C16102101",
+    "TBL_ID": "DT_1FP1124A",
+    "OBJ_NM": "품목별",
+    "ITM_NM": "마루용 판재",
+    "ORG_ID": "101",
+    "OBJ_ID_SN": "2",
+    "OBJ_ID": "B"
+   },
+   {
+    "OBJ_NM_ENG": "By product",
+    "UP_ITM_ID": "C16",
+    "ITM_NM_ENG": "Wood chips",
+    "ITM_ID": "C16102105",
+    "TBL_ID": "DT_1FP1124A",
+    "OBJ_NM": "품목별",
+    "ITM_NM": "칩상 또는 삭편상의 목재",
+    "ORG_ID": "101",
+    "OBJ_ID_SN": "2",
+    "OBJ_ID": "B"
+   },
+   {
+    "OBJ_NM_ENG": "By product",
+    "UP_ITM_ID": "C16",
+    "ITM_NM_ENG": "Other shaped wood products",
+    "ITM_ID": "C16102109",
+    "TBL_ID": "DT_1FP1124A",
+    "OBJ_NM": "품목별",
+    "ITM_NM": "기타 표면가공목재",
+    "ORG_ID": "101",
+    "OBJ_ID_SN": "2",
+    "OBJ_ID": "B"
+   },
+   {
+    "OBJ_NM_ENG": "By product",
+    "UP_ITM_ID": "C16",
+    "ITM_NM_ENG": "Wood preservation products",
+    "ITM_ID": "C16103100",
+    "TBL_ID": "DT_1FP1124A",
+    "OBJ_NM": "품목별",
+    "ITM_NM": "표면처리 및 방부처리목재",
+    "ORG_ID": "101",
+    "OBJ_ID_SN": "2",
+    "OBJ_ID": "B"
+   },
+   {
+    "OBJ_NM_ENG": "By product",
+    "UP_ITM_ID": "C16",
+    "ITM_NM_ENG": "Veneer sheets",
+    "ITM_ID": "C16211101",
+    "TBL_ID": "DT_1FP1124A",
+    "OBJ_NM": "품목별",
+    "ITM_NM": "단판",
+    "ORG_ID": "101",
+    "OBJ_ID_SN": "2",
+    "OBJ_ID": "B"
+   },
+   {
+    "OBJ_NM_ENG": "By product",
+    "UP_ITM_ID": "C16",
+    "ITM_NM_ENG": "Ordinary plywood",
+    "ITM_ID": "C16211201",
+    "TBL_ID": "DT_1FP1124A",
+    "OBJ_NM": "품목별",
+    "ITM_NM": "일반 합판",
+    "ORG_ID": "101",
+    "OBJ_ID_SN": "2",
+    "OBJ_ID": "B"
+   },
+   {
+    "OBJ_NM_ENG": "By product",
+    "UP_ITM_ID": "C16",
+    "ITM_NM_ENG": "Worked plywood",
+    "ITM_ID": "C16211202",
+    "TBL_ID": "DT_1FP1124A",
+    "OBJ_NM": "품목별",
+    "ITM_NM": "가공합판",
+    "ORG_ID": "101",
+    "OBJ_ID_SN": "2",
+    "OBJ_ID": "B"
+   },
+   {
+    "OBJ_NM_ENG": "By product",
+    "UP_ITM_ID": "C16",
+    "ITM_NM_ENG": "Particle board",
+    "ITM_ID": "C16212101",
+    "TBL_ID": "DT_1FP1124A",
+    "OBJ_NM": "품목별",
+    "ITM_NM": "파티클보드(PB)",
+    "ORG_ID": "101",
+    "OBJ_ID_SN": "2",
+    "OBJ_ID": "B"
+   },
+   {
+    "OBJ_NM_ENG": "By product",
+    "UP_ITM_ID": "C16",
+    "ITM_NM_ENG": "Medium density fiberboard",
+    "ITM_ID": "C16212102",
+    "TBL_ID": "DT_1FP1124A",
+    "OBJ_NM": "품목별",
+    "ITM_NM": "MDF(중밀도섬유판)",
+    "ORG_ID": "101",
+    "OBJ_ID_SN": "2",
+    "OBJ_ID": "B"
+   },
+   {
+    "OBJ_NM_ENG": "By product",
+    "UP_ITM_ID": "C16",
+    "ITM_NM_ENG": "Intensificated wooden floor",
+    "ITM_ID": "C16212103",
+    "TBL_ID": "DT_1FP1124A",
+    "OBJ_NM": "품목별",
+    "ITM_NM": "강화마루",
+    "ORG_ID": "101",
+    "OBJ_ID_SN": "2",
+    "OBJ_ID": "B"
+   },
+   {
+    "OBJ_NM_ENG": "By product",
+    "UP_ITM_ID": "C16",
+    "ITM_NM_ENG": "Reconstituted wood",
+    "ITM_ID": "C16212200",
+    "TBL_ID": "DT_1FP1124A",
+    "OBJ_NM": "품목별",
+    "ITM_NM": "재생목재",
+    "ORG_ID": "101",
+    "OBJ_ID_SN": "2",
+    "OBJ_ID": "B"
+   },
+   {
+    "OBJ_NM_ENG": "By product",
+    "UP_ITM_ID": "C16",
+    "ITM_NM_ENG": "Rush mats",
+    "ITM_ID": "C16300201",
+    "TBL_ID": "DT_1FP1124A",
+    "OBJ_NM": "품목별",
+    "ITM_NM": "대나무 돗자리",
+    "ORG_ID": "101",
+    "OBJ_ID_SN": "2",
+    "OBJ_ID": "B"
+   },
+   {
+    "OBJ_NM_ENG": "By product",
+    "UP_ITM_ID": "C20",
+    "ITM_NM_ENG": "Wood Charcoal",
+    "ITM_ID": "C20112101",
+    "TBL_ID": "DT_1FP1124A",
+    "OBJ_NM": "품목별",
+    "ITM_NM": "숯",
+    "ORG_ID": "101",
+    "OBJ_ID_SN": "2",
+    "OBJ_ID": "B"
+   },
+   {
+    "OBJ_NM_ENG": "By product",
+    "UP_ITM_ID": "C20",
+    "ITM_NM_ENG": "Other Gum and Wood Chemicals",
+    "ITM_ID": "C20112109",
+    "TBL_ID": "DT_1FP1124A",
+    "OBJ_NM": "품목별",
+    "ITM_NM": "기타 검 및 나무화합물",
+    "ORG_ID": "101",
+    "OBJ_ID_SN": "2",
+    "OBJ_ID": "B"
+   },
+   {
+    "OBJ_NM_ENG": "By product",
+    "UP_ITM_ID": "C23",
+    "ITM_NM_ENG": "Plaster board",
+    "ITM_ID": "C23323101",
+    "TBL_ID": "DT_1FP1124A",
+    "OBJ_NM": "품목별",
+    "ITM_NM": "석고보드",
+    "ORG_ID": "101",
+    "OBJ_ID_SN": "2",
+    "OBJ_ID": "B"
+   },
+   {
+    "OBJ_NM_ENG": "By product",
+    "UP_ITM_ID": "C26",
+    "ITM_NM_ENG": "LED Epichip",
+    "ITM_ID": "C26129107",
+    "TBL_ID": "DT_1FP1124A",
+    "OBJ_NM": "품목별",
+    "ITM_NM": "LED 에피칩",
+    "ORG_ID": "101",
+    "OBJ_ID_SN": "2",
+    "OBJ_ID": "B"
+   },
+   {
+    "OBJ_NM_ENG": "By product",
+    "UP_ITM_ID": "C26",
+    "ITM_NM_ENG": "Fixed resistors of chip-type",
+    "ITM_ID": "C26292102",
+    "TBL_ID": "DT_1FP1124A",
+    "OBJ_NM": "품목별",
+    "ITM_NM": "칩형 고정저항기",
+    "ORG_ID": "101",
+    "OBJ_ID_SN": "2",
+    "OBJ_ID": "B"
+   },
+   {
+    "OBJ_NM_ENG": "By product",
+    "UP_ITM_ID": "C26",
+    "ITM_NM_ENG": "Keyboards",
+    "ITM_ID": "C26329101",
+    "TBL_ID": "DT_1FP1124A",
+    "OBJ_NM": "품목별",
+    "ITM_NM": "키보드",
+    "ORG_ID": "101",
+    "OBJ_ID_SN": "2",
+    "OBJ_ID": "B"
+   },
+   {
+    "OBJ_NM_ENG": "By product",
+    "UP_ITM_ID": "C26",
+    "ITM_NM_ENG": "Other computer boards",
+    "ITM_ID": "C26329803",
+    "TBL_ID": "DT_1FP1124A",
+    "OBJ_NM": "품목별",
+    "ITM_NM": "기타 컴퓨터용 보드",
+    "ORG_ID": "101",
+    "OBJ_ID_SN": "2",
+    "OBJ_ID": "B"
+   },
+   {
+    "OBJ_NM_ENG": "By product",
+    "UP_ITM_ID": "C26",
+    "ITM_NM_ENG": "Manufacture of intrusion detection and fire alarming system via the communication to the control center",
+    "ITM_ID": "C26410400",
+    "TBL_ID": "DT_1FP1124A",
+    "OBJ_NM": "품목별",
+    "ITM_NM": "중앙통제실 송신용 칩입 및 화재경보 시스템 제조",
+    "ORG_ID": "101",
+    "OBJ_ID_SN": "2",
+    "OBJ_ID": "B"
+   },
+   {
+    "OBJ_NM_ENG": "By product",
+    "UP_ITM_ID": "C29",
+    "ITM_NM_ENG": "Chip mounter",
+    "ITM_ID": "C29271103",
+    "TBL_ID": "DT_1FP1124A",
+    "OBJ_NM": "품목별",
+    "ITM_NM": "칩마운터",
+    "ORG_ID": "101",
+    "OBJ_ID_SN": "2",
+    "OBJ_ID": "B"
+   },
+   {
+    "OBJ_NM_ENG": "By product",
+    "UP_ITM_ID": "C33",
+    "ITM_NM_ENG": "Stationery Blackboards and writing boards",
+    "ITM_ID": "C33920400",
+    "TBL_ID": "DT_1FP1124A",
+    "OBJ_NM": "품목별",
+    "ITM_NM": "문구용칠판 및 화이트보드",
+    "ORG_ID": "101",
+    "OBJ_ID_SN": "2",
+    "OBJ_ID": "B"
+   }
+  ]
+ },
+ "DT_404Y016": {
+  "name": "생산자물가지수(품목별)",
+  "org": "301",
+  "objs": [
+   [
+    "13101134764ACC_CD",
+    "계정코드별"
+   ],
+   [
+    "ITEM",
+    "항목"
+   ]
+  ],
+  "items": [
+   {
+    "OBJ_NM_ENG": "Item code list",
+    "ITM_NM_ENG": "Producer Price Indices  (Item Groups)",
+    "ITM_ID": "13103134764999",
+    "TBL_ID": "DT_404Y016",
+    "OBJ_NM": "항목",
+    "ITM_NM": "생산자물가지수(품목별)",
+    "ORG_ID": "301",
+    "OBJ_ID": "ITEM"
+   }
+  ],
+  "wood_classes": [
+   {
+    "OBJ_NM_ENG": "Selection of Items",
+    "ITM_ID": "13102134764ACC_CD.303AA",
+    "TBL_ID": "DT_404Y016",
+    "OBJ_NM": "계정코드별",
+    "UNIT_ENG_NM": "2020=100",
+    "ITM_NM": "목재및종이제품",
+    "OBJ_ID": "13101134764ACC_CD",
+    "UNIT_ID": "14999301.814",
+    "UP_ITM_ID": "13102134764ACC_CD.3AA",
+    "UNIT_NM": "2020=100",
+    "ITM_NM_ENG": "Wood ＆ paper products",
+    "ORG_ID": "301",
+    "OBJ_ID_SN": "1"
+   },
+   {
+    "OBJ_NM_ENG": "Selection of Items",
+    "ITM_ID": "13102134764ACC_CD.10131101AA",
+    "TBL_ID": "DT_404Y016",
+    "OBJ_NM": "계정코드별",
+    "UNIT_ENG_NM": "2020=100",
+    "ITM_NM": "원목",
+    "OBJ_ID": "13101134764ACC_CD",
+    "UNIT_ID": "14999301.814",
+    "UP_ITM_ID": "13102134764ACC_CD.101AA",
+    "UNIT_NM": "2020=100",
+    "ITM_NM_ENG": "Log",
+    "ORG_ID": "301",
+    "OBJ_ID_SN": "1"
+   },
+   {
+    "OBJ_NM_ENG": "Selection of Items",
+    "ITM_ID": "13102134764ACC_CD.30311102AA",
+    "TBL_ID": "DT_404Y016",
+    "OBJ_NM": "계정코드별",
+    "UNIT_ENG_NM": "2020=100",
+    "ITM_NM": "마루용판재",
+    "OBJ_ID": "13101134764ACC_CD",
+    "UNIT_ID": "14999301.814",
+    "UP_ITM_ID": "13102134764ACC_CD.303AA",
+    "UNIT_NM": "2020=100",
+    "ITM_NM_ENG": "Floor board",
+    "ORG_ID": "301",
+    "OBJ_ID_SN": "1"
+   },
+   {
+    "OBJ_NM_ENG": "Selection of Items",
+    "ITM_ID": "13102134764ACC_CD.30311201AA",
+    "TBL_ID": "DT_404Y016",
+    "OBJ_NM": "계정코드별",
+    "UNIT_ENG_NM": "2020=100",
+    "ITM_NM": "일반합판",
+    "OBJ_ID": "13101134764ACC_CD",
+    "UNIT_ID": "14999301.814",
+    "UP_ITM_ID": "13102134764ACC_CD.303AA",
+    "UNIT_NM": "2020=100",
+    "ITM_NM_ENG": "Plywood",
+    "ORG_ID": "301",
+    "OBJ_ID_SN": "1"
+   },
+   {
+    "OBJ_NM_ENG": "Selection of Items",
+    "ITM_ID": "13102134764ACC_CD.30311202AA",
+    "TBL_ID": "DT_404Y016",
+    "OBJ_NM": "계정코드별",
+    "UNIT_ENG_NM": "2020=100",
+    "ITM_NM": "가공합판",
+    "OBJ_ID": "13101134764ACC_CD",
+    "UNIT_ID": "14999301.814",
+    "UP_ITM_ID": "13102134764ACC_CD.303AA",
+    "UNIT_NM": "2020=100",
+    "ITM_NM_ENG": "Processed plywood",
+    "ORG_ID": "301",
+    "OBJ_ID_SN": "1"
+   },
+   {
+    "OBJ_NM_ENG": "Selection of Items",
+    "ITM_ID": "13102134764ACC_CD.30311301AA",
+    "TBL_ID": "DT_404Y016",
+    "OBJ_NM": "계정코드별",
+    "UNIT_ENG_NM": "2020=100",
+    "ITM_NM": "파티클보드(PB)",
+    "OBJ_ID": "13101134764ACC_CD",
+    "UNIT_ID": "14999301.814",
+    "UP_ITM_ID": "13102134764ACC_CD.303AA",
+    "UNIT_NM": "2020=100",
+    "ITM_NM_ENG": "Particle board",
+    "ORG_ID": "301",
+    "OBJ_ID_SN": "1"
+   },
+   {
+    "OBJ_NM_ENG": "Selection of Items",
+    "ITM_ID": "13102134764ACC_CD.30311302AA",
+    "TBL_ID": "DT_404Y016",
+    "OBJ_NM": "계정코드별",
+    "UNIT_ENG_NM": "2020=100",
+    "ITM_NM": "중밀도섬유판(MDF)",
+    "OBJ_ID": "13101134764ACC_CD",
+    "UNIT_ID": "14999301.814",
+    "UP_ITM_ID": "13102134764ACC_CD.303AA",
+    "UNIT_NM": "2020=100",
+    "ITM_NM_ENG": "Medium density fiberboard",
+    "ORG_ID": "301",
+    "OBJ_ID_SN": "1"
+   },
+   {
+    "OBJ_NM_ENG": "Selection of Items",
+    "ITM_ID": "13102134764ACC_CD.30312101AA",
+    "TBL_ID": "DT_404Y016",
+    "OBJ_NM": "계정코드별",
+    "UNIT_ENG_NM": "2020=100",
+    "ITM_NM": "목재문창문및틀",
+    "OBJ_ID": "13101134764ACC_CD",
+    "UNIT_ID": "14999301.814",
+    "UP_ITM_ID": "13102134764ACC_CD.303AA",
+    "UNIT_NM": "2020=100",
+    "ITM_NM_ENG": "Wooden door window ＆ window frame",
+    "ORG_ID": "301",
+    "OBJ_ID_SN": "1"
+   },
+   {
+    "OBJ_NM_ENG": "Selection of Items",
+    "ITM_ID": "13102134764ACC_CD.30312201AA",
+    "TBL_ID": "DT_404Y016",
+    "OBJ_NM": "계정코드별",
+    "UNIT_ENG_NM": "2020=100",
+    "ITM_NM": "목재깔판",
+    "OBJ_ID": "13101134764ACC_CD",
+    "UNIT_ID": "14999301.814",
+    "UP_ITM_ID": "13102134764ACC_CD.303AA",
+    "UNIT_NM": "2020=100",
+    "ITM_NM_ENG": "Wooden pallet",
+    "ORG_ID": "301",
+    "OBJ_ID_SN": "1"
+   },
+   {
+    "OBJ_NM_ENG": "Selection of Items",
+    "ITM_ID": "13102134764ACC_CD.30312202AA",
+    "TBL_ID": "DT_404Y016",
+    "OBJ_NM": "계정코드별",
+    "UNIT_ENG_NM": "2020=100",
+    "ITM_NM": "목재상자",
+    "OBJ_ID": "13101134764ACC_CD",
+    "UNIT_ID": "14999301.814",
+    "UP_ITM_ID": "13102134764ACC_CD.303AA",
+    "UNIT_NM": "2020=100",
+    "ITM_NM_ENG": "Wooden box",
+    "ORG_ID": "301",
+    "OBJ_ID_SN": "1"
+   },
+   {
+    "OBJ_NM_ENG": "Selection of Items",
+    "ITM_ID": "13102134764ACC_CD.31124103AA",
+    "TBL_ID": "DT_404Y016",
+    "OBJ_NM": "계정코드별",
+    "UNIT_ENG_NM": "2020=100",
+    "ITM_NM": "칩마운터",
+    "OBJ_ID": "13101134764ACC_CD",
+    "UNIT_ID": "14999301.814",
+    "UP_ITM_ID": "13102134764ACC_CD.311AA",
+    "UNIT_NM": "2020=100",
+    "ITM_NM_ENG": "Chip mounter",
+    "ORG_ID": "301",
+    "OBJ_ID_SN": "1"
+   }
+  ]
+ },
+ "DT_401Y017": {
+  "name": "수입물가지수(품목별)",
+  "org": "301",
+  "objs": [
+   [
+    "13101134644ACC_CD",
+    "계정코드별"
+   ],
+   [
+    "13101134644CRR_CTRT_CD",
+    "통화계약구분코드별"
+   ],
+   [
+    "ITEM",
+    "항목"
+   ]
+  ],
+  "items": [
+   {
+    "OBJ_NM_ENG": "Item code list",
+    "ITM_NM_ENG": "Import Price Indices(Item Groups)",
+    "ITM_ID": "13103134644999",
+    "TBL_ID": "DT_401Y017",
+    "OBJ_NM": "항목",
+    "ITM_NM": "수입물가지수(품목별)",
+    "ORG_ID": "301",
+    "OBJ_ID": "ITEM"
+   }
+  ],
+  "wood_classes": [
+   {
+    "OBJ_NM_ENG": "Selection of Items",
+    "ITM_ID": "13102134644ACC_CD.303AA",
+    "TBL_ID": "DT_401Y017",
+    "OBJ_NM": "계정코드별",
+    "UNIT_ENG_NM": "2020=100",
+    "ITM_NM": "목재및종이제품",
+    "OBJ_ID": "13101134644ACC_CD",
+    "UNIT_ID": "14999301.814",
+    "UP_ITM_ID": "13102134644ACC_CD.3AA",
+    "UNIT_NM": "2020=100",
+    "ITM_NM_ENG": "Wood ＆ paper products",
+    "ORG_ID": "301",
+    "OBJ_ID_SN": "1"
+   },
+   {
+    "OBJ_NM_ENG": "Selection of Items",
+    "ITM_ID": "13102134644ACC_CD.10131101AA",
+    "TBL_ID": "DT_401Y017",
+    "OBJ_NM": "계정코드별",
+    "UNIT_ENG_NM": "2020=100",
+    "ITM_NM": "원목",
+    "OBJ_ID": "13101134644ACC_CD",
+    "UNIT_ID": "14999301.814",
+    "UP_ITM_ID": "13102134644ACC_CD.101AA",
+    "UNIT_NM": "2020=100",
+    "ITM_NM_ENG": "Log",
+    "ORG_ID": "301",
+    "OBJ_ID_SN": "1"
+   },
+   {
+    "OBJ_NM_ENG": "Selection of Items",
+    "ITM_ID": "13102134644ACC_CD.30311201AA",
+    "TBL_ID": "DT_401Y017",
+    "OBJ_NM": "계정코드별",
+    "UNIT_ENG_NM": "2020=100",
+    "ITM_NM": "일반합판",
+    "OBJ_ID": "13101134644ACC_CD",
+    "UNIT_ID": "14999301.814",
+    "UP_ITM_ID": "13102134644ACC_CD.303AA",
+    "UNIT_NM": "2020=100",
+    "ITM_NM_ENG": "Plywood",
+    "ORG_ID": "301",
+    "OBJ_ID_SN": "1"
+   },
+   {
+    "OBJ_NM_ENG": "Selection of Items",
+    "ITM_ID": "13102134644ACC_CD.30311301AA",
+    "TBL_ID": "DT_401Y017",
+    "OBJ_NM": "계정코드별",
+    "UNIT_ENG_NM": "2020=100",
+    "ITM_NM": "강화목재",
+    "OBJ_ID": "13101134644ACC_CD",
+    "UNIT_ID": "14999301.814",
+    "UP_ITM_ID": "13102134644ACC_CD.303AA",
+    "UNIT_NM": "2020=100",
+    "ITM_NM_ENG": "Improved wood",
+    "ORG_ID": "301",
+    "OBJ_ID_SN": "1"
+   }
+  ]
+ },
+ "DT_136034_2024_J018": {
+  "name": "집성재 생산업체 생산량 및 판매량",
+  "org": "136",
+  "objs": [
+   [
+    "A",
+    "용도별"
+   ],
+   [
+    "B",
+    "생산및판매량별"
+   ],
+   [
+    "ITEM",
+    "항목"
+   ]
+  ],
+  "items": [
+   {
+    "OBJ_NM_ENG": "Item code list",
+    "ITM_ID": "T001",
+    "TBL_ID": "DT_136034_2024_J018",
+    "OBJ_NM": "항목",
+    "ITM_NM": "집성재 생산업체 생산량 및 판매량",
+    "ORG_ID": "136",
+    "OBJ_ID": "ITEM"
+   }
+  ],
+  "wood_classes": [
+   {
+    "ITM_ID": "A02",
+    "TBL_ID": "DT_136034_2024_J018",
+    "OBJ_NM": "용도별",
+    "ITM_NM": "구조용집성재",
+    "ORG_ID": "136",
+    "OBJ_ID_SN": "1",
+    "OBJ_ID": "A"
+   },
+   {
+    "ITM_ID": "A03",
+    "TBL_ID": "DT_136034_2024_J018",
+    "OBJ_NM": "용도별",
+    "ITM_NM": "수장용집성재",
+    "ORG_ID": "136",
+    "OBJ_ID_SN": "1",
+    "OBJ_ID": "A"
+   },
+   {
+    "ITM_ID": "A04",
+    "TBL_ID": "DT_136034_2024_J018",
+    "OBJ_NM": "용도별",
+    "ITM_NM": "집성판",
+    "ORG_ID": "136",
+    "OBJ_ID_SN": "1",
+    "OBJ_ID": "A"
+   }
+  ]
+ },
+ "DT_136034_2024_A031": {
+  "name": "제재목 국산 원목 이용 제품생산량 및 판매량",
+  "org": "136",
+  "objs": [
+   [
+    "A",
+    "제품별"
+   ],
+   [
+    "B",
+    "생산량및판매량별"
+   ],
+   [
+    "ITEM",
+    "항목"
+   ]
+  ],
+  "items": [
+   {
+    "OBJ_NM_ENG": "Item code list",
+    "ITM_ID": "T001",
+    "TBL_ID": "DT_136034_2024_A031",
+    "OBJ_NM": "항목",
+    "ITM_NM": "제재목 생산업체 국산 원목 이용 제품생산량 및 판매량",
+    "ORG_ID": "136",
+    "OBJ_ID": "ITEM"
+   }
+  ],
+  "wood_classes": []
+ },
+ "DT_1FS1101": {
+  "name": "광업제조업조사 주요지표",
+  "org": "101",
+  "objs": [
+   [
+    "A",
+    "시도별"
+   ],
+   [
+    "B",
+    "산업별"
+   ],
+   [
+    "ITEM",
+    "항목"
+   ]
+  ],
+  "items": [
+   {
+    "UNIT_ID": "14210.E9",
+    "OBJ_NM_ENG": "Item code list",
+    "UNIT_NM": "개",
+    "ITM_NM_ENG": "Number of establishments",
+    "ITM_ID": "T01",
+    "TBL_ID": "DT_1FS1101",
+    "OBJ_NM": "항목",
+    "UNIT_ENG_NM": "Each                          ",
+    "ITM_NM": "사업체수",
+    "ORG_ID": "101",
+    "OBJ_ID": "ITEM"
+   },
+   {
+    "UNIT_ID": "14101.0228",
+    "OBJ_NM_ENG": "Item code list",
+    "UNIT_NM": "명",
+    "ITM_NM_ENG": "Number of workers",
+    "ITM_ID": "T02",
+    "TBL_ID": "DT_1FS1101",
+    "OBJ_NM": "항목",
+    "UNIT_ENG_NM": "Number",
+    "ITM_NM": "종사자수",
+    "ORG_ID": "101",
+    "OBJ_ID": "ITEM"
+   },
+   {
+    "UNIT_ID": "14STD05053",
+    "OBJ_NM_ENG": "Item code list",
+    "UNIT_NM": "백만원",
+    "ITM_NM_ENG": "Wages ＆ Salaries",
+    "ITM_ID": "T03",
+    "TBL_ID": "DT_1FS1101",
+    "OBJ_NM": "항목",
+    "UNIT_ENG_NM": "In Million Won",
+    "ITM_NM": "급여액",
+    "ORG_ID": "101",
+    "OBJ_ID": "ITEM"
+   },
+   {
+    "UNIT_ID": "14STD05053",
+    "OBJ_NM_ENG": "Item code list",
+    "UNIT_NM": "백만원",
+    "ITM_NM_ENG": "Value of shipments",
+    "ITM_ID": "T04",
+    "TBL_ID": "DT_1FS1101",
+    "OBJ_NM": "항목",
+    "UNIT_ENG_NM": "In Million Won",
+    "ITM_NM": "출하액",
+    "ORG_ID": "101",
+    "OBJ_ID": "ITEM"
+   },
+   {
+    "UNIT_ID": "14STD05053",
+    "OBJ_NM_ENG": "Item code list",
+    "UNIT_NM": "백만원",
+    "ITM_NM_ENG": "Major production costs",
+    "ITM_ID": "T05",
+    "TBL_ID": "DT_1FS1101",
+    "OBJ_NM": "항목",
+    "UNIT_ENG_NM": "In Million Won",
+    "ITM_NM": "주요생산비",
+    "ORG_ID": "101",
+    "OBJ_ID": "ITEM"
+   },
+   {
+    "UNIT_ID": "14STD05053",
+    "OBJ_NM_ENG": "Item code list",
+    "UNIT_NM": "백만원",
+    "ITM_NM_ENG": "Value added",
+    "ITM_ID": "T06",
+    "TBL_ID": "DT_1FS1101",
+    "OBJ_NM": "항목",
+    "UNIT_ENG_NM": "In Million Won",
+    "ITM_NM": "부가가치",
+    "ORG_ID": "101",
+    "OBJ_ID": "ITEM"
+   },
+   {
+    "UNIT_ID": "14STD05053",
+    "OBJ_NM_ENG": "Item code list",
+    "UNIT_NM": "백만원",
+    "ITM_NM_ENG": "Amount of Tangible Assets at end of year",
+    "ITM_ID": "T07",
+    "TBL_ID": "DT_1FS1101",
+    "OBJ_NM": "항목",
+    "UNIT_ENG_NM": "In Million Won",
+    "ITM_NM": "유형자산 연말잔액",
+    "ORG_ID": "101",
+    "OBJ_ID": "ITEM"
+   }
+  ],
+  "wood_classes": [
+   {
+    "OBJ_NM_ENG": "By industry",
+    "UP_ITM_ID": "C139",
+    "ITM_NM_ENG": "Manufacture of carpets rugs and similar products",
+    "ITM_ID": "C1391",
+    "TBL_ID": "DT_1FS1101",
+    "OBJ_NM": "산업별",
+    "ITM_NM": "카펫 마루덮개 및 유사제품 제조업",
+    "ORG_ID": "101",
+    "OBJ_ID_SN": "2",
+    "OBJ_ID": "B"
+   },
+   {
+    "OBJ_NM_ENG": "By industry",
+    "UP_ITM_ID": "C1391",
+    "ITM_NM_ENG": "Manufacture of carpets rugs and similar products",
+    "ITM_ID": "C13910",
+    "TBL_ID": "DT_1FS1101",
+    "OBJ_NM": "산업별",
+    "ITM_NM": "카펫 마루덮개 및 유사제품 제조업",
+    "ORG_ID": "101",
+    "OBJ_ID_SN": "2",
+    "OBJ_ID": "B"
+   },
+   {
+    "OBJ_NM_ENG": "By industry",
+    "UP_ITM_ID": "C",
+    "ITM_NM_ENG": "Manufacture of wood and of products of wood and cork; except furniture ",
+    "ITM_ID": "C16",
+    "TBL_ID": "DT_1FS1101",
+    "OBJ_NM": "산업별",
+    "ITM_NM": "목재 및 나무제품 제조업; 가구 제외",
+    "ORG_ID": "101",
+    "OBJ_ID_SN": "2",
+    "OBJ_ID": "B"
+   },
+   {
+    "OBJ_NM_ENG": "By industry",
+    "UP_ITM_ID": "C16",
+    "ITM_NM_ENG": "Sawmilling and planing of wood",
+    "ITM_ID": "C161",
+    "TBL_ID": "DT_1FS1101",
+    "OBJ_NM": "산업별",
+    "ITM_NM": "제재 및 목재 가공업",
+    "ORG_ID": "101",
+    "OBJ_ID_SN": "2",
+    "OBJ_ID": "B"
+   },
+   {
+    "OBJ_NM_ENG": "By industry",
+    "UP_ITM_ID": "C161",
+    "ITM_NM_ENG": "Sawmilling and planing of wood",
+    "ITM_ID": "C1610",
+    "TBL_ID": "DT_1FS1101",
+    "OBJ_NM": "산업별",
+    "ITM_NM": "제재 및 목재 가공업",
+    "ORG_ID": "101",
+    "OBJ_ID_SN": "2",
+    "OBJ_ID": "B"
+   },
+   {
+    "OBJ_NM_ENG": "By industry",
+    "UP_ITM_ID": "C1610",
+    "ITM_NM_ENG": "Sawmilling of wood",
+    "ITM_ID": "C16101",
+    "TBL_ID": "DT_1FS1101",
+    "OBJ_NM": "산업별",
+    "ITM_NM": "일반 제재업",
+    "ORG_ID": "101",
+    "OBJ_ID_SN": "2",
+    "OBJ_ID": "B"
+   },
+   {
+    "OBJ_NM_ENG": "By industry",
+    "UP_ITM_ID": "C1610",
+    "ITM_NM_ENG": "Manufacture of surface processing wood and woods for special purpose ",
+    "ITM_ID": "C16102",
+    "TBL_ID": "DT_1FS1101",
+    "OBJ_NM": "산업별",
+    "ITM_NM": "표면 가공 목재 및 특정 목적용 제재목 제조업",
+    "ORG_ID": "101",
+    "OBJ_ID_SN": "2",
+    "OBJ_ID": "B"
+   },
+   {
+    "OBJ_NM_ENG": "By industry",
+    "UP_ITM_ID": "C1610",
+    "ITM_NM_ENG": "Preservation antisepsis painting and similar processing of wood",
+    "ITM_ID": "C16103",
+    "TBL_ID": "DT_1FS1101",
+    "OBJ_NM": "산업별",
+    "ITM_NM": "목재 보존 방부처리 도장 및 유사 처리업",
+    "ORG_ID": "101",
+    "OBJ_ID_SN": "2",
+    "OBJ_ID": "B"
+   },
+   {
+    "OBJ_NM_ENG": "By industry",
+    "UP_ITM_ID": "C16",
+    "ITM_NM_ENG": "Manufacture of wood products ",
+    "ITM_ID": "C162",
+    "TBL_ID": "DT_1FS1101",
+    "OBJ_NM": "산업별",
+    "ITM_NM": "나무제품 제조업",
+    "ORG_ID": "101",
+    "OBJ_ID_SN": "2",
+    "OBJ_ID": "B"
+   },
+   {
+    "OBJ_NM_ENG": "By industry",
+    "UP_ITM_ID": "C162",
+    "ITM_NM_ENG": "Manufacture of veneer sheets plywood and densified wood ",
+    "ITM_ID": "C1621",
+    "TBL_ID": "DT_1FS1101",
+    "OBJ_NM": "산업별",
+    "ITM_NM": "박판 합판 및 강화 목제품 제조업",
+    "ORG_ID": "101",
+    "OBJ_ID_SN": "2",
+    "OBJ_ID": "B"
+   },
+   {
+    "OBJ_NM_ENG": "By industry",
+    "UP_ITM_ID": "C1621",
+    "ITM_NM_ENG": "Manufacture of veneer sheets plywood and similar laminated wood boards",
+    "ITM_ID": "C16211",
+    "TBL_ID": "DT_1FS1101",
+    "OBJ_NM": "산업별",
+    "ITM_NM": "박판 합판 및 유사 적층판 제조업",
+    "ORG_ID": "101",
+    "OBJ_ID_SN": "2",
+    "OBJ_ID": "B"
+   },
+   {
+    "OBJ_NM_ENG": "By industry",
+    "UP_ITM_ID": "C1621",
+    "ITM_NM_ENG": "Manufacture of densified and reconstituted wood",
+    "ITM_ID": "C16212",
+    "TBL_ID": "DT_1FS1101",
+    "OBJ_NM": "산업별",
+    "ITM_NM": "강화 및 재생 목재 제조업",
+    "ORG_ID": "101",
+    "OBJ_ID_SN": "2",
+    "OBJ_ID": "B"
+   },
+   {
+    "OBJ_NM_ENG": "By industry",
+    "UP_ITM_ID": "C162",
+    "ITM_NM_ENG": "Manufacture of wooden goods for construction industry",
+    "ITM_ID": "C1622",
+    "TBL_ID": "DT_1FS1101",
+    "OBJ_NM": "산업별",
+    "ITM_NM": "건축용 나무제품 제조업",
+    "ORG_ID": "101",
+    "OBJ_ID_SN": "2",
+    "OBJ_ID": "B"
+   },
+   {
+    "OBJ_NM_ENG": "By industry",
+    "UP_ITM_ID": "C1622",
+    "ITM_NM_ENG": "Manufacture of wooden doors and related products",
+    "ITM_ID": "C16221",
+    "TBL_ID": "DT_1FS1101",
+    "OBJ_NM": "산업별",
+    "ITM_NM": "목재문 및 관련제품 제조업",
+    "ORG_ID": "101",
+    "OBJ_ID_SN": "2",
+    "OBJ_ID": "B"
+   },
+   {
+    "OBJ_NM_ENG": "By industry",
+    "UP_ITM_ID": "C1622",
+    "ITM_NM_ENG": "Manufacture of other wooden goods for construction industry",
+    "ITM_ID": "C16229",
+    "TBL_ID": "DT_1FS1101",
+    "OBJ_NM": "산업별",
+    "ITM_NM": "기타 건축용 나무제품 제조업",
+    "ORG_ID": "101",
+    "OBJ_ID_SN": "2",
+    "OBJ_ID": "B"
+   },
+   {
+    "OBJ_NM_ENG": "By industry",
+    "UP_ITM_ID": "C162",
+    "ITM_NM_ENG": "Manufacture of wooden containers drums and load boards ",
+    "ITM_ID": "C1623",
+    "TBL_ID": "DT_1FS1101",
+    "OBJ_NM": "산업별",
+    "ITM_NM": "목재 상자 드럼 및 적재판 제조업",
+    "ORG_ID": "101",
+    "OBJ_ID_SN": "2",
+    "OBJ_ID": "B"
+   },
+   {
+    "OBJ_NM_ENG": "By industry",
+    "UP_ITM_ID": "C1623",
+    "ITM_NM_ENG": "Manufacture of wooden pallets and other load boards",
+    "ITM_ID": "C16231",
+    "TBL_ID": "DT_1FS1101",
+    "OBJ_NM": "산업별",
+    "ITM_NM": "목재 깔판류 및 기타 적재판 제조업",
+    "ORG_ID": "101",
+    "OBJ_ID_SN": "2",
+    "OBJ_ID": "B"
+   },
+   {
+    "OBJ_NM_ENG": "By industry",
+    "UP_ITM_ID": "C1623",
+    "ITM_NM_ENG": "Manufacture of wooden packing boxes drums and similar containers ",
+    "ITM_ID": "C16232",
+    "TBL_ID": "DT_1FS1101",
+    "OBJ_NM": "산업별",
+    "ITM_NM": "목재 포장용 상자 드럼 및 유사용기 제조업",
+    "ORG_ID": "101",
+    "OBJ_ID_SN": "2",
+    "OBJ_ID": "B"
+   },
+   {
+    "OBJ_NM_ENG": "By industry",
+    "UP_ITM_ID": "C162",
+    "ITM_NM_ENG": "Manufacture of other wood products",
+    "ITM_ID": "C1629",
+    "TBL_ID": "DT_1FS1101",
+    "OBJ_NM": "산업별",
+    "ITM_NM": "기타 나무제품 제조업",
+    "ORG_ID": "101",
+    "OBJ_ID_SN": "2",
+    "OBJ_ID": "B"
+   },
+   {
+    "OBJ_NM_ENG": "By industry",
+    "UP_ITM_ID": "C1629",
+    "ITM_NM_ENG": "Manufacture of wooden tools appliances and household kitchenware ",
+    "ITM_ID": "C16291",
+    "TBL_ID": "DT_1FS1101",
+    "OBJ_NM": "산업별",
+    "ITM_NM": "목재 도구 및 주방용 나무제품 제조업",
+    "ORG_ID": "101",
+    "OBJ_ID_SN": "2",
+    "OBJ_ID": "B"
+   },
+   {
+    "OBJ_NM_ENG": "By industry",
+    "UP_ITM_ID": "C1629",
+    "ITM_NM_ENG": "Manufacture of other wood products n.e.c.",
+    "ITM_ID": "C16299",
+    "TBL_ID": "DT_1FS1101",
+    "OBJ_NM": "산업별",
+    "ITM_NM": "그 외 기타 나무제품 제조업",
+    "ORG_ID": "101",
+    "OBJ_ID_SN": "2",
+    "OBJ_ID": "B"
+   },
+   {
+    "OBJ_NM_ENG": "By industry",
+    "UP_ITM_ID": "C320",
+    "ITM_NM_ENG": "Manufacture of wood furniture",
+    "ITM_ID": "C3202",
+    "TBL_ID": "DT_1FS1101",
+    "OBJ_NM": "산업별",
+    "ITM_NM": "목재가구 제조업",
+    "ORG_ID": "101",
+    "OBJ_ID_SN": "2",
+    "OBJ_ID": "B"
+   },
+   {
+    "OBJ_NM_ENG": "By industry",
+    "UP_ITM_ID": "C3202",
+    "ITM_NM_ENG": "Manufacture of wood furniture for kitchen and restaurant",
+    "ITM_ID": "C32021",
+    "TBL_ID": "DT_1FS1101",
+    "OBJ_NM": "산업별",
+    "ITM_NM": "주방용 및 음식점용 목재가구 제조업",
+    "ORG_ID": "101",
+    "OBJ_ID_SN": "2",
+    "OBJ_ID": "B"
+   },
+   {
+    "OBJ_NM_ENG": "By industry",
+    "UP_ITM_ID": "C3202",
+    "ITM_NM_ENG": "Manufacture of other wood furniture",
+    "ITM_ID": "C32029",
+    "TBL_ID": "DT_1FS1101",
+    "OBJ_NM": "산업별",
+    "ITM_NM": "기타 목재가구 제조업",
+    "ORG_ID": "101",
+    "OBJ_ID_SN": "2",
+    "OBJ_ID": "B"
+   }
+  ]
+ },
+ "DT_1F32001": {
+  "name": "제조업 생산능력 및 가동률지수",
+  "org": "101",
+  "objs": [
+   [
+    "B",
+    "산업별"
+   ],
+   [
+    "ITEM",
+    "항목"
+   ]
+  ],
+  "items": [
+   {
+    "OBJ_NM_ENG": "Item code list",
+    "ITM_NM_ENG": "Index of manufacturing production capacity",
+    "ITM_ID": "T10",
+    "TBL_ID": "DT_1F32001",
+    "OBJ_NM": "항목",
+    "ITM_NM": "생산능력지수",
+    "ORG_ID": "101",
+    "OBJ_ID": "ITEM"
+   },
+   {
+    "OBJ_NM_ENG": "Item code list",
+    "ITM_NM_ENG": "Index of manufacturing capacity utilization rate(original index)",
+    "ITM_ID": "T20",
+    "TBL_ID": "DT_1F32001",
+    "OBJ_NM": "항목",
+    "ITM_NM": "가동률지수(원지수)",
+    "ORG_ID": "101",
+    "OBJ_ID": "ITEM"
+   },
+   {
+    "OBJ_NM_ENG": "Item code list",
+    "ITM_NM_ENG": "Index of manufacturing capacity utilization rate (seasonal adjustment)",
+    "ITM_ID": "T30",
+    "TBL_ID": "DT_1F32001",
+    "OBJ_NM": "항목",
+    "ITM_NM": "가동률지수(계절조정)",
+    "ORG_ID": "101",
+    "OBJ_ID": "ITEM"
+   }
+  ],
+  "wood_classes": [
+   {
+    "OBJ_NM_ENG": "By industry",
+    "UP_ITM_ID": "C",
+    "ITM_NM_ENG": "Manufacture of Wood Products of Wood and Cork Except Furniture",
+    "ITM_ID": "C16",
+    "TBL_ID": "DT_1F32001",
+    "OBJ_NM": "산업별",
+    "ITM_NM": "목재 및 나무제품 제조업; 가구 제외",
+    "ORG_ID": "101",
+    "OBJ_ID_SN": "1",
+    "OBJ_ID": "B"
+   },
+   {
+    "OBJ_NM_ENG": "By industry",
+    "UP_ITM_ID": "C16",
+    "ITM_NM_ENG": "Sawmilling and Planing of Wood",
+    "ITM_ID": "C161",
+    "TBL_ID": "DT_1F32001",
+    "OBJ_NM": "산업별",
+    "ITM_NM": "제재 및 목재 가공업",
+    "ORG_ID": "101",
+    "OBJ_ID_SN": "1",
+    "OBJ_ID": "B"
+   },
+   {
+    "OBJ_NM_ENG": "By industry",
+    "UP_ITM_ID": "C16",
+    "ITM_NM_ENG": "Manufacture of Wood Products",
+    "ITM_ID": "C162",
+    "TBL_ID": "DT_1F32001",
+    "OBJ_NM": "산업별",
+    "ITM_NM": "나무제품 제조업",
+    "ORG_ID": "101",
+    "OBJ_ID_SN": "1",
+    "OBJ_ID": "B"
+   }
+  ]
+ }
+}
