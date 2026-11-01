@@ -565,5 +565,6 @@ th.sortable:hover { color: var(--accent); }
 th.sortable.on { color: var(--accent); }
 
 .rk-per { display: flex; align-items: center; gap: 6px; margin: 0 0 6px; flex-wrap: wrap; }
-.rk-now { font-size: 10.5px; color: var(--muted); margin-left: 5px; white-space: nowrap; }
+.rk-prev { font-size: 11px; color: var(--muted); white-space: nowrap; }
+.rk-arr { font-size: 11px; color: var(--muted); margin: 0 4px; }
 tr.rk-none td { color: var(--muted); font-size: 11.5px; }
