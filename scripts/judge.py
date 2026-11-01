@@ -506,7 +506,10 @@ def industry(survey_csv: Path, labels: dict) -> dict | None:
                       "sales": _r(r.get("sales_100m_krw"), 0), "domestic": _r(r.get("sales_domestic_100m_krw"), 0),
                       "import": _r(r.get("sales_import_100m_krw"), 0), "employees": _r(r.get("employees"), 0)})
     prods.sort(key=lambda d: -(d["sales"] or 0))
+    ly, ld = ser("log_use_domestic")
+    _, li = ser("log_use_imported")
     return {"years": years, "sales": tot, "domestic": dom, "imports": imp, "employees": emp, "year": y0, "products": prods,
+            "log_years": ly, "log_domestic": ld, "log_imported": li,
             "source": "산림청·한국임업진흥원 목재이용실태조사 표2-4 (2020년은 2021년 기준, 2023년은 2024년 기준 보고서 수정치)",
             "scope": "목재생산업 등록업체(21개 목재제품의 국내 생산업체 + 수입·유통업체) 매출. 가구·건축·종이 제외. 수입·유통업체 값은 가중치 추정"}
 

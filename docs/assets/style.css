@@ -488,3 +488,20 @@ details.sub-fold > .sub-body > section { margin-top: 0 !important; }
 #deep-body > .sec-title { padding: 0 4px; }
 .dp-v b small { font-size: 10.5px; font-weight: 500; color: var(--muted); }
 .dp-v b { white-space: nowrap; }
+
+/* 한눈에 보기 — 목재산업 실태 한 줄 */
+.g-ind { margin: 12px 0 14px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 14px 8px; }
+.gi-h { display: flex; align-items: baseline; gap: 10px; margin-bottom: 6px; }
+.gi-h b { font-size: 14px; letter-spacing: -0.02em; }
+.gi-h span { font-size: 11.5px; color: var(--muted); }
+.gi-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; }
+.gi { display: grid; grid-template-columns: auto 1fr; grid-template-areas: "l l" "v sp" "s s"; column-gap: 10px; align-items: center; padding: 4px 12px; color: inherit; text-decoration: none; border-left: 1px solid var(--border); border-radius: 6px; }
+.gi:first-child { border-left: 0; padding-left: 0; }
+.gi:hover { background: var(--surface-2); }
+.gi-l { grid-area: l; font-size: 12px; color: var(--ink-2); letter-spacing: -0.02em; white-space: nowrap; }
+.gi-l .ktag { transform: scale(.85); transform-origin: left center; }
+.gi-v { grid-area: v; font-size: 21px; font-weight: 700; letter-spacing: -0.03em; white-space: nowrap; }
+.gi-sp { grid-area: sp; min-width: 50px; opacity: .9; }
+.gi-s { grid-area: s; font-size: 11px; color: var(--muted); line-height: 1.4; letter-spacing: -0.02em; }
+.gi-f { font-size: 10.5px; color: var(--muted); margin-top: 6px; }
+@media (max-width: 860px) { .gi-row { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 8px; } .gi:nth-child(3) { border-left: 0; padding-left: 0; } }

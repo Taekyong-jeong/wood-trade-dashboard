@@ -537,6 +537,26 @@
 
   // ── 한눈에 보기 (시안: ?v=2) ───────────────────────────────
   const V2 = new URLSearchParams(location.search).get("v") === "2";
+  // 한눈에 보기 — 목재산업 실태 한 줄 (목재이용실태조사 시계열, 각 항목에 추세선)
+  function indStrip() {
+    const I = (D.judg || {}).industry;
+    if (!I || I.years.length < 2) return "";
+    const n = I.years.length - 1, y0 = I.years[0], y1 = I.years[n];
+    const sp = (vals) => `<span class="gi-sp">${C.sparkline(vals, 90, 26)}</span>`;
+    const chg = (a, b) => `${b >= a ? "+" : ""}${nf((b / a - 1) * 100, 0)}%`;
+    const domShare = I.years.map((_, i) => (I.domestic[i] / I.sales[i]) * 100);
+    const it = (k, lab, val, from, sub, vals, href) => `<a class="gi" href="${href}"><span class="gi-l">${lab} ${KTAG[k]}</span><span class="gi-v">${val}</span>${sp(vals)}<span class="gi-s">${from}<br>${sub}</span></a>`;
+    let logs = "";
+    if (I.log_years && I.log_years.length >= 2) {
+      const ls = I.log_years.map((_, i) => (I.log_domestic[i] / (I.log_domestic[i] + I.log_imported[i])) * 100), m = ls.length - 1;
+      logs = it("ana", "원목 중 국산", `${nf(ls[m], 0)}%`, `${I.log_years[0]}년 ${nf(ls[0], 0)}%`, `국산 ${nf(I.log_domestic[m] / 1e4, 0)}만 ㎥ · 수입 ${nf(I.log_imported[m] / 1e4, 0)}만 ㎥`, ls, "#sec-penetration");
+    }
+    return `<div class="g-ind"><div class="gi-h"><b>목재산업 실태</b><span>연도별 추이 (매출·종사자 ${y0}~${y1}, 원목 ${(I.log_years || [y0])[0]}~${y1}) · 산림청 목재이용실태조사</span></div><div class="gi-row">` +
+      it("raw", "매출", `${nf(I.sales[n] / 1e4, 1)}조 원`, `${y0}년 ${nf(I.sales[0] / 1e4, 1)}조 · ${chg(I.sales[0], I.sales[n])}`, "국내 생산 + 수입·유통업체", I.sales, "#sec-industry") +
+      it("ana", "국내 생산업체 매출 비중", `${nf(domShare[n], 0)}%`, `${y0}년 ${nf(domShare[0], 0)}%`, `국내 생산 ${nf(I.domestic[n] / 1e4, 1)}조 원`, domShare, "#sec-industry") +
+      it("raw", "종사자", `${nf(I.employees[n], 0)}명`, `${y0}년 ${nf(I.employees[0], 0)}명 · ${chg(I.employees[0], I.employees[n])}`, "국내 생산 + 수입·유통업체", I.employees, "#sec-industry") +
+      logs + `</div><div class="gi-f">조사 범위·가중치가 해마다 조정돼 연도 간 비교는 참고 (2023년은 2024년 기준 보고서 수정치) · 누르면 자세히 보기로 이동</div></div>`;
+  }
   function renderGlance() {
     const host = $("#glance");
     if (!host || !V2) return;
@@ -571,6 +591,7 @@
     host.innerHTML = `<div class="g-head"><h2 class="one-line">대한민국 목재산업을 한눈에</h2><span class="hint">기준월 ${m0} · 목재이용실태조사 ${G.year}년</span></div>
       <p class="g-lead one-line">${lead}</p>
       <div class="g-tiles">${tiles}</div>
+      ${indStrip()}
       <div class="g-main">
         <div class="card g-flow"><div class="card-head"><h3 class="one-line">목재는 어디서 와서 무엇이 되나</h3><span class="hint">${G.year}년 · 띠 굵기 = 물량(㎥)</span></div>
           <div id="g-sankey"></div>
