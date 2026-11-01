@@ -294,7 +294,8 @@
     const xs = pts.map((p) => p.x), ys = pts.map((p) => p.y);
     const xMin = opts.xMin != null ? opts.xMin : Math.min(...xs), xMax = opts.xMax != null ? opts.xMax : Math.max(...xs);
     const ly = (v) => (opts.logY ? Math.log10(v) : v);
-    let yLo = Math.min(...ys.map(ly), ...(opts.refY || []).map((r) => ly(r.v))), yHi = Math.max(...ys.map(ly), ...(opts.refY || []).map((r) => ly(r.v)));
+    const refVals = (opts.refY || []).flatMap((r) => [r.v, ...(r.band || [])]);
+    let yLo = Math.min(...ys.map(ly), ...refVals.map(ly)), yHi = Math.max(...ys.map(ly), ...refVals.map(ly));
     if (opts.logY) { yLo = Math.floor(yLo); yHi = Math.ceil(yHi); } else { const t = niceTicks(Math.min(0, yLo), yHi, 4); yLo = t[0]; yHi = t[t.length - 1]; }
     const iw = W - pad.l - pad.r, ih = H - pad.t - pad.b;
     const X = (v) => pad.l + ((v - xMin) / (xMax - xMin || 1)) * iw;
@@ -315,8 +316,10 @@
       el("line", { x1: X(r.v), x2: X(r.v), y1: pad.t, y2: pad.t + ih, stroke: css("--s8"), "stroke-dasharray": "4 3", opacity: 0.8 }, g);
       el("text", { x: X(r.v) + 4, y: pad.t + 11, "text-anchor": "start", style: "fill:var(--s8)" }, g).textContent = r.label; });
     (opts.refY || []).forEach((r) => {
-      el("line", { x1: pad.l, x2: W - pad.r, y1: Y(r.v), y2: Y(r.v), stroke: css("--s8"), "stroke-dasharray": "4 3", opacity: 0.8 }, g);
-      el("text", { x: W - pad.r - 2, y: Y(r.v) - 4, "text-anchor": "end", style: "fill:var(--s8)" }, g).textContent = r.label; });
+      const rc = r.color || css("--s8");
+      if (r.band) el("rect", { x: pad.l, width: W - pad.l - pad.r, y: Y(r.band[1]), height: Math.max(1, Y(r.band[0]) - Y(r.band[1])), fill: rc, "fill-opacity": 0.13 }, g);
+      el("line", { x1: pad.l, x2: W - pad.r, y1: Y(r.v), y2: Y(r.v), stroke: rc, "stroke-dasharray": r.solid ? "" : "4 3", "stroke-width": r.solid ? 2 : 1, opacity: 0.9 }, g);
+      el("text", { x: W - pad.r - 2, y: r.below ? Y(r.v) + 13 : Y(r.v) - 4, "text-anchor": "end", style: `fill:${rc};font-weight:${r.solid ? 700 : 400}` }, g).textContent = r.label; });
     const tip = tooltip(container);
     const surf = css("--surface");
     pts.forEach((p) => {
