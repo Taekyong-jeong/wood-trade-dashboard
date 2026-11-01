@@ -774,7 +774,7 @@
   function tabData(host) {
     const m = D.meta;
     const CR = (D.judg && D.judg.criteria) || {}, R = CR.references || {};
-    const crit = card("판정 기준과 레퍼런스", "config/criteria.yaml", `<div class="tbl-wrap"><table><thead><tr><th class="l">판정</th><th class="l">규칙</th><th class="l">레퍼런스</th></tr></thead><tbody>
+    const crit = card("판정 기준과 레퍼런스", "", `<div class="tbl-wrap"><table><thead><tr><th class="l">판정</th><th class="l">규칙</th><th class="l">레퍼런스</th></tr></thead><tbody>
         <tr><td class="l">수입 집중</td><td class="l" style="white-space:normal">취약: 연 수입액 100만 달러↑ + 특정국 50%↑ · 주의: HHI 2,500↑ · 100만 달러 미만 판정 제외 (최근 12개월)</td><td class="l" style="white-space:normal">${[R.motie2023, R.doj2010].filter(Boolean).join("<br>")}</td></tr>
         <tr><td class="l">수입 의존</td><td class="l" style="white-space:normal">수입침투율 = 수입 ÷ (생산 − 수출 + 수입). 원목 = 100 − 원목자급률. 최근 10년 Mann-Kendall 검정 p&lt;0.05면 상승/하락</td><td class="l" style="white-space:normal">${[R.oecd_stan, R.mann1945, R.kendall1975].filter(Boolean).join("<br>")}</td></tr>
         <tr><td class="l">가격 이상</td><td class="l" style="white-space:normal">IFPA = 0.4·z(분기 성장률) + 0.6·z(연간 성장률), z는 과거 같은 달 기준 표준화. ±0.5σ 정상 · 0.5~1σ 다소 높음 · 1σ↑ 비정상 (하락 대칭). 과거 3년↑, 월 수입액 100만 달러↑</td><td class="l" style="white-space:normal">${R.fao_ifpa || ""}</td></tr>
@@ -784,11 +784,7 @@
         <tr><td class="l">국산·수입 가격 수준</td><td class="l" style="white-space:normal">국산 ㎥ 가격 = 판매단가 ÷ (두께×폭×길이), 규격별 중앙값, 원/달러 2025년 연평균 · 수입 = 최근 12개월 CIF ㎥ 단가(산림청 환산계수) 및 2025년 산림청 공표 ㎥ 단가 · 수입 100만 달러 미만 비교 제외 · 판정 없음(참고)</td><td class="l" style="white-space:normal">${[R.kfcf2026, R.bok_fx].filter(Boolean).join("<br>")}</td></tr>
         <tr><td class="l">분석 도구</td><td class="l" style="white-space:normal">수집 scripts/fetch.py · 지표 계산 scripts/analyze.py · 판정 scripts/judge.py · 화면 scripts/build.py (Python 3: pandas, NumPy, PyYAML) · 차트 web/assets/charts.js (자체 SVG) · 실행 GitHub Actions(매월 20일 갱신) · 게시 GitHub Pages · 판정 규칙 config/criteria.yaml</td><td class="l" style="white-space:normal">–</td></tr>
         <tr><td class="l">변화 요인</td><td class="l" style="white-space:normal">ΔV = Σ L(V₁,V₀)·ln(Q₁/Q₀) + Σ L(V₁,V₀)·ln(P₁/P₀), HS6 단위. 한 효과 60%↑면 '주도'</td><td class="l" style="white-space:normal">${R.ang2005 || ""}</td></tr>
-      </tbody></table></div><div class="downloads" style="margin-top:10px">
-        <span class="dl-k">분석</span><a href="data/fig_supply_risk.csv" download>⬇ 수입 집중 판정</a><a href="data/fig_price_anomaly.csv" download>⬇ 가격 이상 판정</a>
-        <a href="data/fig_decomposition.csv" download>⬇ 변화 요인 분해</a><a href="data/fig_structure.csv" download>⬇ 자급-수입 구조</a>
-        <a href="data/fig_domestic_supply.csv" download>⬇ 국내 공급 여력</a><a href="data/fig_kfs_check.csv" download>⬇ 산림청 공표치 대조</a>
-        <span class="dl-k">원자료</span><a href="data/wood_use_survey.csv" download>⬇ 목재이용실태조사 전사 자료</a><a href="data/kfcf_price.csv" download>⬇ 산림조합 판매단가 전사 자료</a><a href="data/kfs_trade.csv" download>⬇ 산림청 임산물수출입통계 전사 자료</a></div>`, "span-2");
+      </tbody></table></div>`, "span-2");
     const KC = D.judg && D.judg.kfs_check;
     const kcCard = KC && KC.rows.length ? (() => {
       const hs = [...new Set(KC.rows.map((r) => r.hs))];
@@ -799,17 +795,12 @@
         `<div class="tbl-wrap"><table><thead><tr><th class="l">HS</th><th>일치 연도</th><th>최대 차이</th><th class="l">불일치 연도와 원인</th></tr></thead><tbody>${body}</tbody></table></div>
         <div class="foot">관세청 수집값(본 페이지) vs 산림청 임산물수출입통계 품목별현황 수입액(연 누계). 4418 = 산림청 건축목공 + 마루판 · 출처: 산림청 누리집 산림통계(2026-11-01 조회)</div>`, "span-2"); })() : "";
     host.innerHTML = `<div class="grid g-2">` + crit + kcCard +
-      card("데이터 내려받기", "CSV (엑셀에서 바로 열림)", `<div class="downloads"><span class="dl-k">원자료</span>
-        <a href="data/monthly_by_category.csv" download>⬇ 분류별 월별 수출입</a>
-        <a href="data/yearly_by_category_country.csv" download>⬇ 분류별·국가별 연간</a>
-        <a href="data/raw_last12m.csv" download>⬇ 최근 12개월 원자료 (국가×HSK10)</a></div>
-        <div class="note">금액: 미국 달러 (수입 CIF, 수출 FOB) · 중량: 순중량 kg · 출처: ${m.source}</div>`) +
       card("용어", "", `<div class="note" style="line-height:1.8">
         <b>HHI(허핀달-허쉬만 지수)</b>: 공급국별 점유율(%) 제곱의 합. 1,500 미만 분산, 1,500~2,500 중간 집중, 2,500 이상 고집중.<br>
         <b>상위 3개국 점유율</b>: 수입액 상위 3개 공급국의 합계 비중.<br>
         <b>수입 단가</b>: 수입액 ÷ 수입량. 목재제품은 USD/㎥(산림청 환산계수 또는 잠정 밀도로 환산), 연료형은 USD/t, 혼합 분류는 USD/kg. 품목 구성이 바뀌면 단가도 바뀌므로 해석에 주의.<br>
         <b>12개월 누적</b>: 해당 월을 포함한 직전 12개월 합계. 계절성을 없애고 추세를 볼 때 사용.<br>
-        <b>HS 개정</b>: ${(m.hs_revisions || []).map((r) => `${r.name}(${ym(r.month)})`).join(", ")} — 개정 시점에 일부 품목의 코드가 나뉘거나 합쳐져 시계열이 끊길 수 있음.</div>`) +
+        <b>HS 개정</b>: ${(m.hs_revisions || []).map((r) => `${r.name}(${ym(r.month)})`).join(", ")} — 개정 시점에 일부 품목의 코드가 나뉘거나 합쳐져 시계열이 끊길 수 있음.</div>`, "span-2") +
       card("목재제품 분류 기준", "목재이용법 15종 + CLT + LVL", `<div class="tbl-wrap"><table><thead><tr><th>No.</th><th class="l">제품</th><th class="l">HS/HSK 코드</th><th class="l">비고</th></tr></thead><tbody>` +
         m.products.map((p) => `<tr><td>${p.num}</td><td class="l">${p.name}</td><td class="l">${(p.prefixes || []).join(", ") || "–"}</td><td class="l" style="white-space:normal">${p.note || ""}</td></tr>`).join("") + `</tbody></table></div>`, "span-2") +
       (() => { const U = m.units || { items: {} }; const nameOf = (k) => { const [ax, ky] = k.split(":");
@@ -874,50 +865,21 @@
 
 
   // ── 페이지 안 찾기: 화면(카드·구역 제목·본문) + 목재제품 · 품목군 · 수종 · 국가 ──
-  const SR_SUGGEST = ["합판", "CLT", "목재펠릿", "러시아", "라디에타소나무", "수입의존도", "가동률", "국산·수입 가격", "HHI", "목재산업 규모"];
-  const SR_ALIAS = { p08: "MDF HDF 중밀도", p11: "펠릿 pellet 바이오매스", p06: "plywood", p09: "OSB", p16: "CLT 교차적층", p17: "LVL", p05: "글루램 glulam",
-    p12: "칩 chip", p01: "lumber 판재 각재", p10: "마루 플로어링" };
+  // 찾기 대상은 아래 지정 항목만 (추천 검색어 = 지정 항목). 항목 추가는 여기에만
+  const SR_ITEMS = [
+    { label: "수입의존도", sub: "원목·목재제품별 수입의존도 · 추세 · 자급-수입 구조", alias: "수입 의존 의존도 자급률 수입비중 수입침투율", target: "#sec-penetration" },
+    { label: "가동률", sub: "국내 설비 가동률 · 생산능력과 생산량", alias: "가동 설비 생산능력 캐파 공급여력 국내 공급 여력", target: "#sec-domestic" },
+    { label: "목재산업 규모", sub: "매출액 · 종사자 (목재이용실태조사)", alias: "산업규모 매출 종사자 고용 산업", target: "#sec-industry" },
+    { label: "품목별 정보", sub: "상세 탐색 — 목재제품 탭 (제품별 수입·공급국·단가)", alias: "품목 제품 목재제품 합판 제재목 CLT 집성재 펠릿", tab: "product" },
+    { label: "수종별 정보", sub: "상세 탐색 — 수종 탭 (원목·제재목 세부 수종)", alias: "수종 나무 원목 제재목 소나무 라디에타 낙엽송 삼나무", tab: "species" },
+  ];
   function setupSearch() {
     const q = $("#sr-q"), res = $("#sr-res"), sug = $("#sr-sug");
     if (!q || q.dataset.ready) return;
     q.dataset.ready = 1;
     const norm = (s) => (s || "").toLowerCase().replace(/[\s·()\[\]\-\/,.:'"‘’“”]/g, "");
     const esc = (s) => s.replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
-    const data = () => {
-      const L = [];
-      const add = (type, label, sub, act, extra = "") => L.push({ type, label, sub, act, k: norm(label), x: norm(extra) });
-      D.meta.products.filter((p) => p.status !== "pending").forEach((p) => add("목재제품", `${p.num}. ${p.name}`, `HS ${(p.prefixes || []).join("·")}`, () => { S.product = p.key; go("product"); }, (p.prefixes || []).join(" ") + " " + (SR_ALIAS[p.key] || "")));
-      D.meta.groups.forEach((g) => add("품목군", g.name, g.desc, () => { S.group = g.key; go("group"); }, g.desc + " " + (g.prefixes || []).join(" ")));
-      Object.keys((D.series.series || {}).species2 || {}).forEach((k) => add("수종", k, "원목·제재목 세부 수종", () => { S.sp2 = k; go("species"); }));
-      Object.keys(((D.countries || {}).total || {}).all || {}).forEach((c) => add("국가", cname(c), "공급국 상세", () => { S.country = c; go("country"); }, c));
-      return L;
-    };
-    let IDX = null, sel = 0, cur = [];
-    const textOf = (el) => {   // 표 칸·막대 라벨이 붙어 읽히지 않게 텍스트 조각 사이에 공백
-      const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT), a = [];
-      while (w.nextNode()) { const s = w.currentNode.nodeValue.trim(); if (s) a.push(s); }
-      return a.join(" ");
-    };
-    const pageHits = (n) => {   // 지금 화면에 그려진 카드·구역 (상세 탭 패널 제외)
-      const out = [];
-      document.querySelectorAll("#main .sec-title, #main .card, #glance .g-head, #main .g-sig").forEach((el) => {
-        if (el.closest("#panel")) return;
-        const h = el.querySelector("h2, h3, b"), title = (h ? h.textContent : "").replace(/(원자료·일부 산출|원자료|분석)$/, "").replace(/\s*\?\s*/g, " ").trim();
-        if (!title) return;
-        const hint = (el.querySelector(".hint") || {}).textContent || "";
-        const txt = textOf(el), tk = norm(title + hint), body = norm(txt);
-        let score = tk.startsWith(n) ? 3 : tk.includes(n) ? 2 : body.includes(n) ? 1 : 0;
-        if (!score) return;
-        let snip = "";
-        if (score === 1) {   // 본문에서 찾은 경우 앞뒤 문장 일부 표시
-          const raw = txt, i = norm(raw).indexOf(n);
-          let j = 0, c = 0; for (; j < raw.length && c < i; j++) if (norm(raw[j])) c++;
-          snip = (j > 24 ? "…" : "") + raw.slice(Math.max(0, j - 24), j + 40).trim() + "…";
-        }
-        out.push({ type: el.classList.contains("sec-title") ? "구역" : "화면", label: title, sub: snip || hint.trim(), score, el });
-      });
-      return out.sort((a, b) => b.score - a.score);
-    };
+    let sel = 0, cur = [];
     const reveal = (el) => {
       let d = el.parentElement; while (d) { if (d.tagName === "DETAILS") d.open = true; d = d.parentElement; }
       setTimeout(() => {
@@ -930,17 +892,17 @@
     const run = () => {
       const n = norm(q.value);
       if (!n) { close(); return; }
-      IDX = IDX || data();
-      const ent = IDX.map((it) => ({ ...it, score: it.k.startsWith(n) ? 3 : it.k.includes(n) ? 2 : it.x.includes(n) ? 1 : 0 })).filter((it) => it.score).sort((a, b) => b.score - a.score);
-      const pg = pageHits(n);
-      const seen = new Set();
-      cur = [...pg.filter((h) => h.score >= 2), ...ent, ...pg.filter((h) => h.score < 2)].filter((h) => { const k = h.type + h.label; if (seen.has(k)) return false; seen.add(k); return true; }).slice(0, 14);
+      cur = SR_ITEMS.map((it) => { const k = norm(it.label), a = it.alias.split(" ").map(norm);
+        return { ...it, score: k.startsWith(n) ? 3 : k.includes(n) ? 2 : a.some((x) => x.includes(n) || (n.length >= 2 && n.includes(x))) ? 1 : 0 }; })
+        .filter((it) => it.score).sort((a, b) => b.score - a.score);
       sel = 0;
-      res.innerHTML = cur.length ? cur.map((h, i) => `<button type="button" class="sr-it${i === 0 ? " on" : ""}" data-i="${i}"><span class="sr-t">${h.type}</span><span class="sr-b"><b>${esc(h.label)}</b>${h.sub ? `<span>${esc(h.sub)}</span>` : ""}</span></button>`).join("")
-        : `<div class="sr-none">‘${esc(q.value)}’ 결과 없음 — 추천 검색어를 눌러 보세요</div>`;
+      res.innerHTML = cur.length ? cur.map((h, i) => `<button type="button" class="sr-it${i === 0 ? " on" : ""}" data-i="${i}"><span class="sr-b"><b>${esc(h.label)}</b><span>${esc(h.sub)}</span></span></button>`).join("")
+        : `<div class="sr-none">‘${esc(q.value)}’ 결과 없음 — 찾을 수 있는 항목: ${SR_ITEMS.map((x) => x.label).join(" · ")}</div>`;
       res.hidden = false;
     };
-    const pick = (i) => { const h = cur[i]; if (!h) return; close(); q.blur(); if (h.el) reveal(h.el); else h.act(); };
+    const pick = (i) => { const h = cur[i]; if (!h) return; close(); q.blur();
+      if (h.tab) { go(h.tab); return; }
+      const el = document.querySelector(h.target); if (el) reveal(el); };
     q.addEventListener("input", run);
     q.addEventListener("focus", () => { if (q.value) run(); });
     q.addEventListener("keydown", (e) => {
@@ -952,8 +914,8 @@
     res.addEventListener("mousedown", (e) => { const b = e.target.closest(".sr-it"); if (b) { e.preventDefault(); pick(+b.dataset.i); } });
     document.addEventListener("click", (e) => { if (!e.target.closest("#search")) close(); });
     document.addEventListener("keydown", (e) => { if (e.key === "/" && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)) { e.preventDefault(); window.scrollTo({ top: 0, behavior: "smooth" }); q.focus(); } });
-    sug.insertAdjacentHTML("beforeend", SR_SUGGEST.map((s) => `<button type="button">${s}</button>`).join(""));
-    sug.querySelectorAll("button").forEach((b) => b.onclick = () => { q.value = b.textContent; q.focus(); run(); });
+    sug.insertAdjacentHTML("beforeend", SR_ITEMS.map((s, i) => `<button type="button" data-i="${i}">${s.label}</button>`).join(""));
+    sug.querySelectorAll("button").forEach((b) => b.onclick = () => { cur = [SR_ITEMS[+b.dataset.i]]; pick(0); });
   }
 
   async function init() {
