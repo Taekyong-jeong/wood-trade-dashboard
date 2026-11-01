@@ -432,21 +432,22 @@
     if (DP && DP.pairs.length) {
       const cDom = C.color(1), cImp = C.color(0);
       const ratioOf = (pr) => (pr.imports.find((x) => x.ratio != null) || {}).ratio;
+      const DPMAX = Math.max(...DP.pairs.filter((pr) => pr.domestic).map((pr) => pr.domestic.max));  // 모든 품목 같은 눈금 → 품목 간 막대 길이 비교 가능
       const pairHtml = (pr) => {
         const ok = pr.imports.filter((im) => !im.small && im.usd_m3), small = pr.imports.filter((im) => im.small);
-        const mx = Math.max(pr.domestic.max, ...ok.map((im) => im.usd_m3)) * 1.04;
+        const mx = Math.max(DPMAX, ...ok.map((im) => im.usd_m3)) * 1.04, D0 = pr.domestic;
         const w = (v) => `${(v / mx) * 100}%`, r = ratioOf(pr);
         const bar = (lab, sub, v, col, val, extra = "") => `<div class="dp-r"><div class="dp-l"><b>${lab}</b>${sub ? `<span>${sub}</span>` : ""}</div>` +
           `<div class="dp-t"><i style="width:${w(v)};background:${col}"></i>${extra}</div><div class="dp-v">${val}</div></div>`;
-        return `<div class="dp-pair"><div class="dp-h"><b>${pr.label}</b>${r ? `<span class="dp-x">국산이 수입의 <b>${nf(r, 1)}배</b></span>` : `<span class="dp-x sub">비교할 수입 규모 없음</span>`}</div>` +
-          bar("국산", `A급 ${pr.domestic.n}규격 중앙값`, pr.domestic.median, cDom, `<b>${nf(pr.domestic.median, 0)}</b><span>${nf(pr.domestic.krw_m3_median / 1e4, 0)}만 원/㎥</span>`,
-            pr.domestic.max > pr.domestic.min ? `<s style="left:${w(pr.domestic.min)};width:${(((pr.domestic.max - pr.domestic.min) / mx) * 100)}%" title="규격별 범위 ${nf(pr.domestic.min, 0)}~${nf(pr.domestic.max, 0)} USD/㎥"></s>` : "") +
+        return `<div class="dp-pair"><div class="dp-h"><b>${pr.label}</b>${r ? `<span class="dp-x">국산이 수입의 <b>${nf(r, 1)}배</b></span>` : `<span class="dp-x sub">${D0 ? "비교할 수입 규모 없음" : "수입 단가만 · 국산 공표가 없음"}</span>`}</div>` +
+          (!D0 ? `<div class="dp-r"><div class="dp-l"><b>국산</b><span>공표 판매가 없음</span></div><div class="dp-t dp-none">${pr.domestic_missing || "국산 공표 판매가 없음"}</div><div class="dp-v">–</div></div>` : bar("국산", `A급 ${pr.domestic.n}규격 중앙값`, pr.domestic.median, cDom, `<b>${nf(pr.domestic.median, 0)}</b><span>${nf(pr.domestic.krw_m3_median / 1e4, 0)}만 원/㎥</span>`,
+            pr.domestic.max > pr.domestic.min ? `<s style="left:${w(pr.domestic.min)};width:${(((pr.domestic.max - pr.domestic.min) / mx) * 100)}%" title="규격별 범위 ${nf(pr.domestic.min, 0)}~${nf(pr.domestic.max, 0)} USD/㎥"></s>` : "")) +
           ok.map((im) => bar("수입", im.label.replace(/^수입\s*/, ""), im.usd_m3, cImp,
             `<b>${nf(im.usd_m3, 0)}</b><span>${im.basis ? "공표 ㎥" : im.calibrated ? "산림청 계수" : "밀도 잠정"}</span>`)).join("") +
           (small.length ? `<div class="dp-n">${small.map((im) => `${im.label}: 최근 12개월 ${usd(im.usd)} — 100만 달러 미만이라 비교 제외`).join(" · ")}</div>` : "") + `</div>`;
       };
       const lead = DP.pairs.filter((pr) => ratioOf(pr)).map((pr) => `${pr.label.replace(/\(.+\)/, "")} ${nf(ratioOf(pr), 1)}배`).join(" · ");
-      $("#a-price").insertAdjacentHTML("beforeend", card("국산·수입 가격 수준", `USD/㎥ · 국산 ${DP.pairs[0].domestic.year} 단가표 · 수입 ${ym(DP.period.slice(0, 7))}~${ym(DP.period.slice(8))}`,
+      $("#a-price").insertAdjacentHTML("beforeend", card("국산·수입 가격 수준", `USD/㎥ · 국산 ${(DP.pairs.find((x) => x.domestic) || DP.pairs[0]).domestic.year} 단가표 · 수입 ${ym(DP.period.slice(0, 7))}~${ym(DP.period.slice(8))}`,
         `<div class="legend"><span><i style="background:${cDom}"></i>국산 (산림조합 판매가, 면세)</span><span><i style="background:${cImp}"></i>수입 (도착 가격 CIF)</span><span class="sub">회색 띠 = 국산 규격별 범위</span></div>` +
         DP.pairs.map(pairHtml).join("") +
         rule(`국산 = 산림조합중앙회 목재유통센터 판매단가(A급·면세) ÷ 규격 부피(T×W×L), 원/달러 ${nf(DP.fx, 0)} (${DP.fx_basis.replace(/^.*?\(/, "").replace(/\)$/, "")}) · 수입 = CIF 단가 — 관세·통관·내륙운송·유통 마진 전이라 같은 단계 가격이 아님. 가격 수준 참고용이며 경쟁력 판정에 쓰지 않음 · ${DP.note.replace(/^.*?쓰지 않음\.\s*/, "")} · ${DP.species_note} · ${DP.survey_note || ""}`), "",
@@ -463,7 +464,7 @@
         .map(([c, r]) => ({ c, share: (r.l12[0] / tot) * 100, price: cv(r.l12[0], r.l12[1]), imp: r.l12[0] }));
       const avg = tot ? cv(tot, sum(Object.values(rows).map((r) => r.l12[1]))) : null;
       // 국산 기준선: 같은 품목의 국산 판매가(산림조합, USD/㎥) — ㎥ 단위일 때만 (톤 단위는 국산 밀도를 몰라 환산 불가)
-      const DOMMAP = { "heading:4407": "낙엽송 제재목", "product:p01": "낙엽송 제재목", "product:p05": "수장용 집성재(집성판)" };
+      const DOMMAP = { "heading:4407": "낙엽송 제재목", "product:p01": "낙엽송 제재목" };  // 4418.81(구조용 집성재)은 국산 공표가 없어 기준선 없음
       const dp = (D.judg.domestic_price || {}).pairs || [], dl = DOMMAP[S.pmap];
       const dom = dl && pl === "USD/㎥" ? dp.find((x) => x.label === dl) : null;
       const domNote = dl && !dom ? " · 국산 기준선은 ㎥ 환산 단위에서만 표시" : "";
@@ -871,6 +872,90 @@
     det.addEventListener("toggle", () => { if (det.open) { renderAll(); } });
   }
 
+
+  // ── 페이지 안 찾기: 화면(카드·구역 제목·본문) + 목재제품 · 품목군 · 수종 · 국가 ──
+  const SR_SUGGEST = ["합판", "CLT", "목재펠릿", "러시아", "라디에타소나무", "수입의존도", "가동률", "국산·수입 가격", "HHI", "목재산업 규모"];
+  const SR_ALIAS = { p08: "MDF HDF 중밀도", p11: "펠릿 pellet 바이오매스", p06: "plywood", p09: "OSB", p16: "CLT 교차적층", p17: "LVL", p05: "글루램 glulam",
+    p12: "칩 chip", p01: "lumber 판재 각재", p10: "마루 플로어링" };
+  function setupSearch() {
+    const q = $("#sr-q"), res = $("#sr-res"), sug = $("#sr-sug");
+    if (!q || q.dataset.ready) return;
+    q.dataset.ready = 1;
+    const norm = (s) => (s || "").toLowerCase().replace(/[\s·()\[\]\-\/,.:'"‘’“”]/g, "");
+    const esc = (s) => s.replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
+    const data = () => {
+      const L = [];
+      const add = (type, label, sub, act, extra = "") => L.push({ type, label, sub, act, k: norm(label), x: norm(extra) });
+      D.meta.products.filter((p) => p.status !== "pending").forEach((p) => add("목재제품", `${p.num}. ${p.name}`, `HS ${(p.prefixes || []).join("·")}`, () => { S.product = p.key; go("product"); }, (p.prefixes || []).join(" ") + " " + (SR_ALIAS[p.key] || "")));
+      D.meta.groups.forEach((g) => add("품목군", g.name, g.desc, () => { S.group = g.key; go("group"); }, g.desc + " " + (g.prefixes || []).join(" ")));
+      Object.keys((D.series.series || {}).species2 || {}).forEach((k) => add("수종", k, "원목·제재목 세부 수종", () => { S.sp2 = k; go("species"); }));
+      Object.keys(((D.countries || {}).total || {}).all || {}).forEach((c) => add("국가", cname(c), "공급국 상세", () => { S.country = c; go("country"); }, c));
+      return L;
+    };
+    let IDX = null, sel = 0, cur = [];
+    const textOf = (el) => {   // 표 칸·막대 라벨이 붙어 읽히지 않게 텍스트 조각 사이에 공백
+      const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT), a = [];
+      while (w.nextNode()) { const s = w.currentNode.nodeValue.trim(); if (s) a.push(s); }
+      return a.join(" ");
+    };
+    const pageHits = (n) => {   // 지금 화면에 그려진 카드·구역 (상세 탭 패널 제외)
+      const out = [];
+      document.querySelectorAll("#main .sec-title, #main .card, #glance .g-head, #main .g-sig").forEach((el) => {
+        if (el.closest("#panel")) return;
+        const h = el.querySelector("h2, h3, b"), title = (h ? h.textContent : "").replace(/(원자료·일부 산출|원자료|분석)$/, "").replace(/\s*\?\s*/g, " ").trim();
+        if (!title) return;
+        const hint = (el.querySelector(".hint") || {}).textContent || "";
+        const txt = textOf(el), tk = norm(title + hint), body = norm(txt);
+        let score = tk.startsWith(n) ? 3 : tk.includes(n) ? 2 : body.includes(n) ? 1 : 0;
+        if (!score) return;
+        let snip = "";
+        if (score === 1) {   // 본문에서 찾은 경우 앞뒤 문장 일부 표시
+          const raw = txt, i = norm(raw).indexOf(n);
+          let j = 0, c = 0; for (; j < raw.length && c < i; j++) if (norm(raw[j])) c++;
+          snip = (j > 24 ? "…" : "") + raw.slice(Math.max(0, j - 24), j + 40).trim() + "…";
+        }
+        out.push({ type: el.classList.contains("sec-title") ? "구역" : "화면", label: title, sub: snip || hint.trim(), score, el });
+      });
+      return out.sort((a, b) => b.score - a.score);
+    };
+    const reveal = (el) => {
+      let d = el.parentElement; while (d) { if (d.tagName === "DETAILS") d.open = true; d = d.parentElement; }
+      setTimeout(() => {
+        window.scrollTo({ top: el.getBoundingClientRect().top + scrollY - 90, behavior: "smooth" });
+        const box = el.classList.contains("sec-title") ? el : el.closest(".card, .g-sig, .g-head") || el;
+        box.classList.remove("sr-flash"); void box.offsetWidth; box.classList.add("sr-flash");
+      }, 60);
+    };
+    const close = () => { res.hidden = true; };
+    const run = () => {
+      const n = norm(q.value);
+      if (!n) { close(); return; }
+      IDX = IDX || data();
+      const ent = IDX.map((it) => ({ ...it, score: it.k.startsWith(n) ? 3 : it.k.includes(n) ? 2 : it.x.includes(n) ? 1 : 0 })).filter((it) => it.score).sort((a, b) => b.score - a.score);
+      const pg = pageHits(n);
+      const seen = new Set();
+      cur = [...pg.filter((h) => h.score >= 2), ...ent, ...pg.filter((h) => h.score < 2)].filter((h) => { const k = h.type + h.label; if (seen.has(k)) return false; seen.add(k); return true; }).slice(0, 14);
+      sel = 0;
+      res.innerHTML = cur.length ? cur.map((h, i) => `<button type="button" class="sr-it${i === 0 ? " on" : ""}" data-i="${i}"><span class="sr-t">${h.type}</span><span class="sr-b"><b>${esc(h.label)}</b>${h.sub ? `<span>${esc(h.sub)}</span>` : ""}</span></button>`).join("")
+        : `<div class="sr-none">‘${esc(q.value)}’ 결과 없음 — 추천 검색어를 눌러 보세요</div>`;
+      res.hidden = false;
+    };
+    const pick = (i) => { const h = cur[i]; if (!h) return; close(); q.blur(); if (h.el) reveal(h.el); else h.act(); };
+    q.addEventListener("input", run);
+    q.addEventListener("focus", () => { if (q.value) run(); });
+    q.addEventListener("keydown", (e) => {
+      const its = res.querySelectorAll(".sr-it");
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") { e.preventDefault(); if (!its.length) return; sel = (sel + (e.key === "ArrowDown" ? 1 : its.length - 1)) % its.length; its.forEach((b, i) => b.classList.toggle("on", i === sel)); its[sel].scrollIntoView({ block: "nearest" }); }
+      else if (e.key === "Enter") { e.preventDefault(); pick(sel); }
+      else if (e.key === "Escape") { close(); q.blur(); }
+    });
+    res.addEventListener("mousedown", (e) => { const b = e.target.closest(".sr-it"); if (b) { e.preventDefault(); pick(+b.dataset.i); } });
+    document.addEventListener("click", (e) => { if (!e.target.closest("#search")) close(); });
+    document.addEventListener("keydown", (e) => { if (e.key === "/" && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)) { e.preventDefault(); window.scrollTo({ top: 0, behavior: "smooth" }); q.focus(); } });
+    sug.insertAdjacentHTML("beforeend", SR_SUGGEST.map((s) => `<button type="button">${s}</button>`).join(""));
+    sug.querySelectorAll("button").forEach((b) => b.onclick = () => { q.value = b.textContent; q.focus(); run(); });
+  }
+
   async function init() {
     const get = (f) => fetch(`data/${f}?v=${window.BUILD_ID || ""}`).then((r) => (r.ok ? r.json() : null));
     const [meta, series, countries, insights, supply, judg] = await Promise.all(["meta.json", "series.json", "countries.json", "insights.json", "supply.json", "judgments.json"].map(get));
@@ -889,6 +974,7 @@
     renderControls();
     document.querySelectorAll(".tab").forEach((t) => t.onclick = () => go(t.dataset.tab));
     renderTab();
+    setupSearch();
     let w = window.innerWidth;
     window.addEventListener("resize", () => { if (Math.abs(window.innerWidth - w) > 40) { w = window.innerWidth; renderAll(); renderTab(); } });
     matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { renderAll(); renderTab(); });

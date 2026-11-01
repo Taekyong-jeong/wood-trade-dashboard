@@ -447,3 +447,29 @@ details.fold > .fold-body { padding: 0 16px 16px; }
 .feedback a { color: var(--accent); font-weight: 700; text-decoration: underline; text-underline-offset: 2px; }
 .glance .feedback { text-align: left; }
 footer .feedback-f { color: var(--ink-2); font-weight: 600; }
+
+.dp-t.dp-none { background: repeating-linear-gradient(135deg, var(--surface-2) 0 6px, transparent 6px 12px); color: var(--muted); font-size: 12px; display: flex; align-items: center; padding: 0 10px; height: auto; min-height: 22px; line-height: 1.4; }
+
+/* 페이지 안 찾기 */
+.search { display: flex; align-items: center; gap: 12px; margin: 14px 0 4px; flex-wrap: wrap; }
+.sr-box { position: relative; flex: 0 1 460px; min-width: 260px; display: flex; align-items: center; background: var(--surface); border: 1.5px solid var(--border); border-radius: 999px; padding: 0 12px 0 14px; height: 40px; }
+.sr-box:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.sr-ic { font-size: 19px; color: var(--muted); margin-right: 8px; transform: translateY(-1px); }
+.sr-box input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--ink); font: inherit; font-size: 14px; letter-spacing: -0.02em; }
+.sr-box input::placeholder { color: var(--muted); }
+.sr-box kbd { font: inherit; font-size: 11px; color: var(--muted); border: 1px solid var(--border); border-radius: 4px; padding: 0 5px; }
+.sr-res { position: absolute; left: 0; right: 0; top: 46px; z-index: 30; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,.25); max-height: 60vh; overflow: auto; padding: 6px; min-width: 340px; }
+.sr-it { display: flex; gap: 10px; align-items: flex-start; width: 100%; text-align: left; background: none; border: 0; color: var(--ink); font: inherit; padding: 8px 10px; border-radius: 8px; cursor: pointer; }
+.sr-it.on, .sr-it:hover { background: var(--accent-soft); }
+.sr-t { flex: none; font-size: 11px; color: var(--accent); border: 1px solid var(--accent); border-radius: 4px; padding: 0 5px; margin-top: 2px; white-space: nowrap; }
+.sr-b { display: flex; flex-direction: column; min-width: 0; }
+.sr-b b { font-size: 13.5px; font-weight: 600; }
+.sr-b span { font-size: 12px; color: var(--muted); white-space: normal; }
+.sr-none { padding: 10px; font-size: 13px; color: var(--muted); }
+.sr-sug { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; flex: 1 1 400px; }
+.sr-sug-l { font-size: 12px; color: var(--muted); margin-right: 2px; }
+.sr-sug button { font: inherit; font-size: 12.5px; color: var(--ink-2); background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; padding: 3px 11px; cursor: pointer; letter-spacing: -0.02em; }
+.sr-sug button:hover { border-color: var(--accent); color: var(--accent); }
+@keyframes srflash { 0%, 60% { box-shadow: 0 0 0 3px var(--accent); } 100% { box-shadow: 0 0 0 3px transparent; } }
+.sr-flash { animation: srflash 2.2s ease-out; border-radius: var(--radius); }
+@media (max-width: 640px) { .sr-box { flex-basis: 100%; } .sr-res { min-width: 0; } }

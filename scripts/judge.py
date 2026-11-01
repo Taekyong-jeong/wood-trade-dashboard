@@ -406,12 +406,14 @@ def domestic_price(df: pd.DataFrame, months: list[str], price_csv: Path, units: 
     items = units.get("items") or {}
     out = []
     for pr in c["pairs"]:
-        d = t[(t["category"] == pr["domestic"]["category"]) & (t["treatment"] == pr["domestic"]["treatment"]) & t["m3"].notna()]
-        if d.empty:
-            continue
-        usd_m3 = d["krw_m3"] / fx
-        dom = {"median": round(float(usd_m3.median())), "min": round(float(usd_m3.min())), "max": round(float(usd_m3.max())),
-               "krw_m3_median": round(float(d["krw_m3"].median())), "n": int(len(d)), "year": int(d["year"].iloc[0])}
+        dom = None
+        if pr.get("domestic"):                     # domestic: null → 국산 공표가 없음, 수입 단가만 표시
+            d = t[(t["category"] == pr["domestic"]["category"]) & (t["treatment"] == pr["domestic"]["treatment"]) & t["m3"].notna()]
+            if d.empty:
+                continue
+            usd_m3 = d["krw_m3"] / fx
+            dom = {"median": round(float(usd_m3.median())), "min": round(float(usd_m3.min())), "max": round(float(usd_m3.max())),
+                   "krw_m3_median": round(float(d["krw_m3"].median())), "n": int(len(d)), "year": int(d["year"].iloc[0])}
         imps = []
         for im in pr["imports"]:
             if "kfs" in im:                            # 산림청 임산물수출입통계 공표 ㎥ 기준 단가
@@ -421,7 +423,7 @@ def domestic_price(df: pd.DataFrame, months: list[str], price_csv: Path, units: 
                     uk, q = float(r["usd_k"].iloc[0]), float(r["qty"].iloc[0])
                     pm3 = uk * 1000 / (q * 1000)
                     imps.append({"label": im["label"], "usd": round(uk * 1000), "usd_t": None, "usd_m3": round(pm3),
-                                 "density": None, "calibrated": None, "basis": "산림청 ㎥", "ratio": round(dom["median"] / pm3, 2)})
+                                 "density": None, "calibrated": None, "basis": "산림청 ㎥", "ratio": round(dom["median"] / pm3, 2) if dom else None})
                 continue
             s = cur[cur["hs"].str.startswith(tuple(im["hs"]))]
             kg, usd = float(s["imp_kg"].sum()), float(s["imp_usd"].sum())
@@ -434,8 +436,8 @@ def domestic_price(df: pd.DataFrame, months: list[str], price_csv: Path, units: 
             per_m3 = per_t * dens if dens else None
             imps.append({"label": im["label"], "usd": round(usd), "usd_t": round(per_t), "usd_m3": None if per_m3 is None else round(per_m3),
                          "density": dens, "calibrated": bool(it.get("calibrated")),
-                         "ratio": None if not per_m3 else round(dom["median"] / per_m3, 2)})
-        out.append({"label": pr["label"], "domestic": dom, "imports": imps})
+                         "ratio": None if not (per_m3 and dom) else round(dom["median"] / per_m3, 2)})
+        out.append({"label": pr["label"], "domestic": dom, "domestic_missing": pr.get("domestic_missing"), "imports": imps})
     return {"pairs": out, "fx": fx, "fx_basis": c["fx_basis"], "period": f"{last12[0]}~{last12[-1]}", "note": c["note"],
             "species_note": c.get("species_note"), "survey_note": c.get("survey_note"), "source": c["source"]}
 
