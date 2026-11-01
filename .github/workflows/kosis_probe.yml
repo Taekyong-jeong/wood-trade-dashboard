@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: ["scripts/external/kosis_probe.py", ".github/workflows/kosis_probe.yml"]
+    paths: ["scripts/external/kosis_probe.py", "scripts/external/kosis_wus_fetch.py", ".github/workflows/kosis_probe.yml"]
 
 permissions:
   contents: write
@@ -16,7 +16,7 @@ concurrency:
 jobs:
   probe:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -26,7 +26,7 @@ jobs:
         env:
           KOSIS_API_KEY: ${{ secrets.KOSIS }}
           KOSIS_TERMS: "국내 목재 이용 현황|목재 이용량|원자재 이용량|국산 원목 이용|목재이용실태조사"
-        run: python scripts/external/kosis_probe.py
+        run: python scripts/external/kosis_wus_fetch.py
       - name: 결과 커밋
         run: |
           git config user.name "github-actions[bot]"
