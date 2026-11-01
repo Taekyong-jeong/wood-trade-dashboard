@@ -405,25 +405,25 @@
       const byD = Math.max(0, d.log_dom - d.prod_dom), byI = Math.max(0, d.log_imp - d.prod_imp);
       const tot0 = d.log_dom + d.log_imp, small = d.src_dom.filter(([, v]) => v < tot0 * 0.02);
       const srcD = d.src_dom.filter(([, v]) => v >= tot0 * 0.02).concat(small.length ? [["그 밖 시도", sum(small.map((s) => s[1])), small.map((s) => s[0]).join("·")]] : []);
-      const col0 = srcD.map(([n, v, sub], i) => ({ id: "d" + i, label: n, sub, v, c: greens[Math.min(i, greens.length - 1)], to: "LD" }))
-        .concat(d.src_imp.map(([n, v], i) => ({ id: "i" + i, label: n.replace(" 통해 이용", "").replace("해외에서 직접 이용", "해외 직접 수입").replace("수입업체·에이전트", "수입업체·대리점"), v, c: blues[Math.min(i, blues.length - 1)], to: "LI" })));
+      const col0 = srcD.map(([n, v, sub], i) => ({ id: "d" + i, label: n, sub, v, c: greens[Math.min(i, greens.length - 1)], lc: "#3fa872", to: "LD" }))
+        .concat(d.src_imp.map(([n, v], i) => ({ id: "i" + i, label: n.replace(" 통해 이용", "").replace("해외에서 직접 이용", "해외 직접 수입").replace("수입업체·에이전트", "수입업체·대리점"), v, c: blues[Math.min(i, blues.length - 1)], lc: VC_COL.imp3, to: "LI" })));
       const col1 = [{ id: "LD", label: "국산 원목", v: d.log_dom, c: VC_COL.dom }, { id: "LI", label: "수입 원목", v: d.log_imp, c: VC_COL.imp }];
       const col2 = usesG.map(([n, a, b], i) => ({ id: "u" + i, label: n.replace("데크용 원목마루판용", "데크·원목마루판").replace(/용$/, ""), v: a + b, a, b, c: "#9aa3ad" }))
         .concat([{ id: "BY", label: "부산물·손실(산출)", v: byD + byI, a: byD, b: byI, c: VC_COL.na }]);
-      const W = Math.max(box.clientWidth || 560, 520), H = 560, L = 158, R = 168, nw = 10, gap = 6;
+      const W = Math.max(box.clientWidth || 560, 520), H = W > 900 ? 500 : 560, L = 170, R = 190, nw = 10, gap = 6;
       const xs = [L, (L + W - R) / 2 - nw / 2, W - R - nw], tot = d.log_dom + d.log_imp;
       const sc = (H - 8 - gap * (Math.max(col0.length, col2.length) - 1)) / tot;
       const place = (col) => { let y = 4; const sp = (H - 8 - sum(col.map((n) => n.v * sc))) / Math.max(col.length - 1, 1); col.forEach((n) => { n.y = y; n.h = Math.max(n.v * sc, 1.2); n.oo = 0; n.io = 0; y += n.h + sp; }); };
       place(col0); place(col1); place(col2);
       const N = {}; [col0, col1, col2].forEach((c) => c.forEach((n) => { N[n.id] = n; }));
-      const links = col0.map((n) => ({ s: n.id, t: n.to, v: n.v, c: n.c }))
-        .concat(col2.flatMap((u) => [{ s: "LD", t: u.id, v: u.a, c: VC_COL.dom }, { s: "LI", t: u.id, v: u.b, c: VC_COL.imp }]).filter((l) => l.v > 0));
+      const links = col0.map((n) => ({ s: n.id, t: n.to, v: n.v, c: n.lc }))
+        .concat(col2.flatMap((u) => [{ s: "LD", t: u.id, v: u.a, c: VC_COL.dom }, { s: "LI", t: u.id, v: u.b, c: VC_COL.imp3 }]).filter((l) => l.v > 0));
       const ci = (id) => (col0.includes(N[id]) ? 0 : col1.includes(N[id]) ? 1 : 2);
       const fmt = (v) => (v >= 1e4 ? nf(v / 1e4, v >= 1e5 ? 0 : 1) + "만" : nf(v, 0)) + " ㎥";
       let svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}" class="vc">`;
       links.forEach((l) => { const a = N[l.s], b = N[l.t], h = l.v * sc, x0 = xs[ci(l.s)] + nw, x1 = xs[ci(l.t)], y0 = a.y + a.oo + h / 2, y1 = b.y + b.io + h / 2; a.oo += h; b.io += h;
         const xm = (x0 + x1) / 2;
-        svg += `<path d="M${x0},${y0} C${xm},${y0} ${xm},${y1} ${x1},${y1}" stroke="${l.c}" stroke-width="${Math.max(h, 0.8)}" fill="none" stroke-opacity=".38" class="vc-l"><title>${a.label} → ${b.label}: ${fmt(l.v)}</title></path>`; });
+        svg += `<path d="M${x0},${y0} C${xm},${y0} ${xm},${y1} ${x1},${y1}" stroke="${l.c}" stroke-width="${Math.max(h, 0.8)}" fill="none" stroke-opacity=".42" class="vc-l"><title>${a.label} → ${b.label}: ${fmt(l.v)}</title></path>`; });
       [col0, col1, col2].forEach((col, k) => col.forEach((n) => {
         svg += `<rect x="${xs[k]}" y="${n.y}" width="${nw}" height="${n.h}" fill="${k === 2 && n.id !== "BY" ? (n.a >= n.b ? VC_COL.dom : VC_COL.imp) : n.c}" rx="2"><title>${n.label}${n.sub ? " (" + n.sub + ")" : ""}: ${fmt(n.v)}</title></rect>`;
         const ty = n.y + n.h / 2 + 4;
@@ -437,11 +437,11 @@
     };
     host.innerHTML =
       card("제품별 원자재 출처", `<select id="src-yr" class="mini-sel">${srcYs.map((yy) => `<option value="${yy}"${yy === sy ? " selected" : ""}>${yy}년</option>`).join("")}</select> 막대 = 비율 · 오른쪽 = 이용량`, `<div id="ds-src"></div>` +
-        rule(`국내에서 만든 몫은 원자재별로(수입 단판으로 만든 합판, 수입 제재목을 처리한 방부목재 등 포함), 제품째 수입한 몫은 수입 제품으로 · 국내 생산 몫 = 실태조사 제품별 원자재 투입량(KOSIS, 2022~ 공표 제품), 그 밖의 제품(펄프·장작·톱밥·버섯 원목 등, 2024년만)과 2024년 수입 제품 = 실태조사 「국내 목재 이용 현황」 표, 2022·2023년 수입 제품 = 실태조사 제품별 수입량 · 원자재 투입량은 제품 생산량이 아니라 투입한 원자재 양이고, 중간재(수입 합판·단판 등)는 다른 제품의 수입량과 겹칠 수 있음 · 단위 ㎥ (펠릿 수입은 톤×1.67, 그 밖의 톤 단위 제품은 1:1, 실태조사 방식) · 출처: 산림청·한국임업진흥원 목재이용실태조사(KOSIS 제품별 원자재 표, 국내 목재 이용 현황)`), "",
+        rule(`국내에서 만든 몫은 원자재별로(수입 단판으로 만든 합판, 수입 제재목을 처리한 방부목재 등 포함), 제품째 수입한 몫은 수입 제품으로 · 국내 생산 몫 = 실태조사 제품별 원자재 투입량(KOSIS, 2022~ 공표 제품), 그 밖의 제품(펄프·장작·톱밥·버섯 원목 등, 2024년만)과 2024년 수입 제품 = 실태조사 「국내 목재 이용 현황」 표, 2022·2023년 수입 제품 = 실태조사 제품별 수입량 · 원자재 투입량은 제품 생산량이 아니라 투입한 원자재 양이고, 중간재(수입 합판·단판 등)는 다른 제품의 수입량과 겹칠 수 있음 · 단위 ㎥ (펠릿 수입은 톤×1.67, 그 밖의 톤 단위 제품은 1:1, 실태조사 방식) · 출처: 산림청·한국임업진흥원 목재이용실태조사(KOSIS 제품별 원자재 표, 국내 목재 이용 현황)`), "span-2",
         (() => { const top = pr.slice(0, 3).map((d) => `${nm(d.key)} 수입 ${nf(impOf(d), 0)}%`); return top.join(" · "); })()) +
       (VC ? card("가치사슬 — 제재목", `<select id="vc-yr" class="mini-sel">${vcYs.map((yy) => `<option value="${yy}"${yy === vy ? " selected" : ""}>${yy}년</option>`).join("")}</select> 응답업체 기준 · ㎥`,
         `<div id="ds-vc"></div>` +
-        rule(`왼쪽 = 국산 원목 공급지(시도)와 수입 원목 조달 경로, 가운데 = 제재소가 쓴 국산·수입 원목, 오른쪽 = 용도별 제재목 생산량 · 부산물·손실 = 원목 이용량 − 제재목 생산량(산출, 톱밥·칩·죽데기 등) · 응답업체 기준이라 전국 추계(제재목 생산 ${nf(1900000 / 1e4, 0)}만 ㎥ 등)와 다름 · 선에 마우스를 올리면 물량 · 출처: ${VC.source}`), "",
+        rule(`왼쪽 = 국산 원목 공급지(시도)와 수입 원목 조달 경로, 가운데 = 제재소가 쓴 국산·수입 원목, 오른쪽 = 용도별 제재목 생산량 · 부산물·손실 = 원목 이용량 − 제재목 생산량(산출, 톱밥·칩·죽데기 등) · 응답업체 기준이라 전국 추계(제재목 생산 ${nf(1900000 / 1e4, 0)}만 ㎥ 등)와 다름 · 선에 마우스를 올리면 물량 · 출처: ${VC.source}`),  "span-2",
         `<span id="vc-lead"></span>`) : "");
     $("#src-yr").onchange = (ev) => { S.srcy = ev.target.value; renderDist(); };
     stackRows($("#ds-src"), pr.map((d) => ({ label: nm(d.key), values: SRCS.map(([k]) => flowsOf(d)[k] || 0),
