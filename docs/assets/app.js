@@ -527,11 +527,8 @@
     const ptot = sum(pr.map((x) => x.v));
     host.innerHTML =
       (U.length ? card("한 해 쓰는 목재", `${u0.y}~${u1.y} · 만 ㎥`, `<div id="bs-use"></div>` +
-        rule(`국산 = 전체 이용량 − 수입 원목 − 수입 목재제품 · 펠릿 수입은 톤×1.67, 그 밖의 톤 단위 제품은 1:1 (실태조사 방식) · 출처: 산림청·한국임업진흥원 목재이용실태조사 국내 목재 이용 현황 (연도별 보고서, 2023년은 2024년 기준 보고서 수정치)`), "",
-        `${u1.y}년 ${nf(u1.tt / 1e4, 0)}만 ㎥ <span class="sub">${u0.y}년 ${nf(u0.tt / 1e4, 0)}만 ㎥ · 국산 ${nf(u1.dom / 1e4, 0)}만 ㎥</span>`) : "") +
-      (U.length ? card("그중 수입 비중", `${u0.y}~${u1.y} · %`, `<div id="bs-share"></div>` +
-        rule(`수입 비중 = (수입 원목 + 수입 목재제품) ÷ 전체 이용량, ㎥ 기준 · 100에서 뺀 값이 산림청 공표 목재자급률 (${u1.y}년 ${nf(100 - u1.share, 1)}%) · 2023년 조사부터 국산 이용량 산정 기준이 벌채 허가량 → 실제 이용량으로 바뀌어 2022년 이전과 단순 비교 주의`), "",
-        `${u1.y}년 ${nf(u1.share, 1)}% <span class="sub">${u0.y}년 ${nf(u0.share, 1)}% · 목재자급률 ${nf(100 - u1.share, 1)}%</span>`) : "") +
+        rule(`국산 = 전체 이용량 − 수입 원목 − 수입 목재제품 · 수입 비중 = 수입 ÷ 전체, 100에서 뺀 값이 산림청 공표 목재자급률 · 펠릿 수입은 톤×1.67, 그 밖의 톤 단위 제품은 1:1 (실태조사 방식) · 2023년 조사부터 국산 이용량 산정 기준이 벌채 허가량 → 실제 이용량으로 바뀌어 2022년 이전과 단순 비교 주의 · 출처: 산림청·한국임업진흥원 목재이용실태조사 국내 목재 이용 현황 (연도별 보고서, 2023년은 2024년 기준 보고서 수정치)`), "span-2",
+        `${u1.y}년 ${nf(u1.tt / 1e4, 0)}만 ㎥ · 그중 수입 ${nf(u1.share, 1)}% <span class="sub">목재자급률 ${nf(100 - u1.share, 1)}% · ${u0.y}년 ${nf(u0.tt / 1e4, 0)}만 ㎥, 수입 ${nf(u0.share, 1)}%</span>`) : "") +
       card("목재류 수입·수출 추이", "12개월 누적 · 억 달러", `<div id="bs-trade"></div>` +
         rule(`HS 44류 전체 · 수입 CIF, 수출 FOB · 출처: ${SRC}`), "",
         `최근 12개월 수입 ${nf(L.cur / 1e8, 1)}억 달러 · ${nf(Lk.cur / 1e9, 1)}백만 톤 <span class="sub">수출 ${nf(Lexp / 1e8, 1)}억 달러</span>`) +
@@ -541,7 +538,8 @@
     if (U.length) {
       C.barChart($("#bs-use"), { x: U.map((d) => String(d.y)), series: [{ name: "국산", values: U.map((d) => d.dom / 1e4), color: C.color(2) }, { name: "수입 원목", values: U.map((d) => d.lim / 1e4), color: C.color(1) },
         { name: "수입 목재제품", values: U.map((d) => d.ip / 1e4), color: C.color(0) }], stacked: true, yFmt: (v) => nf(v, 0), tipFmt: (v) => nf(v, 0) + "만 ㎥", height: 250 });
-      C.lineChart($("#bs-share"), { x: U.map((d) => String(d.y)), series: [{ name: "수입 비중", values: U.map((d) => d.share) }], yFmt: (v) => nf(v, 0) + "%", tipFmt: (v) => nf(v, 1) + "%", height: 250, area: true, yMin0: false });
+      // 막대 위 수입 비중 표시
+      $("#bs-use").insertAdjacentHTML("beforeend", `<div class="foot" style="display:flex;justify-content:space-around;margin-top:2px">${U.map((d) => `<span>${d.y} 수입 <b>${nf(d.share, 1)}%</b></span>`).join("")}</div>`);
     }
     C.lineChart($("#bs-trade"), { x: ms.slice(pk), series: [{ name: "수입액", values: ru.slice(pk).map((v) => v / 1e8) }, { name: "수출액", values: re.slice(pk).map((v) => v / 1e8) }],
       yFmt: (v) => nf(v, 0), tipFmt: (v) => nf(v, 2) + "억 달러", height: 250, xLabelFmt: xFmt });
@@ -600,7 +598,7 @@
     const tile = (lab, val, sub, src, go) => `<a class="g-tile go" href="#${go}" data-go="${go}"><div class="g-lab">${lab}<span class="g-go">자세히 →</span></div><div class="g-val num">${val}</div><div class="g-sub">${sub}</div><div class="g-src">${src}</div></a>`;
     const indY = IND ? IND.year : null, indI = IND ? IND.years.indexOf(indY) : -1;
     const tiles = tile("한 해 쓰는 목재", `${nf(G.total / 1e4, 0)}<small>만 ㎥</small>`, `국산 ${nf((G.total - impLog - impProd) / 1e4, 0)}만 + 수입 ${nf((impLog + impProd) / 1e4, 0)}만 ㎥`, `${G.year}년 · 산림청 목재이용실태조사`, "bs-use") +
-      tile("그중 수입", `${nf(G.import_share, 1)}<small>%</small>`, `${nf(G.total / 1e4, 0)}만 ㎥ 중 <b>${nf((impLog + impProd) / 1e4, 0)}만 ㎥</b> (원목 ${nf(impLog / 1e4, 0)}만 + 제품 ${nf(impProd / 1e4, 0)}만)`, `${G.year}년 · 산림청 목재이용실태조사`, "bs-share") +
+      tile("그중 수입", `${nf(G.import_share, 1)}<small>%</small>`, `${nf(G.total / 1e4, 0)}만 ㎥ 중 <b>${nf((impLog + impProd) / 1e4, 0)}만 ㎥</b> (원목 ${nf(impLog / 1e4, 0)}만 + 제품 ${nf(impProd / 1e4, 0)}만)`, `${G.year}년 · 산림청 목재이용실태조사`, "bs-use") +
       tile("목재류 수입액", `${nf(L.cur / 1e8, 1)}<small>억 달러</small>`, yoy == null ? "최근 12개월" : `최근 12개월 · 1년 전보다 <b class="${yoy < 0 ? "dn" : "up"}">${yoy > 0 ? "+" : ""}${nf(yoy, 1)}%</b>`, `${per} · 관세청`, "bs-trade") +
       (() => {   // 가장 많이 사오는 목재제품 (수입액, 최근 12개월)
         const pr = D.meta.products.filter((p) => p.status !== "pending").map((p) => { const e = entry("product", p.key); return { n: p.name.replace(/\(.+\)/, ""), v: e ? l12(e).cur || 0 : 0 }; })
