@@ -433,30 +433,44 @@
         `<button type="button" class="dp-chip dp-all" data-k="*">${S.uts.size ? "모두 끄기" : "기본 6개"}</button>`;
       $("#ut-chips").querySelectorAll(".dp-chip").forEach((b) => b.onclick = () => { const k = b.dataset.k;
         if (k === "*") S.uts = S.uts.size ? new Set() : new Set(UTIL_DEF); else S.uts.has(k) ? S.uts.delete(k) : S.uts.add(k); drawUtil(); });
+      drawCap(on.map((d) => d.key), pal);
       const box = $("#ds-util"); box.innerHTML = "";
       if (!on.length) { box.innerHTML = `<div class="empty" style="height:300px">제품 이름을 눌러 선택</div>`; return; }
       C.lineChart(box, { x: uy.map(String), noLegend: true, series: on.map((d) => ({ name: short(d.label) + (ref(d) ? "*" : ""), color: pal[d.key],
         values: uy.map((y) => { const i = d.util_years.indexOf(y); return i < 0 ? null : d.util_series[i]; }) })),
         yFmt: (v) => nf(v, 0) + "%", tipFmt: (v) => nf(v, 1) + "%", height: 300, yMaxMin: 100 });
     };
-    const CAPS = DS.capacity || [];
+    const CAPS = DS.capacity || [], capBy = {}; CAPS.forEach((c) => { capBy[c.key] = c; });
     if (CAPS.length) {
-      const chg = CAPS.map((c) => ({ c, r: c.capacity[c.capacity.length - 1] / c.capacity[0] - 1 }));
-      const down = chg.filter((x) => x.r <= -0.15).sort((a, b) => a.r - b.r), up = chg.filter((x) => x.r >= 0.15);
-      const cy0 = CAPS[0].years[0], cy1 = CAPS[0].years[CAPS[0].years.length - 1];
-      const leadCap = [down.length ? `설비 감소 ${down.slice(0, 3).map((x) => `${short(x.c.label)} ${nf(x.r * 100, 0)}%`).join(" · ")}` : "",
-        up.length ? `증가 ${up.map((x) => `${short(x.c.label)} ${x.r >= 1 ? nf(x.r + 1, 0) + "배" : "+" + nf(x.r * 100, 0) + "%"}`).join(" · ")}` : ""].filter(Boolean).join(" / ");
+      const cy0 = Math.min(...CAPS.map((c) => c.years[0])), cy1 = Math.max(...CAPS.map((c) => c.years[c.years.length - 1]));
       host.insertAdjacentHTML("beforeend",
-        card(`국내 생산능력과 생산량`, `${cy0}~${cy1} · 업체 수 × 업체 평균 최대 생산가능량`,
-          `<div class="legend"><span><i class="line" style="background:${C.color(7)}"></i>생산능력</span><span><i class="line" style="background:${C.color(0)}"></i>생산량</span><span class="sub">두 선 사이 = 놀고 있는 설비</span></div>` +
-          `<div class="cap-grid">${CAPS.map((c, i) => { const f0 = c.firms[0], f1 = c.firms[c.firms.length - 1];
-            return `<div class="cap-m"><div class="cap-t one-line"><b>${short(c.label)}</b> <span class="sub">업체 ${f0 === f1 ? f1 : `${f0}→${f1}`}개 · ${c.unit === "t" ? "만 톤" : "만 ㎥"}</span></div><div id="cap-${i}"></div></div>`; }).join("")}</div>` +
-          rule(`가동률은 생산량 ÷ 생산능력이라 생산량이 그대로여도 공장이 문을 닫으면(생산능력 감소) 올라감 — 가동률 변화는 이 그림과 함께 읽을 것 · 생산능력 = 업체 수 × 업체 평균 최대 생산가능량(실태조사 응답업체 기준), 생산량 = 전국 추계라 비율이 왼쪽 가동률과 다를 수 있음(제재목) · 출처: 산림청 목재이용실태조사(2024년 기준)`),
-          "", leadCap));
-      CAPS.forEach((c, i) => C.lineChart($(`#cap-${i}`), { x: c.years.map((y) => "’" + String(y).slice(2)), noLegend: true, height: 128, ticks: 2,
-        series: [{ name: "생산능력", values: c.capacity.map((v) => v / 1e4), color: C.color(7) }, { name: "생산량", values: c.production.map((v) => v / 1e4), color: C.color(0) }],
-        yFmt: (v) => nf(v, 0), tipFmt: (v) => nf(v, 1) + (c.unit === "t" ? "만 톤" : "만 ㎥") }));
+        card(`국내 생산능력과 생산량`, `${cy0}~${cy1} · 왼쪽에서 켠 제품`,
+          `<div class="legend"><span><i class="line" style="background:${C.color(7)}"></i>생산능력</span><span><i class="line" style="background:${C.color(0)}"></i>생산량</span><span class="sub">두 선 사이 = 놀고 있는 설비 · 산출 = 생산량 ÷ 가동률</span></div>` +
+          `<div class="cap-grid" id="cap-grid"></div>` +
+          rule(`가동률은 생산량 ÷ 생산능력이라 생산량이 그대로여도 공장이 문을 닫으면(생산능력 감소) 올라감 — 가동률 변화는 이 그림과 함께 읽을 것 · 생산능력 = 업체 수 × 업체 평균 최대 생산가능량(실태조사 응답업체 기준), 이 자료가 없는 제품은 생산량 ÷ 가동률로 산출(<b>산출</b> 표시) · 생산량 = 전국 추계라 비율이 왼쪽 가동률과 다를 수 있음(제재목) · 출처: 산림청 목재이용실태조사(2024년 기준)`),
+          "", ""));
     }
+    const drawCap = (keys, pal) => {
+      const grid = $("#cap-grid"); if (!grid) return;
+      const cs = keys.map((k) => capBy[k]).filter(Boolean), miss = keys.filter((k) => !capBy[k]);
+      const cardEl = grid.closest(".card"); let ld = cardEl.querySelector(".lead");
+      if (!ld) { cardEl.querySelector(".card-head").insertAdjacentHTML("afterend", `<div class="lead"></div>`); ld = cardEl.querySelector(".lead"); }
+      const chg = cs.map((c) => ({ c, r: c.capacity[c.capacity.length - 1] / c.capacity[0] - 1 }));
+      const down = chg.filter((x) => x.r <= -0.15).sort((a, b) => a.r - b.r), up = chg.filter((x) => x.r >= 0.15).sort((a, b) => b.r - a.r);
+      const fx = (x) => `${short(x.c.label)} ${x.r >= 1 ? nf(x.r + 1, 0) + "배" : (x.r > 0 ? "+" : "") + nf(x.r * 100, 0) + "%"}`;
+      ld.innerHTML = cs.length ? ([down.length ? `설비 감소 ${down.slice(0, 3).map(fx).join(" · ")}` : "", up.length ? `증가 ${up.slice(0, 2).map(fx).join(" · ")}` : ""].filter(Boolean).join(" / ") || "선택 제품 설비 변화 ±15% 이내") : "";
+      if (!cs.length) { grid.innerHTML = `<div class="empty" style="grid-column:1/-1;height:300px">왼쪽에서 제품을 켜면 표시</div>`; return; }
+      const cols = cs.length <= 1 ? 1 : cs.length <= 4 ? 2 : 3, nr = Math.ceil(cs.length / cols);
+      const h = nr === 1 ? 300 : nr === 2 ? 150 : nr === 3 ? 100 : 80;
+      grid.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
+      grid.innerHTML = cs.map((c, i) => { const f0 = c.firms[0], f1 = c.firms[c.firms.length - 1];
+        return `<div class="cap-m"><div class="cap-t one-line"><i class="cap-dot" style="background:${pal[c.key]}"></i><b>${short(c.label)}</b> <span class="sub">${c.derived ? "<b>산출</b> · " : f0 != null ? `업체 ${f0 === f1 ? f1 : `${f0}→${f1}`}개 · ` : ""}${Math.max(...c.capacity) >= 1e5 ? "만 " : ""}${c.unit === "t" ? "톤" : "㎥"}</span></div><div id="cap-${i}"></div></div>`; }).join("") +
+        (miss.length ? `<div class="sub" style="grid-column:1/-1">생산능력 산출 불가: ${miss.map((k) => short((rows.find((d) => d.key === k) || {}).label || k)).join(" · ")}</div>` : "");
+      cs.forEach((c, i) => { const sc = Math.max(...c.capacity) >= 1e5 ? 1e4 : 1, uL = sc === 1e4 ? "만 " : "";
+        C.lineChart($(`#cap-${i}`), { x: c.years.map((y) => "’" + String(y).slice(2)), noLegend: true, height: h, ticks: 2,
+          series: [{ name: "생산능력" + (c.derived ? "(산출)" : ""), values: c.capacity.map((v) => v / sc), color: C.color(7) }, { name: "생산량", values: c.production.map((v) => v / sc), color: C.color(0) }],
+          yFmt: (v) => nf(v, 0), tipFmt: (v) => nf(v, sc === 1 ? 0 : 1) + uL + (c.unit === "t" ? "톤" : "㎥") }); });
+    };
     host.insertAdjacentHTML("beforeend", tblCard);
     $("#ds-yr").onchange = (ev) => { S.dsy = ev.target.value; drawDs(); };
     drawDs();

@@ -334,15 +334,22 @@ def domestic_supply(survey_csv: Path, sr: list[dict], labels: dict) -> dict | No
         })
     rows.sort(key=lambda d: (d["unit"] != "m3", -d["imports"]))
     # 생산능력 추이: 총 생산능력(업체 수 × 업체 평균 최대 생산가능량)과 생산량 — 가동률 변화가 생산 변화인지 설비 변화인지 구분
+    # 원자료(capacity_total)가 없으면 생산량 ÷ 가동률로 산출(derived) — 여유 생산능력과 같은 식
     capacity = []
-    for prod in ["p01", "p06", "p08", "p07", "p11", "p02"]:
+    for prod in prods:
         cp, unit, _ = get(prod, "capacity_total")
-        pr, _, _ = get(prod, "production")
+        pr, unit2, _ = get(prod, "production")
         fm, _, _ = get(prod, "firms")
+        ut, _, _ = get(prod, "utilization_pct")
         yy = sorted(set(cp) & set(pr))
+        derived = False
         if len(yy) < 5:
-            continue
-        capacity.append({"key": prod, "label": labels.get(prod, prod), "unit": unit, "years": yy,
+            yy = sorted(y for y in set(pr) & set(ut) if ut[y] and ut[y] > 0)
+            if len(yy) < 5:
+                continue
+            cp = {y: pr[y] / (ut[y] / 100) for y in yy}
+            derived, unit = True, unit2
+        capacity.append({"key": prod, "label": labels.get(prod, prod), "unit": unit, "years": yy, "derived": derived,
                          "capacity": [round(cp[y]) for y in yy], "production": [round(pr[y]) for y in yy],
                          "firms": [int(fm[y]) if y in fm else None for y in yy]})
     tot, _, _ = get("total", "wood_use_total")
