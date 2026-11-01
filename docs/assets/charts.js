@@ -353,12 +353,13 @@
     const wrap = document.createElement("div");
     wrap.className = "hbars";
     rows.forEach((r, i) => {
+      if (r.sep) { const s = document.createElement("div"); s.className = "hb-sep"; wrap.appendChild(s); }
       const d = document.createElement("div");
       d.className = "hb";
       d.innerHTML = `<span class="rk">${r.rk != null ? r.rk : i + 1}</span><span class="nm" title="${r.label}">${r.label}</span>` +
         `<span class="bar"><i style="width:${((r.value || 0) / max) * 100}%;background:${r.color || opts.color || css("--s1")}"></i></span>` +
         `<span class="vl">${r.text}</span>`;
-      if (r.onClick) { d.style.cursor = "pointer"; d.addEventListener("click", r.onClick); }
+      if (r.onClick) { d.querySelectorAll("span").forEach((s) => (s.style.cursor = "pointer")); d.addEventListener("click", r.onClick); }
       wrap.appendChild(d);
     });
     container.appendChild(wrap);
@@ -438,7 +439,7 @@
         else { neg += w; bars += `<i style="left:${50 - neg}%;width:${w}%;background:${cols[i]}"></i>`; } });
       d.innerHTML = `<span class="nm" title="${r.label}">${r.label}</span><span class="track">${bars}</span><span class="vl ${r.total >= 0 ? "up" : "down"}">${r.text}</span>`;
       if (r.tip) d.title = r.tip;
-      if (r.onClick) { d.style.cursor = "pointer"; d.addEventListener("click", r.onClick); }
+      if (r.onClick) { d.querySelectorAll("span").forEach((s) => (s.style.cursor = "pointer")); d.addEventListener("click", r.onClick); }
       wrap.appendChild(d);
     });
     container.appendChild(wrap);
