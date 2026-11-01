@@ -128,7 +128,7 @@
 
   // ── 공통 렌더 ───────────────────────────────────────────
   // 자료 구분: 원자료(공표 통계 수치 그대로·합계) / 분석(본 페이지가 계산한 비율·지수·환산·판정)
-  const KIND_ANA = /^(제품별 자급률|수입 쏠림 × 국내 대체 여력|국내 공급 여력 근거|품목별 수입 위험|수입 집중|품목별 판정|품목별 국내 공급 구조|원목 수입의존도|자급-수입 구조|목재제품별 수입의존도|가격 이상 판정|공급국 가격대 지도|수입 단가 지수|단가 지수|국산·수입 가격 수준|수입액 변화 분해|공급국별 수입 단가|공급국 집중도|공급국 쏠림 정도|목재제품별 수입과 점유율|품목군 구성|산림청 공표치 대조)/;
+  const KIND_ANA = /^(제품별 자급률|국내 공급 여력|품목별 수입 위험|수입 집중|품목별 판정|품목별 국내 공급 구조|원목 수입의존도|자급-수입 구조|목재제품별 수입의존도|가격 이상 판정|공급국 가격대 지도|수입 단가 지수|단가 지수|국산·수입 가격 수준|수입액 변화 분해|공급국별 수입 단가|공급국 집중도|공급국 쏠림 정도|목재제품별 수입과 점유율|품목군 구성|산림청 공표치 대조)/;
   const KIND_MIX = /^(한 해 쓰는 목재|국내 설비 가동률 추이|국내 생산능력과 생산량)/;
   const KIND_RAW = /^(목재류 수입·수출 추이|품목별 수입액|제품별 원자재 출처|제품별 매출 구조|최대 수입국|최대 수입 품목|수입·수출 추이|주요 공급국|대분류별 원목|세부 수종|.+산 목재류 수입|목재산업 매출|목재제품별 매출|목재는 어디서 와서 무엇이 되나|어디서 사오나)/;
   function kindOf(title, hint) {
@@ -387,45 +387,43 @@
     const u = (d) => (d.unit === "t" ? "톤" : "㎥");
     const big = (v) => (v >= 1e4 ? nf(v / 1e4, 0) + "만" : nf(v, 0));
     const short = (l) => l.replace(/\(.+\)/, "");
-    // 2×2 분류: 가로 = 최대 공급국 점유율(관세청, 실태조사와 같은 해 1~12월) ≥ 50%, 세로 = 대체 여력 ≥ 100%
-    const SH = D.judg.supply_hist, si = SH ? SH.years.indexOf(String(yr)) : -1, MIN = 1e6;
-    const cls = rows.map((d) => { const h = SH && SH.items[`${d.axis}:${d.key}`], tp = h && si >= 0 ? h.top[si] : null;
-      return { d, tp, share: tp ? tp[1] : null, usd: tp ? tp[2] : null }; });
-    const noCov = cls.filter((c) => c.d.spare_cover == null), noHs = cls.filter((c) => c.d.spare_cover != null && c.tp == null && !(SH && SH.items[`${c.d.axis}:${c.d.key}`]));
-    const small = cls.filter((c) => c.d.spare_cover != null && c.tp && c.usd < MIN);
-    const ok = cls.filter((c) => c.d.spare_cover != null && c.tp && c.usd >= MIN);
-    const Q = (hiShare, canCover) => ok.filter((c) => (c.share >= 50) === hiShare && (c.d.spare_cover >= DS.line) === canCover);
-    const chip = (c) => `<button type="button" class="q-chip" data-axis="${c.d.axis}" data-key="${c.d.key}" title="${c.d.label} · ${yr}년 최대 공급국 ${c.tp[0]} ${nf(c.share, 0)}% · 대체 여력 ${nf(c.d.spare_cover, 0)}%">${short(c.d.label)}</button>`;
-    const cell = (hs, cc, cls2) => { const L = Q(hs, cc); return `<div class="q-cell ${cls2}">${L.length ? L.map(chip).join("") : `<span class="sub">없음</span>`}</div>`; };
-    const core = Q(true, false);
-    host.innerHTML =
-      card(`수입 쏠림 × 국내 대체 여력 ${q("cover")}`, `${yr}년 · 관세청 수출입실적 + 산림청 목재이용실태조사`,
-        `<div class="q-grid">` +
-          `<div></div><div class="q-h">한 나라에 쏠림<br><span class="sub">최대 공급국 50% 이상</span></div><div class="q-h">분산<br><span class="sub">최대 공급국 50% 미만</span></div>` +
-          `<div class="q-v">국내로<br>못 메움<br><span class="sub">대체 여력<br>100% 미만</span></div>${cell(true, false, "core")}${cell(false, false, "")}` +
-          `<div class="q-v">국내로<br>메울 수 있음<br><span class="sub">대체 여력<br>100% 이상</span></div>${cell(true, true, "")}${cell(false, true, "")}` +
-        `</div>` +
-        `<div class="q-out">${[small.length ? `연 수입액 100만 달러 미만 제외(산업부 기준): ${small.map((c) => short(c.d.label)).join(" · ")}` : "",
-          noCov.length ? `대체 여력 산출 불가(국내 생산능력 자료 없음): ${noCov.map((c) => short(c.d.label)).join(" · ")}` : "",
-          noHs.length ? `전용 HS 코드 없음(공급국 불명): ${noHs.map((c) => short(c.d.label)).join(" · ")}` : ""].filter(Boolean).join("<br>")}</div>` +
-        rule(`가로 기준 = 최대 공급국 점유율 50% (산업부 산업 공급망 3050 전략, 2023), ${yr}년 1~12월 수입액 · 세로 기준 = 대체 여력 100% (여유 생산능력 = 수입량, 정의상 경계) · 이름을 누르면 상세, 마우스를 올리면 수치 · 원료 조달·품질·가격은 반영하지 않은 물리적 상한`), "q-card",
-        core.length ? `쏠렸고 국내로 못 메움: ${core.map((c) => short(c.d.label)).join(" · ")}` : "쏠렸고 국내로 못 메우는 제품 없음") +
-      card(`국내 공급 여력 근거 ${q("util")}`, `${yr}년 · 대체 여력 낮은 순 · 행을 누르면 상세`,
-        `<div class="tbl-wrap"><table><thead><tr><th class="l">품목</th><th>국내 생산</th><th>수입</th><th>가동률</th><th>여유 생산능력</th><th>대체 여력 ${q("cover")}</th></tr></thead><tbody>` +
-        [...rows].sort((a, b) => (a.spare_cover == null) - (b.spare_cover == null) || a.spare_cover - b.spare_cover).map((d) => `<tr class="click" data-axis="${d.axis}" data-key="${d.key}" title="${d.util_note ? "가동률: " + d.util_note : ""}">` +
-          `<td class="l">${short(d.label)} <span class="sub">${u(d)}</span></td><td>${big(d.production)}</td><td>${big(d.imports)}</td>` +
-          `<td>${d.utilization == null ? "–" : nf(d.utilization, 0) + "%" + (/참고치/.test(d.util_note) ? "*" : "")}</td>` +
-          `<td>${d.spare == null ? "–" : big(d.spare)}</td><td><b>${d.spare_cover == null ? "–" : nf(d.spare_cover, 0) + "%"}</b></td></tr>`).join("") +
-        `</tbody></table></div><div class="foot">여유 생산능력 = 생산량 × (100 ÷ 가동률 − 1) · 대체 여력 = 여유 생산능력 ÷ 수입량 · 가동률 = 생산량 ÷ 최대 생산가능량(응답업체 기준) · * 참고치(전국 생산량 ÷ 최대 생산가능량 합계) · 국내 생산 0이면 대체 여력 0% · 출처: 산림청 목재이용실태조사(${yr}년 기준)</div>`, "",
-        `대체 여력 100% 미만 ${rows.filter((d) => d.spare_cover != null && d.spare_cover < DS.line).length}개 · 100% 이상 ${rows.filter((d) => d.spare_cover != null && d.spare_cover >= DS.line).length}개 <span class="sub">(${rows.filter((d) => d.spare_cover != null).length}개 제품)</span>`);
-    host.querySelectorAll(".q-chip").forEach((b) => b.onclick = () => openDetail(b.dataset.axis, b.dataset.key));
+    // 근거 표: 연도 선택 + 판정(산업부 특정국 50% × 대체 여력 100%)
+    const SH = D.judg.supply_hist, MIN = 1e6;
+    const dYears = [...new Set(rows.flatMap((d) => Object.keys(d.by_year || {})))].sort().reverse();
+    const JG = { "쏠림·대체 불가": "hi", "대체 불가": "mid", "대체 가능": "lo", "판정 제외": "ex" }, JO = { "쏠림·대체 불가": 0, "대체 불가": 1, "대체 가능": 2, "판정 제외": 3 };
+    const judgeOf = (d, y) => { const b = d.by_year && d.by_year[y]; if (!b || b.spare_cover == null) return null;
+      const h = SH && SH.items[`${d.axis}:${d.key}`], i = SH ? SH.years.indexOf(y) : -1, tp = h && i >= 0 ? h.top[i] : null;
+      if (!tp) return { g: "판정 제외", why: h ? `${y}년 관세청 자료 없음(전용 HS 코드 신설 전 또는 수입 없음)` : "전용 HS 코드 없음(공급국 불명)" };
+      if (tp[2] < MIN) return { g: "판정 제외", why: `${y}년 수입액 ${usd(tp[2])} < 100만 달러` };
+      const sh = tp[1] >= 50, cv = b.spare_cover >= DS.line;
+      return { g: cv ? "대체 가능" : sh ? "쏠림·대체 불가" : "대체 불가", why: `최대 공급국 ${tp[0]} ${nf(tp[1], 0)}% · 대체 여력 ${nf(b.spare_cover, 0)}%` }; };
+    const tblCard = card(`국내 공급 여력 ${q("cover")}`, `행을 누르면 상세`,
+      `<div class="rk-per"><select id="ds-yr" class="mini-sel">${dYears.map((y) => `<option value="${y}">${y}년</option>`).join("")}</select></div><div class="tbl-wrap" id="ds-tbl"></div>` +
+      rule(`여유 생산능력 = 생산량 × (100 ÷ 가동률 − 1) · 대체 여력 = 여유 생산능력 ÷ 수입량 (100% 이상이면 남는 국내 설비로 수입량 전부를 만들 수 있음, 원료·품질·가격 미반영) · 가동률 = 생산량 ÷ 최대 생산가능량(응답업체 기준), * 참고치 · <b>판정</b>: 대체 가능 = 대체 여력 100% 이상 · 대체 불가 = 100% 미만 · 쏠림·대체 불가 = 100% 미만 + 그 해 최대 공급국 50% 이상(산업부 산업 공급망 3050 전략, 2023) · 그 해 수입액 100만 달러 미만은 판정 제외 · 출처: 산림청 목재이용실태조사, ${SRC}`), "span-2", "");
+    const drawDs = () => {
+      const y = S.dsy || dYears[0];
+      const R = rows.map((d) => ({ d, b: d.by_year && d.by_year[y], j: judgeOf(d, y) })).filter((r) => r.b);
+      R.sort((a, b) => ((a.j ? JO[a.j.g] : 9) - (b.j ? JO[b.j.g] : 9)) || ((a.b.spare_cover ?? 1e9) - (b.b.spare_cover ?? 1e9)));
+      const cnt = (g) => R.filter((r) => r.j && r.j.g === g).length, core = R.filter((r) => r.j && r.j.g === "쏠림·대체 불가");
+      const ld = $("#ds-tbl").closest(".card").querySelector(".lead");
+      const leadHtml = `${y}년 · 쏠림·대체 불가 ${core.length}개 <span class="sub">${core.map((r) => short(r.d.label)).join(" · ")}</span> · 대체 불가 ${cnt("대체 불가")}개 · 대체 가능 ${cnt("대체 가능")}개`;
+      if (ld) ld.innerHTML = leadHtml; else $("#ds-tbl").closest(".card").querySelector(".card-head").insertAdjacentHTML("afterend", `<div class="lead">${leadHtml}</div>`);
+      $("#ds-tbl").innerHTML = `<table><thead><tr><th class="l">품목</th><th>수입</th><th>국내 생산</th><th>가동률 ${q("util")}</th><th>여유 생산능력</th><th>대체 여력 ${q("cover")}</th><th>판정</th></tr></thead><tbody>` +
+        R.map(({ d, b, j }) => `<tr class="click" data-axis="${d.axis}" data-key="${d.key}"${j ? ` title="${j.why}"` : ""}>` +
+          `<td class="l">${short(d.label)} <span class="sub">${u(d)}</span></td><td>${big(b.imports)}</td><td>${big(b.production)}</td>` +
+          `<td>${b.utilization == null ? "–" : nf(b.utilization, 0) + "%" + (/참고치/.test(d.util_note) ? "*" : "")}</td>` +
+          `<td>${b.spare == null ? "–" : big(b.spare)}</td><td><b>${b.spare_cover == null ? "–" : nf(b.spare_cover, 0) + "%"}</b></td>` +
+          `<td>${j ? `<span class="grade ${JG[j.g]}">${j.g}</span>` : `<span class="sub">생산능력 자료 없음</span>`}</td></tr>`).join("") + `</tbody></table>`;
+      $("#ds-tbl").querySelectorAll("tr[data-axis]").forEach((tr) => tr.onclick = () => openDetail(tr.dataset.axis, tr.dataset.key));
+    };
+    host.innerHTML = "";
     const UTIL_KEYS = ["p01", "p06", "p07", "p08", "p10", "p12"];   // 업체 수가 적은 소량 품목(집성재·WPC·난연)은 해마다 출렁여 제외
     const utilRows = rows.filter((d) => UTIL_KEYS.includes(d.key) && d.util_years.length >= 8);
     const uy = [...new Set(utilRows.flatMap((d) => d.util_years))].sort();
     host.insertAdjacentHTML("beforeend",
       card(`국내 설비 가동률 추이 ${q("util")}`, `${uy[0]}~${uy[uy.length - 1]} · %`, `<div id="ds-util"></div>` +
         rule(`가동률 = 연 생산량 ÷ 최대 생산가능량 (실태조사 정의, 응답업체 기준) · 제재목·목재칩은 일평균 생산량 × 월 가동일 × 12로 산출 · 합판 3개·파티클보드 2개·섬유판 5개 업체라 해마다 출렁임 · 집성재·WPC·난연목재는 표에만 표시`), "",
-        utilRows.map((d) => `${short(d.label)} ${nf(d.utilization, 0)}%`).join(" · ")));
+        `${uy[uy.length - 1]}년 ` + utilRows.map((d) => `${short(d.label)} ${nf(d.utilization, 0)}`).join(" · ") + ` <span class="sub">(%)</span>`));
     const CAPS = DS.capacity || [];
     if (CAPS.length) {
       const chg = CAPS.map((c) => ({ c, r: c.capacity[c.capacity.length - 1] / c.capacity[0] - 1 }));
@@ -444,6 +442,9 @@
         series: [{ name: "생산능력", values: c.capacity.map((v) => v / 1e4), color: C.color(7) }, { name: "생산량", values: c.production.map((v) => v / 1e4), color: C.color(0) }],
         yFmt: (v) => nf(v, 0), tipFmt: (v) => nf(v, 1) + (c.unit === "t" ? "만 톤" : "만 ㎥") }));
     }
+    host.insertAdjacentHTML("beforeend", tblCard);
+    $("#ds-yr").onchange = (ev) => { S.dsy = ev.target.value; drawDs(); };
+    drawDs();
     C.lineChart($("#ds-util"), { x: uy.map(String), series: utilRows.map((d) => ({ name: short(d.label),
       values: uy.map((y) => { const i = d.util_years.indexOf(y); return i < 0 ? null : d.util_series[i]; }) })),
       yFmt: (v) => nf(v, 0) + "%", tipFmt: (v) => nf(v, 1) + "%", height: 300 });

@@ -313,13 +313,22 @@ def domestic_supply(survey_csv: Path, sr: list[dict], labels: dict) -> dict | No
         if pr[y0] == 0:
             cover, spare = 0.0, 0.0
         risk = sr_by.get((axis, key))
+        by_year = {}                              # 연도별 가동률·여유 생산능력·대체 여력 (같은 식)
+        for y in years:
+            uy = ut.get(y)
+            sp = pr[y] * (100 / uy - 1) if uy and uy > 0 else None
+            cv = sp / im[y] * 100 if sp is not None and im[y] > 0 else None
+            if pr[y] == 0:
+                sp, cv = 0.0, 0.0
+            by_year[str(y)] = {"production": round(pr[y]), "imports": round(im[y]), "utilization": _r(uy),
+                               "spare": None if sp is None else round(sp), "spare_cover": _r(cv)}
         rows.append({
             "axis": axis, "key": key, "label": label, "year": y0, "unit": unit,
             "production": round(pr[y0]), "imports": round(im[y0]),
             "import_share": _r(share[y0]), "share_years": years, "share_series": [_r(v) for v in ys],
             "trend": trend, "mk": mk,
             "utilization": _r(u), "util_note": un, "util_years": sorted(ut), "util_series": [_r(ut[y]) for y in sorted(ut)],
-            "spare": None if spare is None else round(spare), "spare_cover": _r(cover),
+            "spare": None if spare is None else round(spare), "spare_cover": _r(cover), "by_year": by_year,
             "risk_grade": risk["grade"] if risk else None,
             "top_name": risk["top_name"] if risk else None, "top_share": risk["top_share"] if risk else None,
         })
