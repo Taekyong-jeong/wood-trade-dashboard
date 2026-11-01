@@ -69,6 +69,8 @@
     container.classList.add("chart");
     const series = opts.series.map((s, i) => ({ ...s, color: s.color || color(i) }));
     if (!opts.noLegend) legend(container, series, "line");
+    if (opts.pin) { let lg = container.querySelector(".legend"); if (!lg) { lg = document.createElement("div"); lg.className = "legend"; container.appendChild(lg); }
+      lg.insertAdjacentHTML("beforeend", `<span class="pin-note">👆 그래프를 누르면 그 달 고정 · 두 달을 누르면 기간 증감(%) 비교</span>`); }
     const W = Math.max(container.clientWidth, 280);
     const H = opts.height || 240;
     const pad = { l: 52, r: 12, t: 10, b: 26 };
@@ -217,7 +219,8 @@
         pins.forEach((i, k) => {
           el("line", { x1: X(i), x2: X(i), y1: pad.t, y2: pad.t + ih, stroke: css("--ink"), "stroke-width": 1.2, "stroke-dasharray": k ? "4 3" : "none", opacity: 0.7 }, layer);
           series.forEach((s) => { const v = s.values[i]; if (v != null) el("circle", { cx: X(i), cy: Y(v), r: 4.5, fill: s.color, stroke: css("--surface"), "stroke-width": 2 }, layer); });
-          const tx = el("text", { x: X(i), y: pad.t + 11, "text-anchor": X(i) > W - 60 ? "end" : X(i) < pad.l + 40 ? "start" : "middle", style: `fill:${css("--ink")};font-size:11px;font-weight:700` }, layer);
+          const near = pins.length === 2 && Math.abs(X(pins[1]) - X(pins[0])) < 90;   // 두 달이 가까우면 B 라벨을 한 줄 아래로
+          const tx = el("text", { x: X(i), y: pad.t + 11 + (near && k ? 14 : 0), "text-anchor": X(i) > W - 60 ? "end" : X(i) < pad.l + 40 ? "start" : "middle", style: `fill:${css("--ink")};font-size:11px;font-weight:700` }, layer);
           tx.textContent = (k ? "B " : "A ") + xfmt(opts.x[i], true);
         });
         if (!pins.length) { box.innerHTML = `<span class="pin-hint">그래프를 누르면 그 달이 고정됨 · 다른 달을 누르면 두 달을 비교</span>`; return; }
