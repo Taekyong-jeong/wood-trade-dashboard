@@ -126,6 +126,7 @@
     return Object.entries(rows).map(([c, r]) => ({ c, v: val(r, y), prev: val(r, py), share: tot ? (val(r, y) / tot) * 100 : 0 }))
       .filter((r) => r.v > 0).sort((a, b) => b.v - a.v).slice(0, n);
   }
+  const fullYears = () => [...new Set(months().map((m) => m.slice(0, 4)))].filter((y) => months().filter((m) => m.startsWith(y)).length === 12);
   // 기본 연도 = 실태조사(수입의존도)가 있는 가장 최근 해 (표들과 같은 기준)
   function defYear() {
     const DS = D.judg.domestic_supply, ys = DS ? DS.rows.flatMap((r) => r.share_years || []) : [];
@@ -218,8 +219,12 @@
     b.innerHTML = msgs.join("");
   }
 
-  function openDetail(axis, key) {
+  // opts = { year: "2024", measure: "imp_kg" | "imp_usd" } — 연도별 표에서 누르면 상세 탐색의 기준 연도·기준이 따라감
+  function openDetail(axis, key, opts) {
     if (axis === "group") return;   // 품목군 탭은 없앰 (품목군은 내부 집계용)
+    if (opts && opts.year) { S.dy = String(opts.year); S.agg = "year"; }
+    if (opts && opts.measure) S.measure = opts.measure;
+    if (opts) renderControls();
     if (axis === "product") { S.product = key; go("product"); }
     else if (axis === "species2") { S.sp2 = key; go("species"); }
     else if (axis === "heading") { if (key === "4407") { S.product = "p01"; go("product"); } else go("species"); }
@@ -360,7 +365,7 @@
             `<td class="l">${d.top_name} ${nf(d.top_share, 0)}%</td><td>${nf(d.hhi, 0)}</td><td>${d.prev && d.prev !== d.grade ? `<span class="rk-prev">${d.prev}</span><span class="rk-arr">→</span>` : ""}${badge(d.grade)}</td><td>${usd(d.imp_usd)}</td></tr>`).join("") +
         (V.none.length ? `<tr class="rk-none"><td class="l" colspan="6">${y}년 수입 없음 또는 전용 HS 코드 신설 전: ${V.none.join(" · ")}</td></tr>` : "") + `</tbody></table>`;
       $("#rk-tbl").querySelectorAll("th.sortable").forEach((h) => h.onclick = () => { const s = h.dataset.s; S.rks = S.rks === s && s !== "grade" ? "grade" : s; drawTbl(); });
-      $("#rk-tbl").querySelectorAll("tr[data-axis]").forEach((tr) => tr.onclick = () => openDetail(tr.dataset.axis, tr.dataset.key));
+      $("#rk-tbl").querySelectorAll("tr[data-axis]").forEach((tr) => tr.onclick = () => openDetail(tr.dataset.axis, tr.dataset.key, { year: y, measure: "imp_usd" }));
       $("#rk-yr").onchange = (ev) => { S.rky = ev.target.value; drawTbl(); };
     };
     drawTbl();
@@ -430,7 +435,7 @@
           `<td>${b.utilization == null ? "–" : nf(b.utilization, 0) + "%" + (/참고치/.test(d.util_note) ? "*" : "")}</td>` +
           `<td>${b.spare == null ? "–" : big(b.spare)}</td><td><b>${b.spare_cover == null ? "–" : nf(b.spare_cover, 0) + "%"}</b></td>` +
           `<td>${j ? `${(() => { const pj = judgeOf(d, String(+y - 1)); return pj && pj.g !== j.g ? `<span class="rk-prev">${pj.g}</span><span class="rk-arr">→</span>` : ""; })()}<span class="grade ${JG[j.g]}">${j.g}</span>` : `<span class="sub">생산능력 자료 없음</span>`}</td></tr>`).join("") + `</tbody></table>`;
-      $("#ds-tbl").querySelectorAll("tr[data-axis]").forEach((tr) => tr.onclick = () => openDetail(tr.dataset.axis, tr.dataset.key));
+      $("#ds-tbl").querySelectorAll("tr[data-axis]").forEach((tr) => tr.onclick = () => openDetail(tr.dataset.axis, tr.dataset.key, { year: y, measure: "imp_kg" }));
     };
     host.innerHTML = "";
     const UTIL_DEF = ["p01", "p06", "p07", "p08", "p10", "p12"];   // 기본 표시: 2014년부터 공표값·산출값이 이어지는 제품
@@ -491,7 +496,6 @@
     $("#ds-yr").onchange = (ev) => { S.dsy = ev.target.value; drawDs(); };
     drawDs();
     drawUtil();
-    host.querySelectorAll("tr[data-axis]").forEach((tr) => tr.onclick = () => openDetail(tr.dataset.axis, tr.dataset.key));
   }
 
   // ── 목재산업 규모 (목재이용실태조사 공표값) ────────────
@@ -825,10 +829,12 @@
     $("#controls").innerHTML =
       seg("measure", [["imp_usd", "금액"], ["imp_kg", "물량"], ["price", "단가"]], S.measure) +
       seg("agg", [["month", "월별"], ["r12", "12개월 누적"], ["year", "연간"]], S.agg) +
-      `<span class="ctl-label">시작</span><select id="startSel">${years.map((y) => `<option ${y === S.start ? "selected" : ""}>${y}</option>`).join("")}</select>`;
+      `<span class="ctl-label">시작</span><select id="startSel">${years.map((y) => `<option ${y === S.start ? "selected" : ""}>${y}</option>`).join("")}</select>` +
+      `<span class="ctl-label">기준 연도</span><select id="dySel">${fullYears().reverse().map((y) => `<option ${y === (S.dy || defYear()) ? "selected" : ""}>${y}</option>`).join("")}</select>`;
     $("#controls").querySelectorAll("[data-measure]").forEach((b) => b.onclick = () => { S.measure = b.dataset.measure; renderControls(); renderTab(); });
     $("#controls").querySelectorAll("[data-agg]").forEach((b) => b.onclick = () => { S.agg = b.dataset.agg; renderControls(); renderTab(); });
     $("#startSel").onchange = (ev) => { S.start = ev.target.value; renderTab(); };
+    $("#dySel").onchange = (ev) => { S.dy = ev.target.value; renderTab(); };
   }
 
   // ── 상세 (품목군·제품·수종 공통) ────────────────────────
@@ -841,8 +847,16 @@
       host.innerHTML = card(labelOf(axis, key), "", `<div class="note box">${prod && prod.note ? prod.note : "해당 기간 교역 실적 없음"}</div>`);
       return;
     }
-    const i = iLast(), L = l12(e), Lk = l12(e, "imp_kg");
-    const tops = topSuppliers(axis, key, 10);
+    const i = iLast();
+    // 기준 연도(S.dy): 그 품목 자료가 있는 완결 연도 중에서, 없으면 가장 최근 해
+    const yAll = fullYears().filter((yy) => months().some((m, j) => m.startsWith(yy) && e.imp_usd[j] > 0 && (!since || m >= since)));
+    const Y = yAll.includes(S.dy || defYear()) ? (S.dy || defYear()) : yAll[yAll.length - 1], PY = String(+Y - 1);
+    const ysum = (f, yy) => { const v = months().map((m, j) => (m.startsWith(yy) && (!since || m >= since) ? e[f][j] : null)).filter((x) => x != null); return v.length ? sum(v) : null; };
+    const L = { cur: ysum("imp_usd", Y), prev: ysum("imp_usd", PY) }, Lk = { cur: ysum("imp_kg", Y), prev: ysum("imp_kg", PY) };
+    const MK = S.measure === "imp_kg" ? "kg" : "usd";
+    const tops = Y ? topSuppliersYear(axis, key, Y, 10, "usd") : [];
+    const crow = (D.countries[axis] || {})[key] || {}, ytot = sum(Object.values(crow).map((r) => (r.y && r.y[Y] ? r.y[Y][0] : 0)));
+    const hhiY = ytot ? sum(Object.values(crow).map((r) => { const s = r.y && r.y[Y] ? r.y[Y][0] / ytot * 100 : 0; return s * s; })) : null;
     const cv = pconv(axis, key), pl = plabel(axis, key), pf = pfmt(axis, key);
     const p0 = L.cur && Lk.cur ? cv(L.cur, Lk.cur) : null, pp = L.prev && Lk.prev ? cv(L.prev, Lk.prev) : null;
     const note = [grp && grp.desc, prod && prod.note, since && `${ym(since)} 이전에는 별도 HS 코드가 없어 값을 표시하지 않음`, extraNote].filter(Boolean);
@@ -851,40 +865,34 @@
       (note.length ? `<div class="note box">${note.join(" · ")}</div>` : "") +
       `<div class="grid g-5">` +
       kpi(`${ym(months()[i])} 수입액`, usd(e.imp_usd[i]), `전년 동월 ${delta(e.imp_usd[i], i >= 12 ? e.imp_usd[i - 12] : null)}`) +
-      kpi("최근 12개월 수입액", usd(L.cur), `직전 대비 ${delta(L.cur, L.prev)}`) +
-      kpi("최근 12개월 수입량", ton(Lk.cur), `직전 대비 ${delta(Lk.cur, Lk.prev)}`) +
-      kpi(`평균 수입 단가${pest(axis, key)}`, p0 ? `${pf(p0)} <small>${pl}</small>` : "–", `${delta(p0, pp)} <span class="sub">${ptwin(axis, key, L.cur || 0, Lk.cur || 0) || "직전 12개월 대비"}</span>`) +
-      kpi("최대 공급국", tops[0] ? `${cname(tops[0].c)} <small>${nf(tops[0].share, 1)}%</small>` : "–", e.hhi[i] != null ? `HHI ${nf(e.hhi[i], 0)}` : "") +
+      kpi(`${Y}년 수입액`, usd(L.cur), `전년 대비 ${delta(L.cur, L.prev)}`) +
+      kpi(`${Y}년 수입량`, ton(Lk.cur), `전년 대비 ${delta(Lk.cur, Lk.prev)}`) +
+      kpi(`${Y}년 평균 수입 단가${pest(axis, key)}`, p0 ? `${pf(p0)} <small>${pl}</small>` : "–", `${delta(p0, pp)} <span class="sub">${ptwin(axis, key, L.cur || 0, Lk.cur || 0) || "전년 대비"}</span>`) +
+      kpi(`${Y}년 최대 공급국`, tops[0] ? `${cname(tops[0].c)} <small>${nf(tops[0].share, 1)}%</small>` : "–", hhiY != null ? `수입액 기준 · HHI ${nf(hhiY, 0)}` : "") +
       `</div><div class="grid g-2" style="margin-top:12px">` +
       card(`수입·수출 추이`, trendTitle([axis, key]), `<div id="d-trend"></div>`, "span-2",
-        L.prev ? `최근 12개월 수입 ${usd(L.cur)} <span class="sub">직전 12개월 대비 ${delta(L.cur, L.prev)}</span>` : `최근 12개월 수입 ${usd(L.cur)}`) +
-      card(`주요 공급국 ${q("share")}`, `<span class="yr-seg" id="sup-m"><button type="button" data-m="usd">수입액</button><button type="button" data-m="kg">물량</button></span> <select id="sup-y" class="mini-sel"></select> 전년 대비`, `<div id="d-sup"></div>`, "",
+        `${Y}년 수입 ${MK === "kg" ? ton(Lk.cur) : usd(L.cur)} <span class="sub">전년 대비 ${MK === "kg" ? delta(Lk.cur, Lk.prev) : delta(L.cur, L.prev)}</span>`) +
+      card(`주요 공급국 ${q("share")}`, `<span class="yr-seg" id="sup-m"><button type="button" data-m="imp_usd">수입액</button><button type="button" data-m="imp_kg">물량</button></span> ${Y}년 · 전년 대비`, `<div id="d-sup"></div>`, "",
         `<span id="d-sup-lead"></span>`) +
       card(`공급국별 수입 단가 ${q("price")}`, `연간 · 상위 5개국 · ${pl}`, `<div id="d-price"></div>`, "", "<span id='d-price-lead'></span>") +
       card(`공급국 집중도 (HHI) ${q("hhi")}`, "12개월 누적", (e.hhi[i] != null ? hhiScale(e.hhi[i]) : "") + `<div id="d-hhi"></div>` +
         rule(`HHI(허핀달-허쉬만 지수) = 공급국별 점유율(%)을 제곱해 더한 값 — 1개국이 100%면 10,000, 2개국이 반반이면 5,000, 4개국이 25%씩이면 2,500, 10개국이 10%씩이면 1,000 · <b>10,000 ÷ HHI = 같은 크기 나라 몇 곳에서 나눠 사오는 것과 같은지</b> · 1,500 미만 분산 · 1,500~2,500 보통 · 2,500 이상 집중 (미국 법무부·FTC 2010 기준)`), "span-2",
-        e.hhi[i] != null ? `비슷한 크기의 나라 <b>${nf(10000 / e.hhi[i], 1)}곳</b>에서 나눠 사오는 수준 · ${e.hhi[i] >= 2500 ? "집중" : e.hhi[i] >= 1500 ? "보통" : "분산"} <span class="sub">HHI ${nf(e.hhi[i], 0)} · 1위 ${tops[0] ? cname(tops[0].c) + " " + nf(tops[0].share, 0) + "%" : "–"}</span>` : "") +
+        hhiY != null ? `${Y}년 비슷한 크기의 나라 <b>${nf(10000 / hhiY, 1)}곳</b>에서 나눠 사오는 수준 · ${hhiY >= 2500 ? "집중" : hhiY >= 1500 ? "보통" : "분산"} <span class="sub">HHI ${nf(hhiY, 0)} · 1위 ${tops[0] ? cname(tops[0].c) + " " + nf(tops[0].share, 0) + "%" : "–"}</span>` : "") +
 
       `</div>`;
 
     const a = seriesOf(e, "imp", S.measure, S.agg, since, [axis, key]), b = seriesOf(e, "exp", S.measure, S.agg, since, [axis, key]);
     C.lineChart($("#d-trend"), { x: a.x, series: [{ name: "수입", values: a.v }, { name: "수출", values: b.v }],
-      yFmt: S.measure === "price" ? pf : yFmt(S.measure), markers: S.agg === "year" ? [] : revMarkers(a.x), xLabelFmt: xFmt, height: 260 });
+      yFmt: S.measure === "price" ? pf : yFmt(S.measure), markers: (S.agg === "year" ? [] : revMarkers(a.x)).concat(a.x.includes(S.agg === "year" ? Y : `${Y}-12`) ? [{ x: S.agg === "year" ? Y : `${Y}-12`, label: `기준 ${Y}년` }] : []), xLabelFmt: xFmt, height: 260 });
     const drawSup = () => {
-      const rowsC = (D.countries[axis] || {})[key] || {};
-      const fullY = [...new Set(months().map((mm) => mm.slice(0, 4)))].filter((yy) => months().filter((mm) => mm.startsWith(yy)).length === 12)
-        .filter((yy) => Object.values(rowsC).some((r) => r.y && r.y[yy] && r.y[yy][0] > 0)).reverse();
-      const y = fullY.includes(S.supy) ? S.supy : fullY.includes(defYear()) ? defYear() : fullY[0];
-      $("#sup-y").innerHTML = fullY.map((yy) => `<option value="${yy}"${yy === y ? " selected" : ""}>${yy}년</option>`).join("");
-      const m = S.supm || "usd", ts = y ? topSuppliersYear(axis, key, y, 10, m) : [], fmtV = m === "kg" ? ton : usd;
-      $("#sup-m").querySelectorAll("button").forEach((b) => b.classList.toggle("on", b.dataset.m === m));
-      $("#d-sup-lead").innerHTML = ts[0] ? `${y}년 1위 ${cname(ts[0].c)} ${nf(ts[0].share, 1)}% <span class="sub">${m === "kg" ? "물량" : "수입액"} 기준 · 상위 3개국 ${nf(sum(ts.slice(0, 3).map((x) => x.share)), 0)}%</span>` : "";
+      const ts = Y ? topSuppliersYear(axis, key, Y, 10, MK) : [], fmtV = MK === "kg" ? ton : usd;
+      $("#sup-m").querySelectorAll("button").forEach((b) => b.classList.toggle("on", b.dataset.m === (MK === "kg" ? "imp_kg" : "imp_usd")));
+      $("#d-sup-lead").innerHTML = ts[0] ? `${Y}년 1위 ${cname(ts[0].c)} ${nf(ts[0].share, 1)}% <span class="sub">${MK === "kg" ? "물량" : "수입액"} 기준 · 상위 3개국 ${nf(sum(ts.slice(0, 3).map((x) => x.share)), 0)}%</span>` : "";
       C.hbars($("#d-sup"), ts.map((x) => ({ label: cname(x.c), value: x.v,
         text: `${fmtV(x.v)} · ${nf(x.share, 1)}% · ${x.prev ? ((x.v / x.prev - 1) * 100 >= 0 ? "▲" : "▼") + nf(Math.abs((x.v / x.prev - 1) * 100), 0) + "%" : "신규"}`,
         onClick: () => { S.country = x.c; go("country"); } })));
     };
-    $("#sup-m").querySelectorAll("button").forEach((b) => b.onclick = (ev) => { ev.stopPropagation(); S.supm = b.dataset.m; drawSup(); });
-    $("#sup-y").onchange = (ev) => { S.supy = ev.target.value; drawSup(); };
+    $("#sup-m").querySelectorAll("button").forEach((b) => b.onclick = (ev) => { ev.stopPropagation(); S.measure = b.dataset.m; renderControls(); renderTab(); });
     drawSup();
     // 국가별 단가 (연간)
     const rows = (D.countries[axis] || {})[key] || {};
@@ -893,8 +901,9 @@
     const pSeries = top5.map((c) => ({ name: cname(c),
       values: years.map((y) => { const r = rows[c] && rows[c].y[y]; return r && r[1] ? cv(r[0], r[1]) : null; }) }));
     C.lineChart($("#d-price"), { x: years, series: pSeries, yFmt: pf, height: 220, yMin0: false });
-    const lastP = pSeries.map((p) => ({ n: p.name, v: p.values[p.values.length - 1] })).filter((x) => x.v != null).sort((a, b) => b.v - a.v);
-    if (lastP.length > 1) $("#d-price-lead").innerHTML = `${years[years.length - 1]}년 최고 ${lastP[0].n} ${pf(lastP[0].v)} <span class="sub">최저 ${lastP[lastP.length - 1].n} ${pf(lastP[lastP.length - 1].v)} ${pl}</span>`;
+    const yi = years.includes(Y) ? years.indexOf(Y) : years.length - 1;
+    const lastP = pSeries.map((p) => ({ n: p.name, v: p.values[yi] })).filter((x) => x.v != null).sort((a, b) => b.v - a.v);
+    if (lastP.length > 1) $("#d-price-lead").innerHTML = `${years[yi]}년 최고 ${lastP[0].n} ${pf(lastP[0].v)} <span class="sub">최저 ${lastP[lastP.length - 1].n} ${pf(lastP[lastP.length - 1].v)} ${pl}</span>`;
     const ms = months(), keep = ms.map((m) => !S.start || m.slice(0, 4) >= S.start);
     const fx = ms.filter((_, j) => keep[j]);
     C.lineChart($("#d-hhi"), { x: fx, series: [{ name: "HHI", values: e.hhi.filter((_, j) => keep[j]) }], yFmt: (v) => nf(v, 0), height: 200, xLabelFmt: xFmt, area: true, bandLine: true, yMaxMin: 3000,
@@ -916,11 +925,13 @@
       const disabled = p.status === "pending";
       let body = `<div class="pd">${disabled ? "무역통계로 추적 불가" : "실적 없음"}</div>`;
       if (e && !disabled) {
-        const L = l12(e);
-        const since = p.since;
-        const vals = e.imp_usd.map((v, i) => (since && months()[i] < since ? null : v));
-        const K = l12(e, "imp_kg").cur, pv = K ? pconv("product", p.key)(L.cur, K) : null;
-        body = `<div class="pv num">${usd(L.cur)}</div><div class="pd">최근 12개월 · ${delta(L.cur, L.prev)}</div>` +
+        // 기준 연도(S.dy) 연간 합계 — 상세 탐색 상단 '기준 연도'·금액/물량과 같이 움직임
+        const since = p.since, Y = S.dy || defYear(), PY = String(+Y - 1), kg = S.measure === "imp_kg";
+        const ys = (f, yy) => { const v = months().map((m, j) => (m.startsWith(yy) && (!since || m >= since) ? e[f][j] : null)).filter((x) => x != null); return v.length ? sum(v) : null; };
+        const U = ys("imp_usd", Y), UP = ys("imp_usd", PY), K = ys("imp_kg", Y), KP = ys("imp_kg", PY);
+        const vals = e[kg ? "imp_kg" : "imp_usd"].map((v, i) => (since && months()[i] < since ? null : v));
+        const pv = K && U ? pconv("product", p.key)(U, K) : null;
+        body = `<div class="pv num">${U == null ? "–" : kg ? ton(K) : usd(U)}</div><div class="pd">${Y}년 · ${kg ? delta(K, KP) : delta(U, UP)}</div>` +
           `<div class="pd">단가 ${pv ? pfmt("product", p.key)(pv) + " " + plabel("product", p.key) : "–"}${unitOf("product", p.key).unit === "m3" ? (unitOf("product", p.key).calibrated ? " (산림청 계수)" : " (잠정)") : ""}</div>${C.sparkline(vals.slice(-60))}`;
       }
       const badge = p.status === "partial" ? `<span class="badge" title="${(p.note || "").replace(/"/g, "&quot;")}">일부만 집계</span>` : p.since ? `<span class="badge" title="${p.since.slice(0, 4)}년 HS 개정으로 전용 코드가 생긴 뒤부터 집계">${p.since.slice(0, 4)}~</span>` : "";
