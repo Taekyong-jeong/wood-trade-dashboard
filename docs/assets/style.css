@@ -551,3 +551,7 @@ a.g-tile:hover .g-go { color: var(--accent); }
 .pin-box em.dn { color: var(--s8, #e05252); } .pin-box em.up { color: var(--s3, #1baf7a); }
 .pin-box .pin-clear { margin-left: auto; font: inherit; font-size: 11px; color: var(--muted); background: none; border: 1px solid var(--border); border-radius: 999px; padding: 1px 9px; cursor: pointer; }
 .legend .pin-note { margin-left: auto; font-size: 11.5px; color: var(--muted); letter-spacing: -0.02em; }
+
+.yr-seg { display: inline-flex; border: 1px solid var(--border); border-radius: 999px; overflow: hidden; vertical-align: middle; }
+.yr-seg button { border: 0; background: transparent; color: var(--ink-2); font: inherit; font-size: 11.5px; padding: 1px 9px; cursor: pointer; }
+.yr-seg button.on { background: var(--accent); color: #fff; }

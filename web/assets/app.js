@@ -525,21 +525,16 @@
     const pr = D.meta.products.filter((p) => p.status !== "pending").map((p) => { const e = entry("product", p.key); const a = e ? l12(e) : {};
       return { k: p.key, n: p.name.replace(/\(.+\)/, ""), v: a.cur || 0, pv: a.prev || 0 }; }).filter((x) => x.v > 0).sort((a, b) => b.v - a.v);
     const ptot = sum(pr.map((x) => x.v));
-    // 제품별 자급률 — 국산재 기준: 국산 원목·국내 원목 외 원자재(폐목재·부산물 등)로 만든 양 ÷ 전체 이용량 (수입 원목으로 국내에서 만든 양은 국산에서 제외)
-    const SN = { p09: "OSB", p04: "목재플라스틱(WPC)" };
-    const SS = ((G && G.products) || []).filter((d) => D.meta.products.find((x) => x.key === d.key) && d.total > 0).map((d) => {
-      const f = d.flows, dom = (f.use_log_domestic || 0) + (f.use_other_raw || 0);
-      return { axis: "product", key: d.key, year: G.year, label: SN[d.key] || D.meta.products.find((x) => x.key === d.key).name.replace(/\(.+\)/, ""),
-        ss: (dom / d.total) * 100, dlog: f.use_log_domestic || 0, doth: f.use_other_raw || 0, ilog: f.use_log_imported || 0, iprod: f.use_imported_products || 0, tot: d.total }; });
-    if (I && I.log_years && I.log_years.length) { const m = I.log_years.length - 1, a = I.log_domestic[m], b = I.log_imported[m];
-      SS.push({ axis: "heading", key: "4403", year: I.log_years[m], label: "원목", ss: (a / (a + b)) * 100, dlog: a, doth: 0, ilog: b, iprod: 0, tot: a + b }); }
-    SS.sort((a, b) => b.ss - a.ss);
+    // 제품별 자급률 (국산재 기준, 연도 선택) — KOSIS 실태조사 제품별 원자재 이용량
+    const SF = D.judg.self_suff;
+    if (SF && (!S.ssy || !SF.rows[S.ssy])) S.ssy = String(SF.years[SF.years.length - 1]);
     host.innerHTML =
       (U.length ? card("한 해 쓰는 목재", `${u0.y}~${u1.y} · 만 ㎥`, `<div id="bs-use"></div>` +
         rule(`국산 = 전체 이용량 − 수입 원목 − 수입 목재제품 · 수입 비중 = 수입 ÷ 전체, 100에서 뺀 값이 산림청 공표 목재자급률 · 펠릿 수입은 톤×1.67, 그 밖의 톤 단위 제품은 1:1 (실태조사 방식) · 2023년 조사부터 국산 이용량 산정 기준이 벌채 허가량 → 실제 이용량으로 바뀌어 2022년 이전과 단순 비교 주의 · 출처: 산림청·한국임업진흥원 목재이용실태조사 국내 목재 이용 현황 (연도별 보고서, 2023년은 2024년 기준 보고서 수정치)`), "",
         `${u1.y}년 ${nf(u1.tt / 1e4, 0)}만 ㎥ · 그중 수입 ${nf(u1.share, 1)}% <span class="sub">목재자급률 ${nf(100 - u1.share, 1)}% · ${u0.y}년 ${nf(u0.tt / 1e4, 0)}만 ㎥, 수입 ${nf(u0.share, 1)}%</span>`) : "") +
-      (SS.length ? card("제품별 자급률 (국산재 기준)", `${SS[0].year}년 · ㎥ · 누르면 상세`, `<div class="ssl" id="bs-ss"></div>` +
-        rule(`국산 원료(국산 원목 + 국내 부산물)로 만든 양 ÷ 전체 이용량 · 수입 원목으로 만든 양은 수입으로 셈 · 폐목재가 빠진 통계라 파티클보드 등은 낮게 나옴 · 출처: 산림청 목재이용실태조사`)) : "") +
+      (SF ? card("제품별 자급률 (국산재 기준)", `<span class="yr-seg" id="ss-yr">${SF.years.map((y) => `<button type="button" data-y="${y}"${String(y) === S.ssy ? ' class="on"' : ""}>${y}</button>`).join("")}</span> · ㎥`,
+        `<div class="ssl" id="bs-ss"></div>` +
+        rule(`국산 원료(국산 원목·국산 제재목 등 + 폐목재·부산물 등 국내 발생 원료)로 만든 양 ÷ (국내 생산 원료 + 수입 제품) · 수입 원료로 만든 양은 수입으로 셈 · 출처: 산림청 목재이용실태조사(KOSIS 제품별 원자재 이용량)`)) : "") +
       card("목재류 수입·수출 추이", "12개월 누적 · 억 달러", `<div id="bs-trade"></div>` +
         rule(`HS 44류 전체 · 수입 CIF, 수출 FOB · 출처: ${SRC}`), "",
         `최근 12개월 수입 ${nf(L.cur / 1e8, 1)}억 달러 · ${nf(Lk.cur / 1e9, 1)}백만 톤 <span class="sub">수출 ${nf(Lexp / 1e8, 1)}억 달러</span>`) +
@@ -552,12 +547,16 @@
       // 막대 위 수입 비중 표시
       $("#bs-use").insertAdjacentHTML("beforeend", `<div class="foot" style="display:flex;justify-content:space-around;margin-top:2px">${U.map((d) => `<span>${d.y} 수입 <b>${nf(d.share, 1)}%</b></span>`).join("")}</div>`);
     }
-    if (SS.length) {
-      const el = $("#bs-ss");
-      el.innerHTML = SS.map((d, k) => `<div class="ss-r" data-k="${k}" title="${d.label}: 국산 원료 ${nf((d.dlog + d.doth) / 1e4, 1)}만 ㎥ / 전체 ${nf(d.tot / 1e4, 1)}만 ㎥ (수입 원목 ${nf(d.ilog / 1e4, 1)}만 · 수입 제품 ${nf(d.iprod / 1e4, 1)}만)">` +
-        `<span class="ss-l">${d.label}</span><span class="ss-t"><i style="width:${Math.max(0, Math.min(100, d.ss))}%"></i></span><span class="ss-v">${nf(d.ss, d.ss > 0 && d.ss < 1 ? 1 : 0)}% <span class="sub">(${nf((d.dlog + d.doth) / 1e4, d.dlog + d.doth >= 1e5 ? 0 : 1)}만 / ${nf(d.tot / 1e4, d.tot >= 1e5 ? 0 : 1)}만 ㎥)</span></span></div>`).join("");
+    const drawSS = () => {
+      const el = $("#bs-ss"); if (!el || !SF) return;
+      const SS = SF.rows[S.ssy] || [];
+      const f = (v) => nf(v / 1e4, v >= 1e5 ? 0 : 1);
+      el.innerHTML = SS.map((d, k) => `<div class="ss-r" data-k="${k}" title="${d.label} ${S.ssy}년: 국산 원료 ${f(d.dom)}만 ㎥ · 수입 원료 ${f(d.imp_raw)}만 · 수입 제품 ${f(d.imp_prod)}만${d.unknown ? ` · 출처 미상 ${f(d.unknown)}만` : ""} ㎥">` +
+        `<span class="ss-l">${d.label}</span><span class="ss-t"><i style="width:${Math.max(0, Math.min(100, d.ss))}%"></i></span><span class="ss-v">${nf(d.ss, d.ss > 0 && d.ss < 1 ? 1 : 0)}% <span class="sub">(${f(d.dom)}만 / ${f(d.total)}만 ㎥)</span></span></div>`).join("");
       el.querySelectorAll(".ss-r").forEach((r) => r.onclick = () => { const d = SS[+r.dataset.k]; openDetail(d.axis, d.key); });
-    }
+    };
+    drawSS();
+    $("#ss-yr") && $("#ss-yr").querySelectorAll("button").forEach((b) => b.onclick = () => { S.ssy = b.dataset.y; $("#ss-yr").querySelectorAll("button").forEach((x) => x.classList.toggle("on", x === b)); drawSS(); });
     C.lineChart($("#bs-trade"), { x: ms.slice(pk), series: [{ name: "수입액", values: ru.slice(pk).map((v) => v / 1e8) }, { name: "수출액", values: re.slice(pk).map((v) => v / 1e8) }],
       yFmt: (v) => nf(v, 0), tipFmt: (v) => nf(v, 2) + "억 달러", diffFmt: (v) => (v > 0 ? "+" : "") + nf(v, 2) + "억 달러", height: 250, xLabelFmt: xFmt, pin: true });
     // 상위 10개 + 원목(원자재) · 구조용 집성재 · CLT는 순위 밖이어도 항상 표시

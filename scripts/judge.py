@@ -599,3 +599,39 @@ def summary_cards(sr, pen, pa, dec, ds=None) -> list[dict]:
                               + (f", 신규·중단 품목 {tt['entry_exit']/1e8:+.2f}억" if abs(tt["entry_exit"]) >= 5e6 else ""),
                       "refs": CRIT["decomposition"]["refs"]})
     return cards
+
+# ── 제품별 자급률 (국산재 기준, 연도별) ─────────────────────
+def self_suff(survey_csv: Path, wus_csv: Path, labels: dict) -> dict | None:
+    """국산 원료 투입량 ÷ (국내 생산 원료 투입량 + 수입 제품량). 원료 투입량 = KOSIS 실태조사 제품별 '원자재 이용량'(총 이용량),
+    수입 제품량 = 실태조사 수록 임산물수출입통계(펠릿은 톤×1.67, 그 밖의 톤 단위 제품은 1:1 — 실태조사 방식). 원목은 국산 원목 ÷ 원목 이용량."""
+    if not (survey_csv.exists() and wus_csv.exists()):
+        return None
+    s = pd.read_csv(survey_csv); w = pd.read_csv(wus_csv)
+    imp = s[s["metric"] == "imports"].pivot_table(index="product", columns="year", values="value", aggfunc="first")
+    tot = s[s["product"] == "total"]
+    years = sorted(int(y) for y in w["year"].unique())
+    out = {}
+    for y in years:
+        rows = []
+        for k in sorted(set(labels) & (set(imp.index) | set(w["product"]))):
+            g = w[(w["year"] == y) & (w["product"] == k)].groupby("origin")["value_m3"].sum()
+            ip = float(imp.loc[k, y]) if k in imp.index and y in imp.columns and pd.notna(imp.loc[k, y]) else 0.0
+            if k == "p11":
+                ip *= 1.67
+            dom, raw_imp, unk = float(g.get("국산", 0)), float(g.get("수입", 0)), float(g.get("미상", 0))
+            total = dom + raw_imp + unk + ip
+            if total <= 0:
+                continue
+            rows.append({"axis": "product", "key": k, "label": labels[k], "dom": round(dom), "imp_raw": round(raw_imp), "unknown": round(unk),
+                         "imp_prod": round(ip), "total": round(total), "ss": round(dom / total * 100, 2)})
+        ld = tot[(tot["metric"] == "log_use_domestic") & (tot["year"] == y)]["value"]
+        li = tot[(tot["metric"] == "log_use_imported") & (tot["year"] == y)]["value"]
+        if len(ld) and len(li):
+            a, b = float(ld.iloc[0]), float(li.iloc[0])
+            rows.append({"axis": "heading", "key": "4403", "label": "원목", "dom": round(a), "imp_raw": round(b), "unknown": 0, "imp_prod": 0,
+                         "total": round(a + b), "ss": round(a / (a + b) * 100, 2)})
+        rows.sort(key=lambda d: -d["ss"])
+        out[str(y)] = rows
+    return {"years": years, "rows": out,
+            "source": "산림청·한국임업진흥원 목재이용실태조사 — KOSIS 제품별 '원자재 이용량' 표(2022~2024), 수입 제품량은 실태조사 수록 임산물수출입통계",
+            "rule": "국산 원료 = 국산 원목 + 국산 제재목·단판·합판·섬유판·톱밥·목분·칩 + 국내 발생 원료(폐목재·죽데기·미이용 산림바이오매스 등) · 수입 원료(수입 원목·제재목·단판 등)와 수입 제품은 수입 · 출처가 '기타'인 원료는 미상(분모에만 포함) · 플라스틱 등 비목재 제외"}
