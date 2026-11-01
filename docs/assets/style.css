@@ -428,3 +428,22 @@ details.fold > .fold-body { padding: 0 16px 16px; }
 .feedback { margin-top: 10px; font-size: 12.5px; color: var(--ink-2); letter-spacing: -0.02em; line-height: 1.5; }
 .feedback a { color: var(--accent); text-decoration: none; font-weight: 600; }
 .glance .feedback { text-align: center; margin-top: 14px; }
+
+/* HHI 나라 수 눈금 */
+.hhi-scale { margin: 4px 0 12px; }
+.hs-bar { position: relative; height: 10px; border-radius: 5px; background: var(--surface-2); margin: 22px 6px 0; }
+.hs-bar .z { position: absolute; top: 0; bottom: 0; opacity: .35; }
+.hs-bar .z.hi { background: var(--s8); border-radius: 5px 0 0 5px; } .hs-bar .z.mid { background: var(--s4); } .hs-bar .z.lo { background: var(--s6); border-radius: 0 5px 5px 0; }
+.hs-mk { position: absolute; top: -4px; width: 4px; height: 18px; margin-left: -2px; background: var(--ink); border-radius: 2px; font-style: normal; }
+.hs-mk b { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); font-size: 12.5px; white-space: nowrap; }
+.hs-tk { position: relative; height: 16px; margin: 3px 6px 0; font-size: 10.5px; color: var(--muted); }
+.hs-tk span { position: absolute; transform: translateX(-50%); white-space: nowrap; }
+.hs-tk span:first-child { transform: none; } .hs-tk span:last-child { transform: translateX(-100%); }
+.hs-ends { display: flex; justify-content: space-between; font-size: 11px; color: var(--ink-2); margin: 2px 6px 0; gap: 8px; }
+/* 의견 안내 — 눈에 띄게 */
+.feedback { display: block; position: relative; margin-top: 12px; padding: 10px 14px 10px 50px; min-height: 48px; border-radius: var(--radius);
+  background: var(--accent-soft); border: 1px solid var(--accent); color: var(--ink); font-size: 13.5px; font-weight: 500; letter-spacing: -0.02em; line-height: 1.5; }
+.feedback::before { content: "✉"; position: absolute; left: 12px; top: 50%; margin-top: -14px; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--accent); color: #fff; font-size: 15px; }
+.feedback a { color: var(--accent); font-weight: 700; text-decoration: underline; text-underline-offset: 2px; }
+.glance .feedback { text-align: left; }
+footer .feedback-f { color: var(--ink-2); font-weight: 600; }

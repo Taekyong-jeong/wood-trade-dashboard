@@ -128,7 +128,7 @@
 
   // ── 공통 렌더 ───────────────────────────────────────────
   // 자료 구분: 원자료(공표 통계 수치 그대로·합계) / 분석(본 페이지가 계산한 비율·지수·환산·판정)
-  const KIND_ANA = /^(수입 집중|품목별 판정|품목별 국내 공급 구조|원목 수입의존도|자급-수입 구조|목재제품별 수입의존도|가격 이상 판정|공급국 가격대 지도|단가 지수|국산·수입 가격 수준|수입액 변화 분해|공급국별 수입 단가|공급국 집중도|목재제품별 수입과 점유율|품목군 구성|산림청 공표치 대조)/;
+  const KIND_ANA = /^(수입 집중|품목별 판정|품목별 국내 공급 구조|원목 수입의존도|자급-수입 구조|목재제품별 수입의존도|가격 이상 판정|공급국 가격대 지도|단가 지수|국산·수입 가격 수준|수입액 변화 분해|공급국별 수입 단가|공급국 집중도|공급국 쏠림 정도|목재제품별 수입과 점유율|품목군 구성|산림청 공표치 대조)/;
   const KIND_MIX = /^(국내 설비 가동률 추이|국내 생산능력과 생산량)/;
   const KIND_RAW = /^(최대 수입국|최대 수입 품목|수입·수출 추이|주요 공급국|대분류별 원목|세부 수종|.+산 목재류 수입|목재산업 매출|목재제품별 매출|목재는 어디서 와서 무엇이 되나|어디서 사오나)/;
   function kindOf(title, hint) {
@@ -149,7 +149,7 @@
   }
   // 용어 설명 (물음표에 마우스를 올리거나 누르면 표시)
   const TIP = {
-    hhi: "공급국별 수입 점유율(%)을 제곱해 더한 값. 한 나라가 100% 공급하면 10,000, 10개국이 10%씩 나누면 1,000. 1,500 미만 분산 · 1,500~2,500 보통 · 2,500 이상 집중 (미국 법무부 시장집중도 기준).",
+    hhi: "HHI = 수입이 몇몇 나라에 얼마나 몰려 있는지. 나라별 점유율(%)을 제곱해 더한 값으로, 10,000 ÷ HHI = 비슷한 크기의 나라 몇 곳에서 나눠 사오는 것과 같은지. 예) 1개국 100% = 10,000, 4개국 25%씩 = 2,500, 10개국 10%씩 = 1,000. 1,500 미만 분산 · 1,500~2,500 보통 · 2,500 이상 집중 (미국 법무부 시장집중도 기준).",
     dep: "공급국 의존도: 수입이 특정 국가에 얼마나 몰려 있는지. 최대 공급국 점유율 50% 이상 또는 HHI 2,500 이상이면 '높음', HHI 1,500~2,500이면 '보통', 그 미만이면 '낮음'.",
     logdep: "원목 수입의존도 = 100 − 원목자급률. 국내에서 쓰는 원목(㎥) 중 수입산의 비율. 산림청 목재수급통계(연 1회 공표).",
     price: "수입 단가 = 수입액 ÷ 수입량. 운임·보험료가 포함된 도착 가격(CIF). 목재제품은 USD/㎥(중량을 밀도로 환산 — 산림청 임산물수출입통계와 같은 환산계수를 쓴 품목은 ‘산림청 계수’, 나머지는 ‘잠정’), 연료형은 USD/t, 혼합 분류는 USD/kg. 같은 품목도 수종·규격 구성이 바뀌면 달라짐.",
@@ -162,6 +162,16 @@
     idx: "단가 지수: 비교 시작 시점의 12개월 평균 단가를 100으로 놓고 환산한 값. 단위가 다른 품목의 가격 변화 속도를 한 그래프에서 비교하기 위함.",
   };
   const q = (k) => `<button class="q" type="button" aria-label="설명" data-tip="${TIP[k]}">?</button>`;
+  // HHI를 '나라 몇 곳에서 나눠 사오는 수준'으로 보여주는 눈금 (1곳=10,000 … 10곳=1,000)
+  function hhiScale(h) {
+    const n = 10000 / h, pos = (v) => (Math.log(Math.min(Math.max(v, 1), 15)) / Math.log(15)) * 100;
+    const ticks = [[1, "1곳"], [2, "2곳"], [4, "4곳"], [6.7, "6.7곳"], [10, "10곳"], [15, "15곳+"]];
+    return `<div class="hhi-scale" aria-label="나라 ${nf(n, 1)}곳에서 나눠 사오는 수준">
+      <div class="hs-bar"><span class="z hi" style="left:0;width:${pos(4)}%"></span><span class="z mid" style="left:${pos(4)}%;width:${pos(6.67) - pos(4)}%"></span><span class="z lo" style="left:${pos(6.67)}%;right:0"></span>
+        <i class="hs-mk" style="left:${pos(n)}%"><b>${nf(n, 1)}곳</b></i></div>
+      <div class="hs-tk">${ticks.map(([v, l]) => `<span style="left:${pos(v)}%">${l}</span>`).join("")}</div>
+      <div class="hs-ends"><span>◀ 한두 나라에 몰림 (집중)</span><span>여러 나라에 고르게 (분산) ▶</span></div></div>`;
+  }
   function depGrade(topShare, hhi) {
     if (topShare >= 50 || hhi >= 2500) return { cls: "hi", label: "높음" };
     if (hhi >= 1500) return { cls: "mid", label: "보통" };
@@ -593,7 +603,7 @@
     C.hbars($("#g-cty"), tops.map((x) => ({ label: cname(x.c), value: x.imp, text: `${nf(x.share, 0)}% · ${x.imp >= 1e7 ? nf(x.imp / 1e8, 2) + "억" : nf(x.imp / 1e6, 1) + "백만"} 달러`,
       onClick: () => { if (g[0] === "total") { S.country = x.c; go("country"); } else openDetail(g[0], g[1]); } })));
   }
-  function renderAll() { renderGlance(); renderIntro(); renderVerdicts(); renderSupply(); renderDomestic(); renderPenetration(); renderIndustry(); renderPrice(); renderDrivers(); renderBasic(); renderAlerts(); }
+  function renderAll() { renderGlance(); renderIntro(); renderVerdicts(); renderSupply(); renderDomestic(); renderPenetration(); renderIndustry(); renderPrice(); renderDrivers(); renderBasic(); }
 
   function renderControls() {
     const years = [...new Set(months().map((m) => m.slice(0, 4)))];
@@ -638,9 +648,9 @@
       card(`주요 공급국 ${q("share")}`, "최근 12개월 · 점유율 · 전년 대비", `<div id="d-sup"></div>`, "",
         tops[0] ? `1위 ${cname(tops[0].c)} ${nf(tops[0].share, 1)}% <span class="sub">상위 3개국 ${nf(sum(tops.slice(0, 3).map((t) => t.share)), 0)}%</span>` : "") +
       card(`공급국별 수입 단가 ${q("price")}`, `연간 · 상위 5개국 · ${pl}`, `<div id="d-price"></div>`, "", "<span id='d-price-lead'></span>") +
-      card(`공급국 집중도 HHI ${q("hhi")}`, "12개월 누적", `<div id="d-hhi"></div>` +
-        rule(`HHI = 공급국별 점유율(%)을 제곱해 더한 값 — 1개국이 100%면 10,000, 2개국이 반반이면 5,000, 4개국이 25%씩이면 2,500, 10개국이 10%씩이면 1,000 · <b>10,000 ÷ HHI = 같은 크기 나라 몇 곳에서 나눠 사오는 것과 같은지</b> · 1,500 미만 분산 · 1,500~2,500 보통 · 2,500 이상 집중 (미국 법무부·FTC 2010 기준)`), "span-2",
-        e.hhi[i] != null ? `HHI ${nf(e.hhi[i], 0)} · ${e.hhi[i] >= 2500 ? "집중" : e.hhi[i] >= 1500 ? "보통" : "분산"} <span class="sub">비슷한 크기의 나라 약 ${nf(10000 / e.hhi[i], 1)}곳에서 나눠 사오는 정도 · 1위 ${tops[0] ? cname(tops[0].c) + " " + nf(tops[0].share, 0) + "%" : "–"}</span>` : "") +
+      card(`공급국 쏠림 정도 (HHI) ${q("hhi")}`, "12개월 누적", (e.hhi[i] != null ? hhiScale(e.hhi[i]) : "") + `<div id="d-hhi"></div>` +
+        rule(`HHI(허핀달-허쉬만 지수) = 공급국별 점유율(%)을 제곱해 더한 값 — 1개국이 100%면 10,000, 2개국이 반반이면 5,000, 4개국이 25%씩이면 2,500, 10개국이 10%씩이면 1,000 · <b>10,000 ÷ HHI = 같은 크기 나라 몇 곳에서 나눠 사오는 것과 같은지</b> · 1,500 미만 분산 · 1,500~2,500 보통 · 2,500 이상 집중 (미국 법무부·FTC 2010 기준)`), "span-2",
+        e.hhi[i] != null ? `비슷한 크기의 나라 <b>${nf(10000 / e.hhi[i], 1)}곳</b>에서 나눠 사오는 수준 · ${e.hhi[i] >= 2500 ? "집중" : e.hhi[i] >= 1500 ? "보통" : "분산"} <span class="sub">HHI ${nf(e.hhi[i], 0)} · 1위 ${tops[0] ? cname(tops[0].c) + " " + nf(tops[0].share, 0) + "%" : "–"}</span>` : "") +
 
       `</div>`;
 
@@ -715,8 +725,8 @@
       card("세부 수종 (최근 12개월)", "클릭하면 상세", `<div class="tbl-wrap" style="max-height:290px;overflow:auto" id="s-2"></div>`) +
       `</div><div id="s-detail" style="margin-top:16px"></div>`;
     C.barChart($("#s-1"), { x: base.x, stacked: true, series: order.map((k) => ({ name: k, values: yr("species1", k).v })), yFmt: (v) => nf(v, 0), tipFmt: (v) => nf(v, 1), height: 260 });
-    $("#s-2").innerHTML = `<table><thead><tr><th>수종</th><th>수입액</th><th>전년 대비</th><th>단가</th><th class="l">최대 공급국</th></tr></thead><tbody>` +
-      rows.map((r) => `<tr class="click" data-k="${r.k}"><td>${r.k}</td><td>${usd(r.cur)}</td><td>${delta(r.cur, r.prev)}</td><td>${r.kg ? nf(r.cur / r.kg, 2) : "–"}</td><td class="l">${r.top ? cname(r.top.c) : "–"}</td></tr>`).join("") + `</tbody></table>`;
+    $("#s-2").innerHTML = `<table><thead><tr><th>수종</th><th>수입액</th><th>수입량</th><th>전년 대비<br><span class="sub">수입액</span></th><th>단가<br><span class="sub">USD/kg</span></th><th class="l">최대 공급국</th></tr></thead><tbody>` +
+      rows.map((r) => `<tr class="click" data-k="${r.k}"><td>${r.k}</td><td>${usd(r.cur)}</td><td>${r.kg ? ton(r.kg) : "–"}</td><td>${delta(r.cur, r.prev)}</td><td>${r.kg ? nf(r.cur / r.kg, 2) : "–"}</td><td class="l">${r.top ? cname(r.top.c) : "–"}</td></tr>`).join("") + `</tbody></table>`;
     $("#s-2").querySelectorAll("tr[data-k]").forEach((tr) => tr.onclick = () => { S.sp2 = tr.dataset.k; setHash(); renderDetail($("#s-detail"), "species2", S.sp2); $("#s-detail").scrollIntoView({ behavior: "smooth" }); });
     renderDetail($("#s-detail"), "species2", S.sp2, "원목+제재목 합계");
   }
