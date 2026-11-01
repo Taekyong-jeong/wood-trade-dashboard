@@ -563,7 +563,7 @@
       (DC && DC.available !== false && DC.total ? sig("mid", DC.total.pct < 0 ? "↓" : "↑", `수입 ${DC.total.pct > 0 ? "증가" : "감소"} ${nf(Math.abs(DC.total.pct), 1)}% — ${DC.total.driver.replace(" 주도", "")}이 주도`,
         `${DC.total.driver === "물량 주도" ? "들여오는 양 자체가 바뀜 (값보다 양의 변화)" : DC.total.driver === "단가 주도" ? "양보다 값이 바뀜" : "양과 값이 함께 바뀜"} · 최근 12개월 vs 직전 12개월`, "#sec-drivers") : "");
     const lead = `우리가 쓰는 목재 <b>100㎥ 중 ${nf(G.import_share, 1)}㎥는 수입</b>이고, ${big.slice(0, 3).map((g) => `${g.label.replace(/\(.+\)/, "")} ${pct(g.total)}%`).join(" · ")} 순으로 쓰입니다`;
-    host.innerHTML = `<div class="g-head"><h2 class="one-line">대한민국 목재산업 한눈에</h2><span class="hint">기준월 ${m0} · 목재이용실태조사 ${G.year}년</span></div>
+    host.innerHTML = `<div class="g-head"><h2 class="one-line">대한민국 목재산업을 한눈에</h2><span class="hint">기준월 ${m0} · 목재이용실태조사 ${G.year}년</span></div>
       <p class="g-lead one-line">${lead}</p>
       <div class="g-tiles">${tiles}</div>
       <div class="g-main">
