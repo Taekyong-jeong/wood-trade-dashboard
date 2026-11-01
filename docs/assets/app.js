@@ -266,27 +266,53 @@
     const yr = DS && DS.rows.length ? Math.max(...DS.rows.map((d) => d.year)) : "";
     const mk = (P && P.mk) || {};
     const SH = D.judg.supply_hist;
+    const DR = ((DS && DS.rows) || []).filter((r) => r.share_years && r.share_years.length);
+    const depYrs = [...new Set(DR.flatMap((r) => r.share_years))].sort((a, b) => a - b);
+    const lastOf = (r) => r.share_series[r.share_series.length - 1];
+    const DSER = DR.map((r) => ({ key: `${r.axis}:${r.key}`, name: r.label.replace(/\(.+\)/, ""), full: r.label,
+      v: depYrs.map((y) => { const j = r.share_years.indexOf(y); return j >= 0 ? r.share_series[j] : null; }), last: lastOf(r), long: r.share_years[0] === depYrs[0] }))
+      .sort((a, b) => b.last - a.last);
+    if (!S.dph) S.dph = new Set(DSER.filter((s) => s.long).map((s) => s.key));
+    const drawDep = () => {
+      const box = $("#dp-line"), chips = $("#dp-chips"); if (!box || !DSER.length) return;
+      const hl = S.dph, pal = {}; let ci = 0; DSER.forEach((s) => { if (hl.has(s.key)) pal[s.key] = C.color(ci++); });
+      chips.innerHTML = DSER.map((s) => `<button type="button" class="dp-chip${hl.has(s.key) ? " on" : ""}" data-k="${s.key}"${hl.has(s.key) ? ` style="--c:${pal[s.key]}"` : ""}><i></i>${s.name} <b>${nf(s.last, 0)}%</b></button>`).join("") +
+        `<button type="button" class="dp-chip dp-all" data-k="*">${hl.size ? "강조 해제" : "6개 제품 강조"}</button>`;
+      chips.querySelectorAll(".dp-chip").forEach((b) => b.onclick = () => { const k = b.dataset.k;
+        if (k === "*") S.dph = hl.size ? new Set() : new Set(DSER.filter((s) => s.long).map((s) => s.key)); else hl.has(k) ? hl.delete(k) : hl.add(k); drawDep(); });
+      const W = Math.max(600, box.clientWidth || 1100), H = 300, L = 40, R = 120, T = 10, B = 26;
+      const x = (i) => L + (i / (depYrs.length - 1)) * (W - L - R), y = (v) => T + (1 - v / 100) * (H - T - B);
+      const path = (s) => { let d = "", pen = false; s.v.forEach((v, i) => { if (v == null) { pen = false; return; } d += (pen ? "L" : "M") + x(i).toFixed(1) + "," + y(v).toFixed(1); pen = true; }); return d; };
+      const grid = [0, 25, 50, 75, 100].map((g) => `<line x1="${L}" x2="${W - R}" y1="${y(g)}" y2="${y(g)}" class="dp-grid"/><text x="${L - 6}" y="${y(g) + 4}" class="dp-ax" text-anchor="end">${g}%</text>`).join("") +
+        depYrs.map((yy, i) => `<text x="${x(i)}" y="${H - 6}" class="dp-ax" text-anchor="middle">${yy}</text>`).join("");
+      const bg = DSER.filter((s) => !hl.has(s.key)).map((s) => `<path d="${path(s)}" class="dp-bg" data-k="${s.key}"/>`).join("");
+      const fg = DSER.filter((s) => hl.has(s.key)).map((s) => `<path d="${path(s)}" class="dp-fg" style="stroke:${pal[s.key]}"/>` +
+        s.v.map((v, i) => v == null ? "" : `<circle cx="${x(i)}" cy="${y(v)}" r="2.6" style="fill:${pal[s.key]}"/>`).join("")).join("");
+      // 오른쪽 끝 이름표 (겹치면 아래로 밀어냄)
+      const lab = DSER.filter((s) => hl.has(s.key)).map((s) => ({ s, yy: y(s.last) })).sort((a, b) => a.yy - b.yy);
+      lab.forEach((l, i) => { if (i && l.yy - lab[i - 1].yy < 13) l.yy = lab[i - 1].yy + 13; });
+      const tags = lab.map((l) => `<text x="${W - R + 8}" y="${l.yy + 4}" class="dp-tag" style="fill:${pal[l.s.key]}">${l.s.name} ${nf(l.s.last, 0)}%</text>`).join("");
+      box.innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}">${grid}${bg}${fg}${tags}<line class="dp-cross" y1="${T}" y2="${H - B}" style="display:none"/></svg><div class="tip"></div>`;
+      const svg = box.querySelector("svg"), tip = box.querySelector(".tip"), cr = box.querySelector(".dp-cross");
+      svg.onmousemove = (ev) => { const r = svg.getBoundingClientRect(), px = (ev.clientX - r.left) * W / r.width;
+        const i = Math.max(0, Math.min(depYrs.length - 1, Math.round((px - L) / (W - L - R) * (depYrs.length - 1))));
+        cr.setAttribute("x1", x(i)); cr.setAttribute("x2", x(i)); cr.style.display = "";
+        const rows = DSER.filter((s) => s.v[i] != null).sort((a, b) => b.v[i] - a.v[i]);
+        tip.innerHTML = `<div class="tt">${depYrs[i]}년 수입의존도</div>` + rows.map((s) => `<div class="tr"${hl.has(s.key) ? "" : ' style="opacity:.6"'}><span>${hl.has(s.key) ? `<i style="display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:4px;background:${pal[s.key]}"></i>` : ""}${s.name}</span><b>${nf(s.v[i], 1)}%</b></div>`).join("");
+        tip.style.display = "block"; const bw = box.clientWidth, tw = tip.offsetWidth; let lft = (x(i) * r.width / W) + 14; if (lft + tw > bw) lft = (x(i) * r.width / W) - tw - 14;
+        tip.style.left = Math.max(0, lft) + "px"; tip.style.top = "0px"; };
+      svg.onmouseleave = () => { tip.style.display = "none"; cr.style.display = "none"; };
+      svg.querySelectorAll(".dp-bg").forEach((pth) => pth.onclick = () => { hl.add(pth.dataset.k); drawDep(); });
+    };
     host.innerHTML =
       card(`품목별 수입 위험 ${q("dep")}`, "행을 누르면 상세",
         `<div class="tbl-wrap" id="rk-tbl"></div>` +
         rule(`<b>수입의존도</b> = 수입량 ÷ (국내 생산량 + 수입량), 물량 기준 (산림청 목재이용실태조사, OECD 수입침투율의 근사) · <b>공급망 판정</b>: 취약 = 연 수입액 100만 달러 이상 + 특정국 의존 50% 이상 (산업부 산업 공급망 3050 전략, 2023) · 주의 = HHI 2,500 이상 (미국 DOJ·FTC, 2010) · 100만 달러 미만은 판정 제외 · 판정·공급국·HHI·수입액 = 선택한 해 1~12월 수입액 기준, 수입의존도 = 그 해 실태조사 값(공표 전이면 –) · 출처: ${SRC}(${SH.years[0]}~${SH.years[SH.years.length - 1]}), 산림청 목재이용실태조사`), "span-2",
         `취약 ${nV}개 · 주의 ${nC}개 <span class="sub">${nV ? sr.filter((d) => d.grade === "취약").map((d) => d.label.replace(/\(.+\)/, "")).join(" · ") : ""}</span>`) +
-      card(`수입 집중 지도 ${q("dep")}`, `${per} · 점 = 품목`, `<div id="sr-map"></div>` +
-        rule(`오른쪽(특정국 50% 넘음)·위쪽(수입액 큼)일수록 위험 · 빨강 = 취약, 노랑 = 주의`), "",
-        `오른쪽 위가 크고 한 나라에 쏠린 품목`) +
-      (P ? card(`원목 수입의존도 ${q("logdep")}`, `${P.years[0]}~${P.latest_year} · %`, `<div id="pn-line"></div>` +
-        rule(`원목 수입의존도 = 100 − 원목자급률 (산림청 목재수급통계, ㎥) · 추세: Mann-Kendall 검정, 최근 10년, 유의수준 5% (Mann 1945; Kendall 1975)`), "",
-        `${nf(P.latest, 1)}% (${P.latest_year}) · ${P.verdict} <span class="sub">연 ${mk.sen_slope > 0 ? "+" : ""}${nf(mk.sen_slope, 1)}%p</span>`) : "");
-    C.scatterChart($("#sr-map"), {
-      points: sr.map((d) => ({ x: d.top_share, y: d.imp_usd, label: d.label.replace(/\(.+\)/, ""), color: col[d.grade],
-        size: d.grade === "판정 제외" ? 4 : 7, labelOn: d.grade === "취약", onClick: () => openDetail(d.axis, d.key), d })),
-      xMin: 0, xMax: 100, logY: true, height: 280, xTitle: "최대 공급국 점유율 (%)", yTitle: "연 수입액 (USD, 로그)",
-      xFmt: (v) => v + "%", yFmt: (v) => (v >= 1e8 ? nf(v / 1e8, 0) + "억" : v >= 1e6 ? nf(v / 1e6, 0) + "백만" : nf(v / 1e3, 0) + "천"),
-      refX: [{ v: 50, label: "특정국 50%" }], refY: [{ v: 1e6, label: "연 100만 달러" }],
-      tip: (p) => `<div class="tt">${p.d.label} ${badge(p.d.grade)}</div><div class="tr"><span>최대 공급국</span><b>${p.d.top_name} ${nf(p.d.top_share, 1)}%</b></div>` +
-        `<div class="tr"><span>연 수입액</span><b>${usd(p.d.imp_usd)}</b></div><div class="tr"><span>HHI</span><b>${nf(p.d.hhi, 0)}</b></div>` });
-    if (P) C.lineChart($("#pn-line"), { x: P.years.map(String), series: [{ name: "원목 수입의존도", values: P.log_import_dependence }],
-      yFmt: (v) => nf(v, 0) + "%", tipFmt: (v) => nf(v, 1) + "%", height: 280, area: true, markers: [{ x: String(P.trend_window[0]), label: "추세 검정 구간" }] });
+      card(`목재제품별 수입의존도 ${q("dep")}`, `${depYrs[0]}~${depYrs[depYrs.length - 1]} · 물량 기준 % · 이름을 누르면 강조`, `<div id="dp-chips" class="dp-chips"></div><div id="dp-line" class="dp-line"></div>` +
+        rule(`수입의존도 = 수입량 ÷ (국내 생산량 + 수입량), 물량 기준 · 출처: 산림청 목재이용실태조사(2016~2019는 6개 제품만 공표, 2020~ 전 제품) · 원목은 실태조사 기준이라 산림청 목재수급통계의 원목 수입의존도(100 − 원목자급률)와 값이 다름`), "span-2",
+        `2016년부터 자료가 있는 6개 제품 강조 · 마우스를 올리면 그 해 전 제품 값`);
+    drawDep();
     // 표: 기간 선택(최근 12개월 / 연도) + 머리글을 누르면 그 항목 내림차순, 다시 누르면 기본(공급망 판정 순)
     const RULE = { "취약": "연 수입액 ≥ 100만 달러, 특정국 ≥ 50%", "주의": "HHI ≥ 2,500", "안정": "특정국 < 50%, HHI < 2,500", "판정 제외": "연 수입액 < 100만 달러" };
     const view = (y) => {
