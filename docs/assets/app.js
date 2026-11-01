@@ -7,7 +7,7 @@
     tab: "group", measure: "imp_usd", agg: "r12", start: null,
     group: "raw", product: "p01", sp1: null, sp2: null, country: null, pu: "m3",
   };
-  const UNIT = { imp_usd: "백만 달러", imp_kg: "천 톤", price: "USD/kg" };
+  const UNIT = { imp_usd: "백만 달러", imp_kg: "천 톤", price: "USD/t" };
   const MLABEL = { imp_usd: "금액", imp_kg: "물량", price: "단가" };
 
   // ── 숫자 형식 ───────────────────────────────────────────
@@ -26,11 +26,11 @@
     return nf(kg / 1e3, 0) + "톤";
   }
   const price = (u, k) => (k ? u / k : null);
-  // 품목별 단가 단위 (config/units.yaml): m3=밀도 환산 추정, t=톤, 그 외 kg
+  // 품목별 단가 단위 (config/units.yaml): m3=밀도 환산 추정, t=톤, 표에 없는 혼합 분류도 t
   function unitOf(axis, key, raw) {
     const U = (D.meta && D.meta.units) || {};
     const it = (U.items || {})[`${axis}:${key}`];
-    if (!it) return { unit: "kg" };
+    if (!it) return { unit: "t", mixed: true };   // 혼합 분류(품목군·수종 등)는 밀도 환산 없이 톤 액면
     if (!raw && it.unit === "m3" && S.pu === "t") return { unit: "t", from: it };   // 톤 액면 보기
     return { ...it, provisional: !it.calibrated && U.status !== "confirmed" };
   }
@@ -107,7 +107,7 @@
     }
     return { x, v: vals };
   }
-  const yFmt = (measure) => (v) => measure === "price" ? nf(v, 2) : nf(v, v >= 100 ? 0 : 1);
+  const yFmt = (measure) => (v) => measure === "price" ? nf(v, v >= 100 ? 0 : 2) : nf(v, v >= 100 ? 0 : 1);
   function revMarkers(x) {
     return (D.meta.hs_revisions || []).filter((r) => x.includes(r.month)).map((r) => ({ x: r.month, label: r.name }));
   }
@@ -152,7 +152,7 @@
     hhi: "HHI = 수입이 몇몇 나라에 얼마나 몰려 있는지. 나라별 점유율(%)을 제곱해 더한 값으로, 10,000 ÷ HHI = 비슷한 크기의 나라 몇 곳에서 나눠 사오는 것과 같은지. 예) 1개국 100% = 10,000, 4개국 25%씩 = 2,500, 10개국 10%씩 = 1,000. 1,500 미만 분산 · 1,500~2,500 보통 · 2,500 이상 집중 (미국 법무부 시장집중도 기준).",
     dep: "공급국 의존도: 수입이 특정 국가에 얼마나 몰려 있는지. 최대 공급국 점유율 50% 이상 또는 HHI 2,500 이상이면 '높음', HHI 1,500~2,500이면 '보통', 그 미만이면 '낮음'.",
     logdep: "원목 수입의존도 = 100 − 원목자급률. 국내에서 쓰는 원목(㎥) 중 수입산의 비율. 산림청 목재수급통계(연 1회 공표).",
-    price: "수입 단가 = 수입액 ÷ 수입량. 운임·보험료가 포함된 도착 가격(CIF). 목재제품은 USD/㎥(중량을 밀도로 환산 — 산림청 임산물수출입통계와 같은 환산계수를 쓴 품목은 ‘산림청 계수’, 나머지는 ‘잠정’), 연료형은 USD/t, 혼합 분류는 USD/kg. 같은 품목도 수종·규격 구성이 바뀌면 달라짐.",
+    price: "수입 단가 = 수입액 ÷ 수입량. 운임·보험료가 포함된 도착 가격(CIF). 목재제품은 USD/㎥(중량을 밀도로 환산 — 산림청 임산물수출입통계와 같은 환산계수를 쓴 품목은 ‘산림청 계수’, 나머지는 ‘잠정’), 연료형과 혼합 분류(품목군·수종 등)는 USD/t(톤 액면). 같은 품목도 수종·규격 구성이 바뀌면 달라짐.",
     r12: "12개월 누적: 해당 월까지 최근 12개월 합계. 계절에 따른 들쭉날쭉함을 없애고 추세를 볼 때 씀.",
     share: "점유율: 해당 품목 전체 수입액 중 그 나라가 차지하는 비율.",
     gap: "무역수지 = 수출액 − 수입액. 음수면 수입이 더 많음. 수입은 CIF, 수출은 FOB 기준.",
@@ -676,7 +676,7 @@
     if (lastP.length > 1) $("#d-price-lead").innerHTML = `${years[years.length - 1]}년 최고 ${lastP[0].n} ${pf(lastP[0].v)} <span class="sub">최저 ${lastP[lastP.length - 1].n} ${pf(lastP[lastP.length - 1].v)} ${pl}</span>`;
     const ms = months(), keep = ms.map((m) => !S.start || m.slice(0, 4) >= S.start);
     const fx = ms.filter((_, j) => keep[j]);
-    C.lineChart($("#d-hhi"), { x: fx, series: [{ name: "HHI", values: e.hhi.filter((_, j) => keep[j]) }], yFmt: (v) => nf(v, 0), height: 200, xLabelFmt: xFmt, area: true, yMaxMin: 3000,
+    C.lineChart($("#d-hhi"), { x: fx, series: [{ name: "HHI", values: e.hhi.filter((_, j) => keep[j]) }], yFmt: (v) => nf(v, 0), height: 200, xLabelFmt: xFmt, area: true, bandLine: true, yMaxMin: 3000,
       tipFmt: (v) => `${nf(v, 0)} (≈ ${nf(10000 / v, 1)}개국)`,
       bands: [{ from: 0, to: 1500, color: C.color(5), label: "분산" }, { from: 1500, to: 2500, color: C.color(3), label: "보통" }, { from: 2500, to: 10000, color: C.color(7), label: "집중" }] });
 
@@ -730,8 +730,8 @@
       card("세부 수종 (최근 12개월)", "클릭하면 상세", `<div class="tbl-wrap" style="max-height:290px;overflow:auto" id="s-2"></div>`) +
       `</div><div id="s-detail" style="margin-top:16px"></div>`;
     C.barChart($("#s-1"), { x: base.x, stacked: true, series: order.map((k) => ({ name: k, values: yr("species1", k).v })), yFmt: (v) => nf(v, 0), tipFmt: (v) => nf(v, 1), height: 260 });
-    $("#s-2").innerHTML = `<table><thead><tr><th>수종</th><th>수입액</th><th>수입량</th><th>전년 대비<br><span class="sub">수입액</span></th><th>단가<br><span class="sub">USD/kg</span></th><th class="l">최대 공급국</th></tr></thead><tbody>` +
-      rows.map((r) => `<tr class="click" data-k="${r.k}"><td>${r.k}</td><td>${usd(r.cur)}</td><td>${r.kg ? ton(r.kg) : "–"}</td><td>${delta(r.cur, r.prev)}</td><td>${r.kg ? nf(r.cur / r.kg, 2) : "–"}</td><td class="l">${r.top ? cname(r.top.c) : "–"}</td></tr>`).join("") + `</tbody></table>`;
+    $("#s-2").innerHTML = `<table><thead><tr><th>수종</th><th>수입액</th><th>수입량</th><th>전년 대비<br><span class="sub">수입액</span></th><th>단가<br><span class="sub">USD/t</span></th><th class="l">최대 공급국</th></tr></thead><tbody>` +
+      rows.map((r) => `<tr class="click" data-k="${r.k}"><td>${r.k}</td><td>${usd(r.cur)}</td><td>${r.kg ? ton(r.kg) : "–"}</td><td>${delta(r.cur, r.prev)}</td><td>${r.kg ? nf((r.cur / r.kg) * 1000, 0) : "–"}</td><td class="l">${r.top ? cname(r.top.c) : "–"}</td></tr>`).join("") + `</tbody></table>`;
     $("#s-2").querySelectorAll("tr[data-k]").forEach((tr) => tr.onclick = () => { S.sp2 = tr.dataset.k; setHash(); renderDetail($("#s-detail"), "species2", S.sp2); $("#s-detail").scrollIntoView({ behavior: "smooth" }); });
     renderDetail($("#s-detail"), "species2", S.sp2, "원목+제재목 합계");
   }
@@ -750,7 +750,7 @@
       kpi("최근 12개월 수입액", usd(me.imp), `직전 대비 ${delta(me.imp, me.prev)}`) +
       kpi("목재류 수입 점유율", `${nf(me.share, 1)}%`, `공급국 순위 ${rank}위 / ${all.length}개국`) +
       kpi("최근 12개월 수입량", ton(me.kg), "") +
-      kpi("평균 수입 단가", me.kg ? `${nf(me.imp / me.kg, 2)} <small>USD/kg</small>` : "–", "목재류 전체") +
+      kpi("평균 수입 단가", me.kg ? `${nf((me.imp / me.kg) * 1000, 0)} <small>USD/t</small>` : "–", "목재류 전체 · 톤 액면") +
       `</div><div class="grid g-2" style="margin-top:12px">` +
       card(`${cname(S.country)}산 목재류 수입 (연간)`, "백만 달러 · 천 톤", `<div id="c-yr"></div>`) +
       card("품목군 구성 (최근 12개월)", "수입액", `<div id="c-grp"></div>`) +
@@ -802,7 +802,7 @@
       card("용어", "", `<div class="note" style="line-height:1.8">
         <b>HHI(허핀달-허쉬만 지수)</b>: 공급국별 점유율(%) 제곱의 합. 1,500 미만 분산, 1,500~2,500 중간 집중, 2,500 이상 고집중.<br>
         <b>상위 3개국 점유율</b>: 수입액 상위 3개 공급국의 합계 비중.<br>
-        <b>수입 단가</b>: 수입액 ÷ 수입량. 목재제품은 USD/㎥(산림청 환산계수 또는 잠정 밀도로 환산), 연료형은 USD/t, 혼합 분류는 USD/kg. 품목 구성이 바뀌면 단가도 바뀌므로 해석에 주의.<br>
+        <b>수입 단가</b>: 수입액 ÷ 수입량. 목재제품은 USD/㎥(산림청 환산계수 또는 잠정 밀도로 환산), 연료형과 혼합 분류(품목군·수종 등)는 USD/t(톤 액면). 품목 구성이 바뀌면 단가도 바뀌므로 해석에 주의.<br>
         <b>12개월 누적</b>: 해당 월을 포함한 직전 12개월 합계. 계절성을 없애고 추세를 볼 때 사용.<br>
         <b>HS 개정</b>: ${(m.hs_revisions || []).map((r) => `${r.name}(${ym(r.month)})`).join(", ")} — 개정 시점에 일부 품목의 코드가 나뉘거나 합쳐져 시계열이 끊길 수 있음.</div>`, "span-2") +
       card("목재제품 분류 기준", "목재이용법 15종 + CLT + LVL", `<div class="tbl-wrap"><table><thead><tr><th>No.</th><th class="l">제품</th><th class="l">HS/HSK 코드</th><th class="l">비고</th></tr></thead><tbody>` +
@@ -816,7 +816,7 @@
             가격 섹션의 ‘㎥ 환산 / 톤 액면’ 버튼으로 단위를 바꿔 볼 수 있음. 밀도가 10% 다르면 ㎥ 단가도 약 10% 달라지지만 오르내림(추세)과 이상 판정은 단위와 무관함.</div>` +
           `<div class="tbl-wrap"><table><thead><tr><th class="l">분류</th><th>단위</th><th>기준 밀도(t/㎥)</th><th class="l">기준 상태</th></tr></thead><tbody>` +
           rows.map(([k, v]) => `<tr><td class="l">${nameOf(k)}</td><td>${{ m3: "USD/㎥", t: "USD/t", kg: "USD/kg" }[v.unit]}</td><td>${v.density != null ? nf(v.density, 2) : "–"}</td><td class="l" style="white-space:normal">${v.basis || (v.unit === "t" ? "중량 그대로 (환산 없음)" : "")}</td></tr>`).join("") +
-          `</tbody></table></div><div class="foot">표에 없는 품목군·수종 등 혼합 분류는 USD/kg로 표시 (원목 생재와 제품 기건이 섞여 밀도 하나로 환산하면 왜곡됨)</div>`, "span-2"); })() +
+          `</tbody></table></div><div class="foot">표에 없는 품목군·수종 등 혼합 분류는 USD/t(톤 액면)로 표시 (원목 생재와 제품 기건이 섞여 밀도 하나로 환산하면 왜곡됨)</div>`, "span-2"); })() +
       card("품목군 분류 기준", "HS 코드 접두어 · 긴 코드 우선", `<div class="tbl-wrap"><table><thead><tr><th class="l">품목군</th><th class="l">HS 코드</th><th class="l">설명</th></tr></thead><tbody>` +
         m.groups.map((g) => `<tr><td class="l">${g.name}</td><td class="l" style="white-space:normal">${(g.prefixes || []).join(", ")}</td><td class="l" style="white-space:normal">${g.desc}</td></tr>`).join("") + `</tbody></table></div>`, "span-2") +
       `</div>`;

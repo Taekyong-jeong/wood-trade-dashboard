@@ -196,13 +196,13 @@ UNITS = yaml.safe_load((ROOT / "config" / "units.yaml").read_text(encoding="utf-
 
 
 def unit_price(axis, key, usd, kg):
-    """config/units.yaml 기준 단가와 단위 (m3=밀도 환산 추정, t=톤, 그 외 kg)."""
+    """config/units.yaml 기준 단가와 단위 (m3=밀도 환산 추정, t=톤, 그 외 혼합 분류도 톤 액면)."""
     it = (UNITS.get("items") or {}).get(f"{axis}:{key}", {})
     if it.get("unit") == "m3":
         return usd * it["density"] * 1000 / kg, ("USD/㎥(보정)" if it.get("calibrated") else "USD/㎥(추정)"), 0
     if it.get("unit") == "t":
         return usd * 1000 / kg, "USD/t", 0
-    return usd / kg, "USD/kg", 2
+    return usd * 1000 / kg, "USD/t", 0   # 혼합 분류: 톤 액면
 
 
 def build_insights(months, series, long, names):

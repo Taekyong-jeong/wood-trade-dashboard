@@ -133,6 +133,22 @@
         d += (pen ? "L" : "M") + X(i).toFixed(1) + "," + Y(v).toFixed(1);
         pen = true;
       });
+      // 구간별 색 (bandLine): 꺾은선·아래 면적을 구간(분산·보통·집중) 색으로 — 구간마다 잘라 그림
+      if (opts.bandLine && opts.bands && series.length === 1) {
+        const first = s.values.findIndex((v) => v != null), uid = "bl" + Math.random().toString(36).slice(2, 8);
+        const defs = el("defs", {}, svg);
+        const base = Y(Math.max(0, ymin));
+        opts.bands.forEach((b, k) => {
+          const y1 = Y(Math.min(b.to, ymax)), y0 = k === 0 ? base + 1 : Y(Math.max(b.from, ymin));
+          if (y0 <= y1) return;
+          const cp = el("clipPath", { id: `${uid}-${k}` }, defs);
+          el("rect", { x: 0, y: y1, width: W, height: y0 - y1 }, cp);
+          const gg = el("g", { "clip-path": `url(#${uid}-${k})` }, g);
+          if (opts.area) el("path", { d: d + `L${X(n - 1)},${base}L${X(first)},${base}Z`, fill: b.color, opacity: 0.13 }, gg);
+          el("path", { d, fill: "none", stroke: b.color, "stroke-width": 2, "stroke-linejoin": "round", "stroke-linecap": "round", opacity: 0.85 }, gg);
+        });
+        return;
+      }
       if (opts.area && series.length === 1) {
         const first = s.values.findIndex((v) => v != null);
         el("path", { d: d + `L${X(n - 1)},${Y(Math.max(0, ymin))}L${X(first)},${Y(Math.max(0, ymin))}Z`, fill: s.color, opacity: 0.10 }, g);
