@@ -356,7 +356,7 @@
           rule(`수입의존도 = 수입량 ÷ (국내 생산량 + 수입량), ㎥·톤 기준 (OECD 수입침투율의 근사, 수출 제외) · 추세: 5개년 이상 품목만 Mann-Kendall 검정(유의수준 5%), 4개년 이하는 판정 보류 · ▲ 상승·▼ 하락 추세(유의), 표시 없음 = 추세 없음 또는 판정 보류 · 원목은 위 카드(목재수급통계) 기준`), "",
           `${prows.slice(0, 3).map((d) => `${short(d.label)} ${nf(d.import_share, 0)}%`).join(" · ")} <span class="sub">상위 3개</span>`) +
         card("목재제품별 수입의존도 추이", `${ys[0]}~${ys[ys.length - 1]} · %`, `<div id="pn-prod-line"></div>` +
-          rule(`5개년 이상 자료가 있는 품목만 표시 · 출처: 산림청 목재이용실태조사(2023년 기준 보고서 시계열)`), "",
+          rule(`5개년 이상 자료가 있는 품목만 표시 · 출처: 산림청 목재이용실태조사(2024년 기준 보고서 시계열)`), "",
           sig.length ? `유의한 변화: ${sig.map((d) => `${short(d.label)} ${d.trend} (${nf(d.share_series[0], 0)}→${nf(d.import_share, 0)}%)`).join(" · ")}` : "유의한 추세 변화 없음"));
       C.hbars($("#pn-prod"), prows.map((d) => ({ label: short(d.label), value: d.import_share, color: TC[d.trend],
         text: `${nf(d.import_share, 0)}%${d.trend === "상승 추세" ? " ▲" : d.trend === "하락 추세" ? " ▼" : ""}`,
