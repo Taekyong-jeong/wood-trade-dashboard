@@ -50,7 +50,7 @@ if CT and os.environ.get("SKIP_COMTRADE", "") != "1":
 
 if ES:
     found, data = [], {}
-    queries = [(w, y) for y in range(2016, 2025) for w in ("ホワイトウッド集成管柱", "米まつ平角", "すぎ正角 木材製品卸売価格", "北洋えぞまつ板")]
+    queries = [(w, y) for y in range(2017, 2025) for w in ("ホワイトウッド集成管柱", "米まつ平角", "木材製品価格 製材品価格", "集成管柱工場出荷価格")]
     for word, yr in queries:
         try:
             j = get("https://api.e-stat.go.jp/rest/3.0/app/json/getStatsList?" + urllib.parse.urlencode({"appId": ES, "searchWord": word, "surveyYears": str(yr), "limit": 20}))
@@ -70,7 +70,7 @@ if ES:
         if f["id"] in seen or "木材統計" not in (f["stat"] or "") or "月別" not in t:
             continue
         seen.add(f["id"])
-        if not any(w in t for w in ("木材製品卸売価格", "製材用素材価格")):
+        if not any(w in t for w in ("木材製品卸売価格", "製材用素材価格", "木材製品価格")):
             continue
         try:
             j = get("https://api.e-stat.go.jp/rest/3.0/app/json/getStatsData?" + urllib.parse.urlencode({"appId": ES, "statsDataId": f["id"], "limit": 100000}))
