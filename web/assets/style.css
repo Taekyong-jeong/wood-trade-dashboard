@@ -534,12 +534,13 @@ a.g-tile:hover .g-go { color: var(--accent); }
 
 /* 제품별 자급률 — 같은 길이 막대(100% 기준), 촘촘한 줄 */
 .ssl { display: flex; flex-direction: column; gap: 3px; margin-top: 4px; }
-.ss-r { display: grid; grid-template-columns: 116px minmax(0, 1fr) 46px; align-items: center; gap: 10px; font-size: 12.5px; cursor: pointer; padding: 1px 2px; border-radius: 4px; }
+.ss-r { display: grid; grid-template-columns: 116px minmax(0, 1fr) 150px; align-items: center; gap: 10px; font-size: 12.5px; cursor: pointer; padding: 1px 2px; border-radius: 4px; }
 .ss-r:hover { background: var(--surface-2); }
 .ss-l { white-space: nowrap; letter-spacing: -0.04em; }
 .ss-t { position: relative; height: 11px; background: var(--surface-2); border-radius: 3px; overflow: hidden; }
 .ss-t i { position: absolute; left: 0; top: 0; bottom: 0; background: var(--s3, #1ea672); border-radius: 3px; }
-.ss-v { text-align: right; font-variant-numeric: tabular-nums; color: var(--ink-2); }
+.ss-v { text-align: right; font-variant-numeric: tabular-nums; color: var(--ink-2); white-space: nowrap; }
+.ss-v .sub { font-size: 11.5px; }
 
 /* 그래프 고정·비교 */
 .pin-box { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; min-height: 26px; margin-top: 4px; padding: 5px 8px; border-radius: 6px; background: var(--surface-2); font-size: 12px; color: var(--ink-2); }

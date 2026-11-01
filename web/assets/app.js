@@ -555,7 +555,7 @@
     if (SS.length) {
       const el = $("#bs-ss");
       el.innerHTML = SS.map((d, k) => `<div class="ss-r" data-k="${k}" title="${d.label}: 국산 원료 ${nf((d.dlog + d.doth) / 1e4, 1)}만 ㎥ / 전체 ${nf(d.tot / 1e4, 1)}만 ㎥ (수입 원목 ${nf(d.ilog / 1e4, 1)}만 · 수입 제품 ${nf(d.iprod / 1e4, 1)}만)">` +
-        `<span class="ss-l">${d.label}</span><span class="ss-t"><i style="width:${Math.max(0, Math.min(100, d.ss))}%"></i></span><span class="ss-v">${nf(d.ss, d.ss > 0 && d.ss < 1 ? 1 : 0)}%</span></div>`).join("");
+        `<span class="ss-l">${d.label}</span><span class="ss-t"><i style="width:${Math.max(0, Math.min(100, d.ss))}%"></i></span><span class="ss-v">${nf(d.ss, d.ss > 0 && d.ss < 1 ? 1 : 0)}% <span class="sub">(${nf((d.dlog + d.doth) / 1e4, d.dlog + d.doth >= 1e5 ? 0 : 1)}만 / ${nf(d.tot / 1e4, d.tot >= 1e5 ? 0 : 1)}만 ㎥)</span></span></div>`).join("");
       el.querySelectorAll(".ss-r").forEach((r) => r.onclick = () => { const d = SS[+r.dataset.k]; openDetail(d.axis, d.key); });
     }
     C.lineChart($("#bs-trade"), { x: ms.slice(pk), series: [{ name: "수입액", values: ru.slice(pk).map((v) => v / 1e8) }, { name: "수출액", values: re.slice(pk).map((v) => v / 1e8) }],
