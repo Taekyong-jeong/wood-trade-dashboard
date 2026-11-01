@@ -420,15 +420,27 @@
           return y.length ? `전년 대비 ${y.map((x) => `${x.n} ${x.p > 0 ? "+" : ""}${nf(x.p, 1)}%`).join(" · ")}` : ""; })());
     const DP = D.judg.domestic_price;
     if (DP && DP.pairs.length) {
-      const p0 = DP.pairs[0], ref = (p0.imports || []).find((x) => x.ratio != null);
-      $("#a-price").insertAdjacentHTML("beforeend", card("국산·수입 가격 수준", `국산 ${p0.domestic.year} 단가표 · 수입 ${ym(DP.period.slice(0, 7))}~${ym(DP.period.slice(8))}`,
-        `<div class="tbl-wrap"><table><thead><tr><th class="l">비교</th><th>USD/㎥</th><th>국산 ÷ 수입</th></tr></thead><tbody>` +
-        DP.pairs.map((pr) => `<tr class="grp"><td class="l"><b>국산 ${pr.label}</b> <span class="sub">A급 ${pr.domestic.n}규격 중앙값</span></td><td><b>${nf(pr.domestic.median, 0)}</b> <span class="sub">${nf(pr.domestic.min, 0)}~${nf(pr.domestic.max, 0)}</span></td><td></td></tr>` +
-          pr.imports.map((im) => im.small ? `<tr><td class="l">└ ${im.label}</td><td colspan="2" class="sub">수입 ${usd(im.usd)} — 100만 달러 미만, 비교 제외</td></tr>`
-            : `<tr><td class="l">└ ${im.label}</td><td>${nf(im.usd_m3, 0)}${im.basis ? "" : (im.calibrated ? " <span class='badge'>산림청 계수</span>" : " <span class='badge'>잠정</span>")}</td><td><b>${nf(im.ratio, 1)}배</b></td></tr>`).join("")).join("") +
-        `</tbody></table></div>` +
-        rule(`국산 = 산림조합중앙회 목재유통센터 판매단가(A급·면세) ÷ 규격 부피(T×W×L), 원/달러 ${nf(DP.fx, 0)} (${DP.fx_basis.replace(/^.*?\(/, "").replace(/\)$/, "")}) · 수입 = CIF 단가 — 관세·통관·내륙운송·유통 마진 전이라 같은 단계 가격이 아님. 가격 수준 참고용이며 경쟁력 판정에 쓰지 않음 · ${DP.species_note} · ${DP.survey_note || ""}`), "",
-        ref ? `국산 ${p0.label} ${nf(p0.domestic.median, 0)} USD/㎥ — 수입 제재목 평균의 ${nf(ref.ratio, 1)}배` : ""));
+      const cDom = C.color(1), cImp = C.color(0);
+      const ratioOf = (pr) => (pr.imports.find((x) => x.ratio != null) || {}).ratio;
+      const pairHtml = (pr) => {
+        const ok = pr.imports.filter((im) => !im.small && im.usd_m3), small = pr.imports.filter((im) => im.small);
+        const mx = Math.max(pr.domestic.max, ...ok.map((im) => im.usd_m3)) * 1.04;
+        const w = (v) => `${(v / mx) * 100}%`, r = ratioOf(pr);
+        const bar = (lab, sub, v, col, val, extra = "") => `<div class="dp-r"><div class="dp-l"><b>${lab}</b>${sub ? `<span>${sub}</span>` : ""}</div>` +
+          `<div class="dp-t"><i style="width:${w(v)};background:${col}"></i>${extra}</div><div class="dp-v">${val}</div></div>`;
+        return `<div class="dp-pair"><div class="dp-h"><b>${pr.label}</b>${r ? `<span class="dp-x">국산이 수입의 <b>${nf(r, 1)}배</b></span>` : `<span class="dp-x sub">비교할 수입 규모 없음</span>`}</div>` +
+          bar("국산", `A급 ${pr.domestic.n}규격 중앙값`, pr.domestic.median, cDom, `<b>${nf(pr.domestic.median, 0)}</b><span>${nf(pr.domestic.krw_m3_median / 1e4, 0)}만 원/㎥</span>`,
+            pr.domestic.max > pr.domestic.min ? `<s style="left:${w(pr.domestic.min)};width:${(((pr.domestic.max - pr.domestic.min) / mx) * 100)}%" title="규격별 범위 ${nf(pr.domestic.min, 0)}~${nf(pr.domestic.max, 0)} USD/㎥"></s>` : "") +
+          ok.map((im) => bar("수입", im.label.replace(/^수입\s*/, ""), im.usd_m3, cImp,
+            `<b>${nf(im.usd_m3, 0)}</b><span>${im.basis ? "공표 ㎥" : im.calibrated ? "산림청 계수" : "밀도 잠정"}</span>`)).join("") +
+          (small.length ? `<div class="dp-n">${small.map((im) => `${im.label}: 최근 12개월 ${usd(im.usd)} — 100만 달러 미만이라 비교 제외`).join(" · ")}</div>` : "") + `</div>`;
+      };
+      const lead = DP.pairs.filter((pr) => ratioOf(pr)).map((pr) => `${pr.label.replace(/\(.+\)/, "")} ${nf(ratioOf(pr), 1)}배`).join(" · ");
+      $("#a-price").insertAdjacentHTML("beforeend", card("국산·수입 가격 수준", `USD/㎥ · 국산 ${DP.pairs[0].domestic.year} 단가표 · 수입 ${ym(DP.period.slice(0, 7))}~${ym(DP.period.slice(8))}`,
+        `<div class="legend"><span><i style="background:${cDom}"></i>국산 (산림조합 판매가, 면세)</span><span><i style="background:${cImp}"></i>수입 (도착 가격 CIF)</span><span class="sub">회색 띠 = 국산 규격별 범위</span></div>` +
+        DP.pairs.map(pairHtml).join("") +
+        rule(`국산 = 산림조합중앙회 목재유통센터 판매단가(A급·면세) ÷ 규격 부피(T×W×L), 원/달러 ${nf(DP.fx, 0)} (${DP.fx_basis.replace(/^.*?\(/, "").replace(/\)$/, "")}) · 수입 = CIF 단가 — 관세·통관·내륙운송·유통 마진 전이라 같은 단계 가격이 아님. 가격 수준 참고용이며 경쟁력 판정에 쓰지 않음 · ${DP.note.replace(/^.*?쓰지 않음\.\s*/, "")} · ${DP.species_note} · ${DP.survey_note || ""}`), "",
+        lead ? `국산이 수입보다 비쌈: ${lead}` : ""));
     }
     const pi = pser.length ? pser[0].values.findIndex((v) => v != null) : 0;
     C.lineChart($("#pidx"), { x: ms.slice(pi), series: pser.map((p) => ({ name: p.name, values: p.values.slice(pi) })), yFmt: (v) => nf(v, 0), tipFmt: (v) => nf(v, 1), yMin0: false, height: 230, xLabelFmt: xFmt });
