@@ -684,11 +684,11 @@
         body = `<div class="pv num">${usd(L.cur)}</div><div class="pd">최근 12개월 · ${delta(L.cur, L.prev)}</div>` +
           `<div class="pd">단가 ${pv ? pfmt("product", p.key)(pv) + " " + plabel("product", p.key) : "–"}${unitOf("product", p.key).unit === "m3" ? (unitOf("product", p.key).calibrated ? " (산림청 계수)" : " (잠정)") : ""}</div>${C.sparkline(vals.slice(-60))}`;
       }
-      const badge = p.status === "partial" ? `<span class="badge">일부</span>` : p.since ? `<span class="badge">${p.since.slice(0, 4)}~</span>` : "";
+      const badge = p.status === "partial" ? `<span class="badge" title="${(p.note || "").replace(/"/g, "&quot;")}">일부만 집계</span>` : p.since ? `<span class="badge" title="${p.since.slice(0, 4)}년 HS 개정으로 전용 코드가 생긴 뒤부터 집계">${p.since.slice(0, 4)}~</span>` : "";
       return `<button class="pcard ${disabled ? "disabled" : ""}" data-k="${p.key}" aria-pressed="${p.key === S.product}">` +
         `<div class="pn">${p.num}. ${badge}</div><div class="pt one-line">${p.name}</div>${body}</button>`;
     }).join("");
-    host.innerHTML = `<div class="note" style="margin-bottom:8px">「목재의 지속가능한 이용에 관한 법률」 규격·품질 기준 15종 + CLT + LVL. 카드를 누르면 상세가 아래에 표시됨.</div>` +
+    host.innerHTML = `<div class="note" style="margin-bottom:8px">「목재의 지속가능한 이용에 관한 법률」 규격·품질 기준 15종 + CLT + LVL. 카드를 누르면 상세가 아래에 표시됨.<br><b>일부만 집계</b> = 무역통계 코드로 일부 수종만 구분됨(방부목재 = 약제 처리 원목 + 적송·가문비·SPF 방부 제재목, 난연목재 = 적송·가문비·SPF 난연 제재목만 — 그 밖의 수종은 일반 제재목과 같은 코드라 분리 불가, 2022~) · <b>2022~</b> = 2022년 HS 개정으로 전용 코드가 생겨 그때부터 집계 · 목재플라스틱복합재는 전용 코드가 없어 추적 불가</div>` +
       `<div class="pcards">${cards}</div><div id="p-detail" style="margin-top:16px"></div>`;
     host.querySelectorAll(".pcard").forEach((b) => b.onclick = () => { S.product = b.dataset.k; setHash(); tabProduct(host); $("#p-detail").scrollIntoView({ behavior: "smooth", block: "start" }); });
     renderDetail($("#p-detail"), "product", S.product);
