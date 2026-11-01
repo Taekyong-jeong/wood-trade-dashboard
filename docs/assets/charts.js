@@ -80,7 +80,7 @@
       return;
     }
     let ymin = opts.yMin0 === false ? Math.min(...vals) : Math.min(0, ...vals);
-    let ymax = Math.max(...vals);
+    let ymax = Math.max(...vals, opts.yMaxMin || -Infinity);
     const ticks = niceTicks(ymin, ymax, opts.ticks || 4);
     ymin = ticks[0]; ymax = ticks[ticks.length - 1];
     const fmt = opts.yFmt || ((v) => v.toLocaleString("ko-KR"));
@@ -94,6 +94,13 @@
     ticks.forEach((t) => {
       el("line", { x1: pad.l, x2: W - pad.r, y1: Y(t), y2: Y(t), stroke: t === 0 ? css("--axis") : css("--grid"), "stroke-width": 1 }, g);
       el("text", { x: pad.l - 6, y: Y(t) + 4, "text-anchor": "end" }, g).textContent = fmt(t);
+    });
+    // 기준 구간 띠 (예: HHI 분산·보통·집중)
+    (opts.bands || []).forEach((b) => {
+      const y1 = Y(Math.min(b.to, ymax)), y0 = Y(Math.max(b.from, ymin));
+      if (y0 <= y1) return;
+      el("rect", { x: pad.l, y: y1, width: iw, height: y0 - y1, fill: b.color, "fill-opacity": 0.09 }, g);
+      el("text", { x: pad.l + iw - 4, y: y1 + 13, "text-anchor": "end", style: `fill:${b.color};font-size:11px;font-weight:600` }, g).textContent = b.label;
     });
     // x 라벨: 월별(YYYY-MM)이면 1월에만 연도 표시, 그 외에는 균등 간격
     const xfmt = opts.xLabelFmt || ((s) => s);

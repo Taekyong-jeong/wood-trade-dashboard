@@ -638,8 +638,9 @@
       card(`주요 공급국 ${q("share")}`, "최근 12개월 · 점유율 · 전년 대비", `<div id="d-sup"></div>`, "",
         tops[0] ? `1위 ${cname(tops[0].c)} ${nf(tops[0].share, 1)}% <span class="sub">상위 3개국 ${nf(sum(tops.slice(0, 3).map((t) => t.share)), 0)}%</span>` : "") +
       card(`공급국별 수입 단가 ${q("price")}`, `연간 · 상위 5개국 · ${pl}`, `<div id="d-price"></div>`, "", "<span id='d-price-lead'></span>") +
-      card(`공급국 집중도 HHI ${q("hhi")}`, "12개월 누적", `<div id="d-hhi"></div>`, "span-2",
-        e.hhi[i] != null ? `HHI ${nf(e.hhi[i], 0)} <span class="sub">${e.hhi[i] >= 2500 ? "집중" : e.hhi[i] >= 1500 ? "보통" : "분산"} · 의존도 ${depGrade(tops[0] ? tops[0].share : 0, e.hhi[i]).label}</span>` : "") +
+      card(`공급국 집중도 HHI ${q("hhi")}`, "12개월 누적", `<div id="d-hhi"></div>` +
+        rule(`HHI = 공급국별 점유율(%)을 제곱해 더한 값 — 1개국이 100%면 10,000, 2개국이 반반이면 5,000, 4개국이 25%씩이면 2,500, 10개국이 10%씩이면 1,000 · <b>10,000 ÷ HHI = 같은 크기 나라 몇 곳에서 나눠 사오는 것과 같은지</b> · 1,500 미만 분산 · 1,500~2,500 보통 · 2,500 이상 집중 (미국 법무부·FTC 2010 기준)`), "span-2",
+        e.hhi[i] != null ? `HHI ${nf(e.hhi[i], 0)} · ${e.hhi[i] >= 2500 ? "집중" : e.hhi[i] >= 1500 ? "보통" : "분산"} <span class="sub">비슷한 크기의 나라 약 ${nf(10000 / e.hhi[i], 1)}곳에서 나눠 사오는 정도 · 1위 ${tops[0] ? cname(tops[0].c) + " " + nf(tops[0].share, 0) + "%" : "–"}</span>` : "") +
 
       `</div>`;
 
@@ -660,7 +661,9 @@
     if (lastP.length > 1) $("#d-price-lead").innerHTML = `${years[years.length - 1]}년 최고 ${lastP[0].n} ${pf(lastP[0].v)} <span class="sub">최저 ${lastP[lastP.length - 1].n} ${pf(lastP[lastP.length - 1].v)} ${pl}</span>`;
     const ms = months(), keep = ms.map((m) => !S.start || m.slice(0, 4) >= S.start);
     const fx = ms.filter((_, j) => keep[j]);
-    C.lineChart($("#d-hhi"), { x: fx, series: [{ name: "HHI", values: e.hhi.filter((_, j) => keep[j]) }], yFmt: (v) => nf(v, 0), height: 180, xLabelFmt: xFmt, area: true });
+    C.lineChart($("#d-hhi"), { x: fx, series: [{ name: "HHI", values: e.hhi.filter((_, j) => keep[j]) }], yFmt: (v) => nf(v, 0), height: 200, xLabelFmt: xFmt, area: true, yMaxMin: 3000,
+      tipFmt: (v) => `${nf(v, 0)} (≈ ${nf(10000 / v, 1)}개국)`,
+      bands: [{ from: 0, to: 1500, color: C.color(5), label: "분산" }, { from: 1500, to: 2500, color: C.color(3), label: "보통" }, { from: 2500, to: 10000, color: C.color(7), label: "집중" }] });
 
   }
 
