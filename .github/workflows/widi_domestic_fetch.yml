@@ -1,0 +1,35 @@
+name: WIDI 해설 국내 가격·생산 수집
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ["scripts/external/widi_domestic_fetch.py", ".github/workflows/widi_domestic_fetch.yml"]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: 국내 가격·생산 받기
+        env:
+          KOSIS_API_KEY: ${{ secrets.KOSIS }}
+        run: python scripts/external/widi_domestic_fetch.py
+      - name: 결과 커밋
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/external/kosis_domestic.json data/external/kosis_domestic_search.json 2>/dev/null || true
+          git diff --cached --quiet || git commit -m "WIDI 해설 국내 가격·생산 원자료 (KOSIS)"
+          for i in 1 2 3 4 5; do git pull --rebase && git push && break; sleep 10; done
