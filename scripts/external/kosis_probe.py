@@ -1,32 +1,42 @@
-"""KOSIS 통합검색으로 목재 관련 통계표 목록 확인 (키는 환경변수 KOSIS_API_KEY, 로그에 출력하지 않음).
-결과는 data/external/kosis_probe.json 에 저장 — 표 이름·기관·기간만 담음."""
+"""KOSIS 통계표 메타(항목·분류) 확인 — 목재 관련 항목만 추려 data/external/kosis_meta.json 에 저장.
+키는 환경변수 KOSIS_API_KEY (로그에 출력하지 않음)."""
 import json, os, sys, urllib.parse, urllib.request
 from pathlib import Path
 
 KEY = os.environ.get("KOSIS_API_KEY", "").strip()
 if not KEY:
     sys.exit("KOSIS_API_KEY 없음")
-TERMS = ["목재 및 나무제품 제조업", "제재목", "합판", "파티클보드", "섬유판", "집성재", "목재펠릿",
-         "광업제조업조사 품목", "생산자물가지수 목재", "수입물가지수 목재"]
+WOOD = ("목재", "나무", "제재", "합판", "보드", "섬유판", "집성", "직교", "CLT", "펠릿", "원목", "칩", "단판", "마루", "목탄", "숯", "방부", "LVL", "16")
+TABLES = [("101", "DT_1FP1124A", "광업제조업조사 품목편 2024"), ("301", "DT_404Y016", "생산자물가지수(품목별)"),
+          ("301", "DT_401Y017", "수입물가지수(품목별)"), ("136", "DT_136034_2024_J018", "집성재 생산업체 생산량 및 판매량"),
+          ("136", "DT_136034_2024_A031", "제재목 국산 원목 이용 제품생산량 및 판매량"), ("101", "DT_1FS1101", "광업제조업조사 주요지표"),
+          ("101", "DT_1F32001", "제조업 생산능력 및 가동률지수")]
+
+def meta(org, tbl, typ):
+    q = urllib.parse.urlencode({"method": "getMeta", "type": typ, "apiKey": KEY, "orgId": org, "tblId": tbl, "format": "json", "jsonVD": "Y"})
+    with urllib.request.urlopen("https://kosis.kr/openapi/statisticsData.do?" + q, timeout=90) as r:
+        return json.loads(r.read().decode("utf-8", "replace"))
+
 out = {}
-for term in TERMS:
-    q = urllib.parse.urlencode({"method": "getList", "apiKey": KEY, "searchNm": term, "sort": "RANK",
-                                "startCount": 1, "resultCount": 30, "format": "json", "jsonVD": "Y"})
+for org, tbl, nm in TABLES:
     try:
-        with urllib.request.urlopen("https://kosis.kr/openapi/statisticsSearch.do?" + q, timeout=60) as r:
-            raw = r.read().decode("utf-8", "replace")
-        data = json.loads(raw)
-    except Exception as e:  # 오류 메시지에 URL(키 포함)이 섞이지 않게 종류만 기록
-        out[term] = {"error": type(e).__name__}
-        print(f"[{term}] 오류 {type(e).__name__}")
-        continue
-    if isinstance(data, dict):            # 오류 응답 {"err": "...", "errMsg": "..."}
-        out[term] = {"error": {k: v for k, v in data.items() if k in ("err", "errMsg")}}
-        print(f"[{term}] 응답 오류 {out[term]['error']}")
-        continue
-    rows = [{k: d.get(k) for k in ("ORG_ID", "ORG_NM", "TBL_ID", "TBL_NM", "STAT_ID", "STAT_NM", "STRT_PRD_DE", "END_PRD_DE", "PRD_SE")} for d in data]
-    out[term] = rows
-    print(f"[{term}] {len(rows)}건")
-    for d in rows:
-        print(f"  {d['ORG_NM']} | {d['TBL_ID']} | {d['TBL_NM']} | {d.get('STRT_PRD_DE')}~{d.get('END_PRD_DE')}")
-Path("data/external/kosis_probe.json").write_text(json.dumps(out, ensure_ascii=False, indent=1), encoding="utf-8")
+        itm = meta(org, tbl, "ITM")
+    except Exception as e:
+        print(f"[{tbl}] 오류 {type(e).__name__}"); continue
+    if isinstance(itm, dict):
+        print(f"[{tbl}] 응답 오류 {itm.get('err')} {itm.get('errMsg')}"); continue
+    try:
+        prd = meta(org, tbl, "PRD")
+    except Exception:
+        prd = []
+    items = [r for r in itm if r.get("OBJ_ID") == "ITEM"]
+    cls = [r for r in itm if r.get("OBJ_ID") != "ITEM" and any(w in (r.get("ITM_NM") or "") for w in WOOD)]
+    objs = sorted({(r.get("OBJ_ID"), r.get("OBJ_NM")) for r in itm})
+    print(f"[{tbl}] {nm} — 분류축 {objs}")
+    print("  항목:", " | ".join(f"{r.get('ITM_ID')}:{r.get('ITM_NM')}({r.get('UNIT_NM') or ''})" for r in items[:40]))
+    for r in cls[:80]:
+        print(f"  {r.get('OBJ_ID')} {r.get('ITM_ID')} {r.get('ITM_NM')} (상위 {r.get('UP_ITM_ID')})")
+    if isinstance(prd, list) and prd:
+        print("  기간:", ", ".join(sorted({str(p.get('PRD_SE')) + ':' + str(p.get('PRD_DE')) for p in prd}))[:300])
+    out[tbl] = {"name": nm, "org": org, "objs": objs, "items": items, "wood_classes": cls}
+Path("data/external/kosis_meta.json").write_text(json.dumps(out, ensure_ascii=False, indent=1), encoding="utf-8")
