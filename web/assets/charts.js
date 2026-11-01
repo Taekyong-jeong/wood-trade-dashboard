@@ -138,14 +138,29 @@
         const first = s.values.findIndex((v) => v != null), uid = "bl" + Math.random().toString(36).slice(2, 8);
         const defs = el("defs", {}, svg);
         const base = Y(Math.max(0, ymin));
+        const bandOf = (v) => opts.bands.findIndex((b) => v >= b.from && v < b.to);
+        // 아래 면적: 그 시점 값이 속한 구간 색으로 바닥까지 칠함 (가로 구간별로 자름) — 첫 구간(분산)은 옅게
+        if (opts.area) {
+          const xr = opts.bands.map(() => []);
+          s.values.forEach((v, i) => {
+            if (v == null || !isFinite(v)) return;
+            const a = i > 0 ? (X(i - 1) + X(i)) / 2 : X(i), b2 = i < n - 1 ? (X(i) + X(i + 1)) / 2 : X(i);
+            const k = bandOf(v); if (k >= 0) xr[k].push([a, b2]);
+          });
+          xr.forEach((rs, k) => {
+            if (!rs.length) return;
+            const cp = el("clipPath", { id: `${uid}-a${k}` }, defs);
+            rs.forEach(([a, b2]) => el("rect", { x: a - 0.3, y: 0, width: b2 - a + 0.6, height: H }, cp));
+            el("path", { d: d + `L${X(n - 1)},${base}L${X(first)},${base}Z`, fill: opts.bands[k].color, opacity: k === 0 ? 0.10 : 0.20, "clip-path": `url(#${uid}-a${k})` }, g);
+          });
+        }
+        // 꺾은선: 값의 높이가 속한 구간 색
         opts.bands.forEach((b, k) => {
           const y1 = Y(Math.min(b.to, ymax)), y0 = k === 0 ? base + 1 : Y(Math.max(b.from, ymin));
           if (y0 <= y1) return;
           const cp = el("clipPath", { id: `${uid}-${k}` }, defs);
           el("rect", { x: 0, y: y1, width: W, height: y0 - y1 }, cp);
-          const gg = el("g", { "clip-path": `url(#${uid}-${k})` }, g);
-          if (opts.area) el("path", { d: d + `L${X(n - 1)},${base}L${X(first)},${base}Z`, fill: b.color, opacity: 0.13 }, gg);
-          el("path", { d, fill: "none", stroke: b.color, "stroke-width": 2, "stroke-linejoin": "round", "stroke-linecap": "round", opacity: 0.85 }, gg);
+          el("path", { d, fill: "none", stroke: b.color, "stroke-width": 2, "stroke-linejoin": "round", "stroke-linecap": "round", opacity: 0.85, "clip-path": `url(#${uid}-${k})` }, g);
         });
         return;
       }
