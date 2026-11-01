@@ -300,8 +300,11 @@
     };
     const val = (d, k) => k === "dep" ? (d.dep != null ? d.dep : -1) : k === "top" ? d.top_share : k === "hhi" ? d.hhi : k === "usd" ? d.imp_usd : 0;
     const fullYears = SH ? [...SH.years].reverse() : [];
+    // 기본 연도 = 수입의존도(실태조사)가 있는 가장 최근 연도 — 실태조사가 새로 공표되면 자동으로 다음 해로 넘어감
+    const depYs = new Set(Object.values(dep).flatMap((r) => (r.share_years || []).map(String)));
+    const defY = fullYears.find((yy) => depYs.has(yy)) || fullYears[0];
     const drawTbl = () => {
-      const k = S.rks || "grade", y = S.rky || fullYears[0], V = view(y);
+      const k = S.rks || "grade", y = S.rky || defY, V = view(y);
       const rs = [...V.list].sort(k === "grade" ? (a, b) => (GO[a.grade] - GO[b.grade]) || (b.imp_usd - a.imp_usd) : (a, b) => val(b, k) - val(a, k));
       const th = (key, html, cls = "") => `<th class="sortable${cls}${k === key ? " on" : ""}" data-s="${key}">${html}${k === key ? " ▼" : ""}</th>`;
       const nV2 = V.list.filter((d) => d.grade === "취약"), nC2 = V.list.filter((d) => d.grade === "주의").length;
