@@ -128,7 +128,7 @@
 
   // ── 공통 렌더 ───────────────────────────────────────────
   // 자료 구분: 원자료(공표 통계 수치 그대로·합계) / 분석(본 페이지가 계산한 비율·지수·환산·판정)
-  const KIND_ANA = /^(제품별 자급률|품목별 수입 위험|수입 집중|품목별 판정|품목별 국내 공급 구조|원목 수입의존도|자급-수입 구조|목재제품별 수입의존도|가격 이상 판정|공급국 가격대 지도|수입 단가 지수|단가 지수|국산·수입 가격 수준|수입액 변화 분해|공급국별 수입 단가|공급국 집중도|공급국 쏠림 정도|목재제품별 수입과 점유율|품목군 구성|산림청 공표치 대조)/;
+  const KIND_ANA = /^(제품별 자급률|수입 쏠림 × 국내 대체 여력|국내 공급 여력 근거|품목별 수입 위험|수입 집중|품목별 판정|품목별 국내 공급 구조|원목 수입의존도|자급-수입 구조|목재제품별 수입의존도|가격 이상 판정|공급국 가격대 지도|수입 단가 지수|단가 지수|국산·수입 가격 수준|수입액 변화 분해|공급국별 수입 단가|공급국 집중도|공급국 쏠림 정도|목재제품별 수입과 점유율|품목군 구성|산림청 공표치 대조)/;
   const KIND_MIX = /^(한 해 쓰는 목재|국내 설비 가동률 추이|국내 생산능력과 생산량)/;
   const KIND_RAW = /^(목재류 수입·수출 추이|품목별 수입액|제품별 원자재 출처|제품별 매출 구조|최대 수입국|최대 수입 품목|수입·수출 추이|주요 공급국|대분류별 원목|세부 수종|.+산 목재류 수입|목재산업 매출|목재제품별 매출|목재는 어디서 와서 무엇이 되나|어디서 사오나)/;
   function kindOf(title, hint) {
@@ -270,13 +270,14 @@
     const depYrs = [...new Set(DR.flatMap((r) => r.share_years))].sort((a, b) => a - b);
     const lastOf = (r) => r.share_series[r.share_series.length - 1];
     const DSER = DR.map((r) => ({ key: `${r.axis}:${r.key}`, name: r.label.replace(/\(.+\)/, ""), full: r.label,
-      v: depYrs.map((y) => { const j = r.share_years.indexOf(y); return j >= 0 ? r.share_series[j] : null; }), last: lastOf(r), long: r.share_years[0] === depYrs[0] }))
+      v: depYrs.map((y) => { const j = r.share_years.indexOf(y); return j >= 0 ? r.share_series[j] : null; }), last: lastOf(r), long: r.share_years[0] === depYrs[0],
+      tr: r.trend === "상승 추세" ? "↗" : r.trend === "하락 추세" ? "↘" : "" }))
       .sort((a, b) => b.last - a.last);
     if (!S.dph) S.dph = new Set(DSER.filter((s) => s.long).map((s) => s.key));
     const drawDep = () => {
       const box = $("#dp-line"), chips = $("#dp-chips"); if (!box || !DSER.length) return;
       const hl = S.dph, pal = {}; let ci = 0; DSER.forEach((s) => { if (hl.has(s.key)) pal[s.key] = C.color(ci++); });
-      chips.innerHTML = DSER.map((s) => `<button type="button" class="dp-chip${hl.has(s.key) ? " on" : ""}" data-k="${s.key}"${hl.has(s.key) ? ` style="--c:${pal[s.key]}"` : ""}><i></i>${s.name} <b>${nf(s.last, 0)}%</b></button>`).join("") +
+      chips.innerHTML = DSER.map((s) => `<button type="button" class="dp-chip${hl.has(s.key) ? " on" : ""}" data-k="${s.key}"${hl.has(s.key) ? ` style="--c:${pal[s.key]}"` : ""}><i></i>${s.name} <b>${nf(s.last, 0)}%</b>${s.tr ? `<span class="dp-tr" title="${s.tr === "↗" ? "상승" : "하락"} 추세 (Mann-Kendall, 유의수준 5%)">${s.tr}</span>` : ""}</button>`).join("") +
         `<button type="button" class="dp-chip dp-all" data-k="*">${hl.size ? "강조 해제" : "6개 제품 강조"}</button>`;
       chips.querySelectorAll(".dp-chip").forEach((b) => b.onclick = () => { const k = b.dataset.k;
         if (k === "*") S.dph = hl.size ? new Set() : new Set(DSER.filter((s) => s.long).map((s) => s.key)); else hl.has(k) ? hl.delete(k) : hl.add(k); drawDep(); });
@@ -310,7 +311,7 @@
         rule(`<b>수입의존도</b> = 수입량 ÷ (국내 생산량 + 수입량), 물량 기준 (산림청 목재이용실태조사, OECD 수입침투율의 근사) · <b>공급망 판정</b>: 취약 = 연 수입액 100만 달러 이상 + 특정국 의존 50% 이상 (산업부 산업 공급망 3050 전략, 2023) · 주의 = HHI 2,500 이상 (미국 DOJ·FTC, 2010) · 100만 달러 미만은 판정 제외 · 판정·공급국·HHI·수입액 = 선택한 해 1~12월 수입액 기준, 수입의존도 = 그 해 실태조사 값(공표 전이면 –) · 출처: ${SRC}(${SH.years[0]}~${SH.years[SH.years.length - 1]}), 산림청 목재이용실태조사`), "span-2",
         `취약 ${nV}개 · 주의 ${nC}개 <span class="sub">${nV ? sr.filter((d) => d.grade === "취약").map((d) => d.label.replace(/\(.+\)/, "")).join(" · ") : ""}</span>`) +
       card(`목재제품별 수입의존도 ${q("dep")}`, `${depYrs[0]}~${depYrs[depYrs.length - 1]} · 물량 기준 % · 이름을 누르면 강조`, `<div id="dp-chips" class="dp-chips"></div><div id="dp-line" class="dp-line"></div>` +
-        rule(`수입의존도 = 수입량 ÷ (국내 생산량 + 수입량), 물량 기준 · 출처: 산림청 목재이용실태조사(2016~2019는 6개 제품만 공표, 2020~ 전 제품) · 원목은 실태조사 기준이라 산림청 목재수급통계의 원목 수입의존도(100 − 원목자급률)와 값이 다름`), "span-2",
+        rule(`수입의존도 = 수입량 ÷ (국내 생산량 + 수입량), 물량 기준 · 출처: 산림청 목재이용실태조사(2016~2019는 6개 제품만 공표, 2020~ 전 제품) · ↗↘ = 유의한 상승·하락 추세 (Mann-Kendall, 5개년 이상, 유의수준 5%; Mann 1945, Kendall 1975) · 원목은 실태조사 기준이라 산림청 목재수급통계의 원목 수입의존도(100 − 원목자급률)와 값이 다름`), "span-2",
         `2016년부터 자료가 있는 6개 제품 강조 · 마우스를 올리면 그 해 전 제품 값`);
     drawDep();
     // 표: 기간 선택(최근 12개월 / 연도) + 머리글을 누르면 그 항목 내림차순, 다시 누르면 기본(공급망 판정 순)
@@ -385,23 +386,39 @@
     const ov = DS.overall[DS.overall.length - 1];
     const u = (d) => (d.unit === "t" ? "톤" : "㎥");
     const big = (v) => (v >= 1e4 ? nf(v / 1e4, 0) + "만" : nf(v, 0));
-    const col = { "취약": C.color(7), "주의": C.color(3), "안정": C.color(0) };
-    const CAP = 300;
-    const pts = rows.filter((d) => d.top_share != null && d.spare_cover != null && d.risk_grade !== "판정 제외");
     const short = (l) => l.replace(/\(.+\)/, "");
-    const low = rows.filter((d) => d.risk_grade === "취약" && d.spare_cover != null && d.spare_cover < DS.line);
+    // 2×2 분류: 가로 = 최대 공급국 점유율(관세청, 실태조사와 같은 해 1~12월) ≥ 50%, 세로 = 대체 여력 ≥ 100%
+    const SH = D.judg.supply_hist, si = SH ? SH.years.indexOf(String(yr)) : -1, MIN = 1e6;
+    const cls = rows.map((d) => { const h = SH && SH.items[`${d.axis}:${d.key}`], tp = h && si >= 0 ? h.top[si] : null;
+      return { d, tp, share: tp ? tp[1] : null, usd: tp ? tp[2] : null }; });
+    const noCov = cls.filter((c) => c.d.spare_cover == null), noHs = cls.filter((c) => c.d.spare_cover != null && c.tp == null && !(SH && SH.items[`${c.d.axis}:${c.d.key}`]));
+    const small = cls.filter((c) => c.d.spare_cover != null && c.tp && c.usd < MIN);
+    const ok = cls.filter((c) => c.d.spare_cover != null && c.tp && c.usd >= MIN);
+    const Q = (hiShare, canCover) => ok.filter((c) => (c.share >= 50) === hiShare && (c.d.spare_cover >= DS.line) === canCover);
+    const chip = (c) => `<button type="button" class="q-chip" data-axis="${c.d.axis}" data-key="${c.d.key}" title="${c.d.label} · ${yr}년 최대 공급국 ${c.tp[0]} ${nf(c.share, 0)}% · 대체 여력 ${nf(c.d.spare_cover, 0)}%">${short(c.d.label)}</button>`;
+    const cell = (hs, cc, cls2) => { const L = Q(hs, cc); return `<div class="q-cell ${cls2}">${L.length ? L.map(chip).join("") : `<span class="sub">없음</span>`}</div>`; };
+    const core = Q(true, false);
     host.innerHTML =
-      card(`수입 집중 × 국내 대체 여력 ${q("cover")}`, `가로 ${per} 관세청 · 세로 ${yr}년 실태조사`, `<div id="ds-map"></div>` +
-        rule(`세로 100% 선 = 국내 여유 생산능력이 현재 수입량과 같아지는 경계 (정의상) · 가로 50% 선 = 산업부 특정국 의존 기준 · <b>왼쪽 아래보다 오른쪽 아래</b>(쏠렸고 국내로 못 메움)가 실제 공급 차질 위험이 큰 품목`), "",
-        low.length ? `쏠렸고 국내로 못 메움: ${low.map((d) => `${short(d.label)} ${nf(d.spare_cover, 0)}%`).join(" · ")}` : "수입 집중 취약 품목 모두 국내 여유능력으로 대체 가능") +
-      card(`품목별 국내 공급 구조 ${q("ishare")}`, `${yr}년 · 행을 누르면 상세`,
-        `<div class="tbl-wrap"><table><thead><tr><th class="l">품목</th><th>수입의존도</th><th>추세</th><th>가동률 ${q("util")}</th><th>대체 여력</th><th>수입 집중</th></tr></thead><tbody>` +
-        rows.map((d) => `<tr class="click" data-axis="${d.axis}" data-key="${d.key}" title="국내 생산 ${big(d.production)}${u(d)} · 수입 ${big(d.imports)}${u(d)}${d.util_note ? " · 가동률: " + d.util_note : ""}">` +
-          `<td class="l">${short(d.label)}</td><td>${nf(d.import_share, 0)}%</td><td>${badge(d.trend.startsWith("판정 보류") ? "판정 보류" : d.trend)}</td>` +
+      card(`수입 쏠림 × 국내 대체 여력 ${q("cover")}`, `${yr}년 · 관세청 수출입실적 + 산림청 목재이용실태조사`,
+        `<div class="q-grid">` +
+          `<div></div><div class="q-h">한 나라에 쏠림<br><span class="sub">최대 공급국 50% 이상</span></div><div class="q-h">분산<br><span class="sub">최대 공급국 50% 미만</span></div>` +
+          `<div class="q-v">국내로<br>못 메움<br><span class="sub">대체 여력<br>100% 미만</span></div>${cell(true, false, "core")}${cell(false, false, "")}` +
+          `<div class="q-v">국내로<br>메울 수 있음<br><span class="sub">대체 여력<br>100% 이상</span></div>${cell(true, true, "")}${cell(false, true, "")}` +
+        `</div>` +
+        `<div class="q-out">${[small.length ? `연 수입액 100만 달러 미만 제외(산업부 기준): ${small.map((c) => short(c.d.label)).join(" · ")}` : "",
+          noCov.length ? `대체 여력 산출 불가(국내 생산능력 자료 없음): ${noCov.map((c) => short(c.d.label)).join(" · ")}` : "",
+          noHs.length ? `전용 HS 코드 없음(공급국 불명): ${noHs.map((c) => short(c.d.label)).join(" · ")}` : ""].filter(Boolean).join("<br>")}</div>` +
+        rule(`가로 기준 = 최대 공급국 점유율 50% (산업부 산업 공급망 3050 전략, 2023), ${yr}년 1~12월 수입액 · 세로 기준 = 대체 여력 100% (여유 생산능력 = 수입량, 정의상 경계) · 이름을 누르면 상세, 마우스를 올리면 수치 · 원료 조달·품질·가격은 반영하지 않은 물리적 상한`), "q-card",
+        core.length ? `쏠렸고 국내로 못 메움: ${core.map((c) => short(c.d.label)).join(" · ")}` : "쏠렸고 국내로 못 메우는 제품 없음") +
+      card(`국내 공급 여력 근거 ${q("util")}`, `${yr}년 · 대체 여력 낮은 순 · 행을 누르면 상세`,
+        `<div class="tbl-wrap"><table><thead><tr><th class="l">품목</th><th>국내 생산</th><th>수입</th><th>가동률</th><th>여유 생산능력</th><th>대체 여력 ${q("cover")}</th></tr></thead><tbody>` +
+        [...rows].sort((a, b) => (a.spare_cover == null) - (b.spare_cover == null) || a.spare_cover - b.spare_cover).map((d) => `<tr class="click" data-axis="${d.axis}" data-key="${d.key}" title="${d.util_note ? "가동률: " + d.util_note : ""}">` +
+          `<td class="l">${short(d.label)} <span class="sub">${u(d)}</span></td><td>${big(d.production)}</td><td>${big(d.imports)}</td>` +
           `<td>${d.utilization == null ? "–" : nf(d.utilization, 0) + "%" + (/참고치/.test(d.util_note) ? "*" : "")}</td>` +
-          `<td>${d.spare_cover == null ? "–" : nf(d.spare_cover, 0) + "%"}</td><td>${d.risk_grade ? badge(d.risk_grade) : "–"}</td></tr>`).join("") +
-        `</tbody></table></div><div class="foot">수입 비중 = 수입량 ÷ (국내 생산 + 수입), 물량 기준 · 추세: Mann-Kendall(5개년 이상) · * 참고치(전국 생산량 ÷ 최대 생산가능량 합계) · 출처: 산림청 목재이용실태조사(${yr}년 기준), 수입 집중은 ${SRC}</div>`, "",
-        `국내 목재 이용량 중 수입(제품+원목) ${nf(ov.import_share, 1)}% <span class="sub">(${ov.year}년, 총 ${nf(ov.total / 1e6, 1)}백만 ㎥)</span>`);
+          `<td>${d.spare == null ? "–" : big(d.spare)}</td><td><b>${d.spare_cover == null ? "–" : nf(d.spare_cover, 0) + "%"}</b></td></tr>`).join("") +
+        `</tbody></table></div><div class="foot">여유 생산능력 = 생산량 × (100 ÷ 가동률 − 1) · 대체 여력 = 여유 생산능력 ÷ 수입량 · 가동률 = 생산량 ÷ 최대 생산가능량(응답업체 기준) · * 참고치(전국 생산량 ÷ 최대 생산가능량 합계) · 국내 생산 0이면 대체 여력 0% · 출처: 산림청 목재이용실태조사(${yr}년 기준)</div>`, "",
+        `대체 여력 100% 미만 ${rows.filter((d) => d.spare_cover != null && d.spare_cover < DS.line).length}개 · 100% 이상 ${rows.filter((d) => d.spare_cover != null && d.spare_cover >= DS.line).length}개 <span class="sub">(${rows.filter((d) => d.spare_cover != null).length}개 제품)</span>`);
+    host.querySelectorAll(".q-chip").forEach((b) => b.onclick = () => openDetail(b.dataset.axis, b.dataset.key));
     const UTIL_KEYS = ["p01", "p06", "p07", "p08", "p10", "p12"];   // 업체 수가 적은 소량 품목(집성재·WPC·난연)은 해마다 출렁여 제외
     const utilRows = rows.filter((d) => UTIL_KEYS.includes(d.key) && d.util_years.length >= 8);
     const uy = [...new Set(utilRows.flatMap((d) => d.util_years))].sort();
@@ -427,16 +444,6 @@
         series: [{ name: "생산능력", values: c.capacity.map((v) => v / 1e4), color: C.color(7) }, { name: "생산량", values: c.production.map((v) => v / 1e4), color: C.color(0) }],
         yFmt: (v) => nf(v, 0), tipFmt: (v) => nf(v, 1) + (c.unit === "t" ? "만 톤" : "만 ㎥") }));
     }
-    C.scatterChart($("#ds-map"), {
-      points: pts.map((d) => ({ x: d.top_share, y: Math.min(d.spare_cover, CAP), label: short(d.label), color: col[d.risk_grade] || C.color(0),
-        size: 7, labelOn: d.risk_grade === "취약" || d.spare_cover >= 30 || d.top_share >= 50, onClick: () => openDetail(d.axis, d.key), d })),
-      xMin: 0, xMax: 100, height: 540, xTitle: "최대 공급국 점유율 (%, 관세청)", yTitle: "국내 대체 여력 (%, 300 이상은 300)",
-      xFmt: (v) => v + "%", yFmt: (v) => v + "%", refX: [{ v: 50, label: "특정국 50%" }], refY: [{ v: DS.line, label: "여유능력 = 수입량" }],
-      tip: (p) => `<div class="tt">${p.d.label} ${p.d.risk_grade ? badge(p.d.risk_grade) : ""}</div>` +
-        `<div class="tr"><span>최대 공급국</span><b>${p.d.top_name} ${nf(p.d.top_share, 0)}%</b></div>` +
-        `<div class="tr"><span>수입의존도(물량)</span><b>${nf(p.d.import_share, 0)}%</b></div>` +
-        `<div class="tr"><span>가동률</span><b>${p.d.utilization == null ? "–" : nf(p.d.utilization, 0) + "%"}</b></div>` +
-        `<div class="tr"><span>대체 여력</span><b>${nf(p.d.spare_cover, 0)}%</b></div>` });
     C.lineChart($("#ds-util"), { x: uy.map(String), series: utilRows.map((d) => ({ name: short(d.label),
       values: uy.map((y) => { const i = d.util_years.indexOf(y); return i < 0 ? null : d.util_series[i]; }) })),
       yFmt: (v) => nf(v, 0) + "%", tipFmt: (v) => nf(v, 1) + "%", height: 300 });
