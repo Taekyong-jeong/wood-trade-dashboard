@@ -225,7 +225,7 @@
   // ── 판정 요약 ──────────────────────────────────────────
   function renderVerdicts() {
     const J = D.judg;
-    $("#v-hint").innerHTML = `${KTAG.ana} ${ym(J.month)} 기준 · 판정 규칙: config/criteria.yaml`;
+    $("#v-hint").innerHTML = `${KTAG.ana} ${ym(J.month)} 기준`;
     $("#verdicts").innerHTML = J.cards.map((c) =>
       `<button class="vcard ${c.level}" data-go="sec-${c.id}"><span class="vt">${c.title}</span><span class="vb">${c.badge}</span>` +
       `<span class="vx">${c.text}</span><span class="vr">기준: ${refs(c.refs)}</span></button>`).join("");
