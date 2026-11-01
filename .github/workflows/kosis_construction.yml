@@ -1,0 +1,36 @@
+name: KOSIS 건축 착공 수집
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ["scripts/external/kosis_construction_fetch.py", ".github/workflows/kosis_construction.yml"]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: 착공 통계 받기
+        env:
+          KOSIS_API_KEY: ${{ secrets.KOSIS }}
+        run: python scripts/external/kosis_construction_fetch.py
+      - name: 결과 커밋
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/external/kosis_construction_*.json 2>/dev/null || true
+          git diff --cached --quiet || git commit -m "KOSIS 건축 착공 원자료"
+          git pull --rebase
+          git push
