@@ -393,60 +393,101 @@
     const totOf = (d) => sum(Object.values(flowsOf(d)));
     const impOf = (d) => { const f = flowsOf(d); return (f.in_log_imp + f.in_mid_imp + f.use_imported_products) / (totOf(d) || 1) * 100; };
     const pr = (PBY[sy] || []).filter((d) => totOf(d) >= 1e4).sort((a, b) => totOf(b) - totOf(a));
-    // 가치사슬 (제재목): 3단 흐름 — 원목 출처 → 국산/수입 원목 → 용도·부산물
-    const VC = D.judg.value_chain && D.judg.value_chain.p01, vcYs = VC ? Object.keys(VC.years).sort().reverse() : [];
-    const vy = VC ? (VC.years[S.vcy] ? S.vcy : VC.years[defYear()] ? defYear() : vcYs[0]) : null;
+    // 가치사슬: 원료 출처 → 원자재 구분 → 용도(3단) 또는 제품(2단) — 제품 선택
+    const VCA = D.judg.value_chain && D.judg.value_chain.products ? D.judg.value_chain : null;
+    const VC = VCA ? VCA.products : null;
+    const vcOrder = VCA ? VCA.order.filter((k) => VC[k]) : [];
+    const vcp = VC && VC[S.vcp] ? S.vcp : vcOrder[0];
+    const vcYs = VC && vcp ? Object.keys(VC[vcp].years).sort().reverse() : [];
+    const vy = vcYs.includes(S.vcy) ? S.vcy : vcYs.includes(defYear()) ? defYear() : vcYs[0];
+    const vcShort = (n) => n.replace("철강·제강업체의 받침목(고임목)용", "철강 받침목").replace("데크용 원목마루판용", "데크·원목마루판").replace("원목을 이용하여 직접 제재", "직접 제재")
+      .replace("타 방부업체로부터 이용", "타 방부업체 경유").replace("타 방부업체 통해 이용", "타 방부업체 경유").replace("미이용산림바이오매스", "미이용 산림바이오매스").replace(/용$/, "").replace(/^(건설|생활|사업장)$/, "$1 폐목재");
     const drawVC = () => {
-      const yy = VC.years[S.vcy] ? S.vcy : vy, d = VC.years[yy], box = $("#ds-vc");
-      const greens = ["#1e8a57", "#2f9d68", "#45ad7a", "#5dbd8c", "#76c99d", "#8fd4ae", "#a8dfbf", "#c0e9cf"];
-      const blues = ["#1b3668", "#22427d", "#2a5296", "#3561a6", "#4670b3"];
-      const uu = d.uses.filter((u) => u[0] !== "기타"), TOPN = 7, us = uu.slice(0, TOPN), rest = uu.slice(TOPN).concat(d.uses.filter((u) => u[0] === "기타"));
-      const usesG = rest.length ? us.concat([["그 밖 용도", sum(rest.map((u) => u[1])), sum(rest.map((u) => u[2]))]]) : us;
-      const byD = Math.max(0, d.log_dom - d.prod_dom), byI = Math.max(0, d.log_imp - d.prod_imp);
-      const tot0 = d.log_dom + d.log_imp, small = d.src_dom.filter(([, v]) => v < tot0 * 0.02);
-      const srcD = d.src_dom.filter(([, v]) => v >= tot0 * 0.02).concat(small.length ? [["그 밖 시도", sum(small.map((s) => s[1])), small.map((s) => s[0]).join("·")]] : []);
-      const col0 = srcD.map(([n, v, sub], i) => ({ id: "d" + i, label: n, sub, v, c: greens[Math.min(i, greens.length - 1)], lc: "#3fa872", to: "LD" }))
-        .concat(d.src_imp.map(([n, v], i) => ({ id: "i" + i, label: n.replace(" 통해 이용", "").replace("해외에서 직접 이용", "해외 직접 수입").replace("수입업체·에이전트", "수입업체·대리점"), v, c: blues[Math.min(i, blues.length - 1)], lc: VC_COL.imp3, to: "LI" })));
-      const col1 = [{ id: "LD", label: "국산 원목", v: d.log_dom, c: VC_COL.dom }, { id: "LI", label: "수입 원목", v: d.log_imp, c: VC_COL.imp }];
-      const col2 = usesG.map(([n, a, b], i) => ({ id: "u" + i, label: n.replace("데크용 원목마루판용", "데크·원목마루판").replace(/용$/, ""), v: a + b, a, b, c: "#9aa3ad" }))
-        .concat([{ id: "BY", label: "부산물·손실(산출)", v: byD + byI, a: byD, b: byI, c: VC_COL.na }]);
-      const W = Math.max(box.clientWidth || 560, 520), H = W > 900 ? 500 : 560, L = 170, R = 190, nw = 10, gap = 6;
-      const xs = [L, (L + W - R) / 2 - nw / 2, W - R - nw], tot = d.log_dom + d.log_imp;
-      const sc = (H - 8 - gap * (Math.max(col0.length, col2.length) - 1)) / tot;
-      const place = (col) => { let y = 4; const sp = (H - 8 - sum(col.map((n) => n.v * sc))) / Math.max(col.length - 1, 1); col.forEach((n) => { n.y = y; n.h = Math.max(n.v * sc, 1.2); n.oo = 0; n.io = 0; y += n.h + sp; }); };
-      place(col0); place(col1); place(col2);
-      const N = {}; [col0, col1, col2].forEach((c) => c.forEach((n) => { N[n.id] = n; }));
-      const links = col0.map((n) => ({ s: n.id, t: n.to, v: n.v, c: n.lc }))
-        .concat(col2.flatMap((u) => [{ s: "LD", t: u.id, v: u.a, c: VC_COL.dom }, { s: "LI", t: u.id, v: u.b, c: VC_COL.imp3 }]).filter((l) => l.v > 0));
-      const ci = (id) => (col0.includes(N[id]) ? 0 : col1.includes(N[id]) ? 1 : 2);
+      const P = VC[S.vcp] || VC[vcp], yy = P.years[S.vcy] ? S.vcy : (P.years[defYear()] ? defYear() : Object.keys(P.years).sort().pop());
+      const g = P.years[yy], box = $("#ds-vc");
+      $("#vc-yr").innerHTML = Object.keys(P.years).sort().reverse().map((y) => `<option value="${y}"${y === yy ? " selected" : ""}>${y}년</option>`).join("");
+      $("#vc-chips").querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.k === (VC[S.vcp] ? S.vcp : vcp))));
+      const SH = { dom: ["#1e8a57", "#2f9d68", "#45ad7a", "#5dbd8c", "#76c99d", "#8fd4ae"], dom2: ["#5cb87f", "#7cc795", "#98d4ab", "#b2e0c1"],
+        imp: ["#1b3668", "#22427d", "#2a5296", "#3561a6", "#4670b3"], imp2: ["#2a5296", "#3561a6", "#4670b3", "#5a82c0"], na: ["#8a8f98", "#9aa0a8"] };
+      const LC = { dom: "#3fa872", dom2: "#7cc795", imp: VC_COL.imp3, imp2: "#5a82c0", na: "#9aa0a8", use: "#9aa3ad", prod: "#9aa3ad", by: "#9aa0a8" };
+      // 0열 작은 항목(그 열 합계의 2% 미만)은 원자재 구분별 '그 밖'으로 묶음
+      const nodes = g.nodes.map((n) => ({ ...n })), tot = g.input;
+      const map = {};
+      ["dom", "imp", "dom2", "imp2", "na"].forEach((grp) => {
+        const sm = nodes.filter((n) => n.col === 0 && n.grp === grp && n.v < tot * 0.02);
+        if (sm.length >= 2) { const id = "sm_" + grp; nodes.push({ id, label: { dom: "그 밖 시도", imp: "그 밖 경로" }[grp] || "그 밖 원자재", col: 0, grp, v: sum(sm.map((n) => n.v)), note: sm.map((n) => vcShort(n.label)).join("·") });
+          sm.forEach((n) => { map[n.id] = id; n.drop = true; }); }
+      });
+      { const sm = nodes.filter((n) => n.col === 2 && n.grp === "use" && n.v < tot * 0.03);
+        if (sm.length >= 2) { nodes.push({ id: "sm_use", label: "그 밖 용도", col: 2, grp: "use", v: sum(sm.map((n) => n.v)), note: sm.map((n) => vcShort(n.label) + (n.note ? " " + n.note : "")).join(", "),
+          pct: sum(sm.map((n) => parseFloat(n.note) || 0)) }); sm.forEach((n) => { map[n.id] = "sm_use"; n.drop = true; }); } }
+      const NN = nodes.filter((n) => !n.drop), N = {}; NN.forEach((n) => { N[n.id] = n; });
+      const lk = {}; g.links.forEach(([a, b, v]) => { const k = (map[a] || a) + ">" + (map[b] || b); lk[k] = (lk[k] || 0) + v; });
+      const links = Object.entries(lk).map(([k, v]) => { const [a, b] = k.split(">"); return { s: a, t: b, v }; });
+      const cols = [0, 1, 2].map((c) => NN.filter((n) => n.col === c));
+      const GO = { dom: 0, dom2: 1, imp: 2, imp2: 3, na: 4, use: 5, prod: 5, by: 6 };
+      const lastG = (n) => (n.label.startsWith("그 밖") ? 1 : 0);
+      cols.forEach((c) => c.sort((a, b) => (GO[a.grp] - GO[b.grp]) || (lastG(a) - lastG(b)) || (a.col === 2 && a.grp === "use" ? b.v - a.v : 0)));
+      const cnt = {}; cols[0].forEach((n) => { const k = n.grp; n.c = SH[k][Math.min(cnt[k] = (cnt[k] || 0) + 1, SH[k].length) - 1]; });
+      cols[1].forEach((n) => { n.c = SH[n.grp][0]; });
+      cols[2].forEach((n) => { n.c = n.grp === "by" ? VC_COL.na : n.a != null ? (n.a >= n.b ? VC_COL.dom : VC_COL.imp) : "#6b7785"; });
+      const W = Math.max(box.clientWidth || 560, 520), mx = Math.max(...cols.map((c) => c.length));
+      const H = Math.max(380, Math.min(600, 40 + mx * 32)), L = 200, R = 220, nw = 10, gap = 6;
+      const xs = [L, (L + W - R) / 2 - nw / 2, W - R - nw];
+      const sc = (H - 8 - gap * (mx - 1)) / tot;
+      cols.forEach((col) => { let y = 4; const sp = (H - 8 - sum(col.map((n) => n.v * sc))) / Math.max(col.length - 1, 1); col.forEach((n) => { n.y = y; n.h = Math.max(n.v * sc, 1.2); n.oo = 0; n.io = 0; y += n.h + sp; }); });
+      links.sort((a, b) => (N[a.s].col - N[b.s].col) || (N[a.t].y - N[b.t].y));
       const fmt = (v) => (v >= 1e4 ? nf(v / 1e4, v >= 1e5 ? 0 : 1) + "만" : nf(v, 0)) + " ㎥";
+      const curK = VC[S.vcp] ? S.vcp : vcp, uPct = P.kind === "3" && curK !== "p01";
+      const prodTxt = g.prod ? `국내 생산 ${g.prod >= 1e4 ? nf(g.prod / 1e4, g.prod >= 1e5 ? 0 : 1) + "만" : nf(g.prod, 0)} ${g.prod_unit === "t" ? "톤" : "㎥"} (전국 추계)` : "";
+      // 라벨 겹침 방지: 열마다 라벨 중심을 최소 간격으로 밀어냄
+      const lay = (col, gapL) => { const ys = col.map((n) => ({ n, y: n.y + n.h / 2 })); ys.sort((a, b) => a.y - b.y);
+        if (ys.length) ys[0].y = Math.max(ys[0].y, 10);
+        for (let i = 1; i < ys.length; i++) if (ys[i].y - ys[i - 1].y < gapL) ys[i].y = ys[i - 1].y + gapL;
+        const over = ys.length ? ys[ys.length - 1].y - (H - 6) : 0; if (over > 0) { ys[ys.length - 1].y -= over; for (let i = ys.length - 2; i >= 0; i--) if (ys[i + 1].y - ys[i].y < gapL) ys[i].y = ys[i + 1].y - gapL; }
+        ys.forEach((o) => { o.n.ly = o.y; }); };
+      lay(cols[0], 14); lay(cols[1], 16); lay(cols[2], 14);
       let svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}" class="vc">`;
-      links.forEach((l) => { const a = N[l.s], b = N[l.t], h = l.v * sc, x0 = xs[ci(l.s)] + nw, x1 = xs[ci(l.t)], y0 = a.y + a.oo + h / 2, y1 = b.y + b.io + h / 2; a.oo += h; b.io += h;
+      links.forEach((l) => { const a = N[l.s], b = N[l.t]; if (!a || !b) return; const h = l.v * sc, x0 = xs[a.col] + nw, x1 = xs[b.col], y0 = a.y + a.oo + h / 2, y1 = b.y + b.io + h / 2; a.oo += h; b.io += h;
         const xm = (x0 + x1) / 2;
-        svg += `<path d="M${x0},${y0} C${xm},${y0} ${xm},${y1} ${x1},${y1}" stroke="${l.c}" stroke-width="${Math.max(h, 0.8)}" fill="none" stroke-opacity=".42" class="vc-l"><title>${a.label} → ${b.label}: ${fmt(l.v)}</title></path>`; });
-      [col0, col1, col2].forEach((col, k) => col.forEach((n) => {
-        svg += `<rect x="${xs[k]}" y="${n.y}" width="${nw}" height="${n.h}" fill="${k === 2 && n.id !== "BY" ? (n.a >= n.b ? VC_COL.dom : VC_COL.imp) : n.c}" rx="2"><title>${n.label}${n.sub ? " (" + n.sub + ")" : ""}: ${fmt(n.v)}</title></rect>`;
-        const ty = n.y + n.h / 2 + 4;
-        if (k === 0) svg += `<text x="${xs[0] - 6}" y="${ty}" text-anchor="end" class="vc-t">${n.label} <tspan class="vc-s">${fmt(n.v)}</tspan></text>`;
-        else if (k === 1) svg += `<text x="${xs[1] + nw + 6}" y="${n.y + 14}" class="vc-t b">${n.label}</text><text x="${xs[1] + nw + 6}" y="${n.y + 30}" class="vc-s">${fmt(n.v)}</text>`;
-        else svg += `<text x="${xs[2] + nw + 6}" y="${ty}" class="vc-t">${n.label} <tspan class="vc-s">${fmt(n.v)}</tspan></text>`;
+        svg += `<path d="M${x0},${y0} C${xm},${y0} ${xm},${y1} ${x1},${y1}" stroke="${LC[a.grp] || LC.na}" stroke-width="${Math.max(h, 0.8)}" fill="none" stroke-opacity=".42" class="vc-l"><title>${vcShort(a.label)} → ${vcShort(b.label)}: ${fmt(l.v)}${b.col === 2 && uPct ? " (용도별 생산 비율로 나눈 값)" : ""}</title></path>`; });
+      cols.forEach((col, k) => col.forEach((n) => {
+        const lab = vcShort(n.label), val = k === 2 && uPct ? (n.id === "sm_use" ? nf(n.pct, 0) + "%" : (n.note || "")) : fmt(n.v);
+        svg += `<rect x="${xs[k]}" y="${n.y}" width="${nw}" height="${n.h}" fill="${n.c}" rx="2"><title>${lab}${n.note && k === 0 ? " (" + n.note + ")" : ""}: ${fmt(n.v)}</title></rect>`;
+        const ty = n.ly + 4;
+        if (k === 0) svg += `<text x="${xs[0] - 6}" y="${ty}" text-anchor="end" class="vc-t">${lab} <tspan class="vc-s">${val}</tspan></text>`;
+        else if (k === 1) svg += n.h > 34 && Math.abs(n.ly - (n.y + n.h / 2)) < 1 ? `<text x="${xs[1] + nw + 6}" y="${n.y + 14}" class="vc-t b">${lab}</text><text x="${xs[1] + nw + 6}" y="${n.y + 30}" class="vc-s">${fmt(n.v)}</text>`
+          : `<text x="${xs[1] + nw + 6}" y="${ty}" class="vc-t b">${lab} <tspan class="vc-s">${fmt(n.v)}</tspan></text>`;
+        else if (n.grp === "prod") svg += `<text x="${xs[2] + nw + 6}" y="${ty - 8}" class="vc-t b">${lab}</text><text x="${xs[2] + nw + 6}" y="${ty + 9}" class="vc-s">투입 ${fmt(n.v)}</text>${prodTxt ? `<text x="${xs[2] + nw + 6}" y="${ty + 25}" class="vc-s">${prodTxt}</text>` : ""}`;
+        else svg += `<text x="${xs[2] + nw + 6}" y="${ty}" class="vc-t">${lab} <tspan class="vc-s">${val}</tspan></text>`;
       }));
       box.innerHTML = svg + `</svg>`;
-      const prod = d.prod_dom + d.prod_imp, top = usesG.filter((u) => u[0] !== "그 밖 용도")[0];
-      $("#vc-lead").innerHTML = `${yy}년 원목 ${fmt(tot)} → 제재목 ${fmt(prod)} <span class="sub">수율 ${nf(prod / tot * 100, 0)}% · 최대 용도 ${top[0].replace(/용$/, "")} ${fmt(top[1] + top[2])}</span>`;
+      // 머리말·설명
+      const c1 = cols[1].filter((n) => n.v / tot >= 0.01).map((n) => `${vcShort(n.label)} ${nf(n.v / tot * 100, 0)}%`).join(" · ");
+      let lead;
+      if ((S.vcp || vcp) === "p01") { const prod = sum(cols[2].filter((n) => n.grp === "use").map((n) => n.v)), top = cols[2].filter((n) => n.grp === "use" && n.label !== "그 밖 용도")[0];
+        lead = `${yy}년 원목 ${fmt(tot)} → 제재목 ${fmt(prod)} <span class="sub">수율 ${nf(prod / tot * 100, 0)}% · 최대 용도 ${vcShort(top.label)} ${fmt(top.v)}</span>`; }
+      else if (P.kind === "2") lead = `${yy}년 ${P.label} 원자재 ${fmt(tot)} <span class="sub">${c1}</span>`;
+      else { const top = cols[2].filter((n) => n.grp === "use").sort((a, b) => b.v - a.v)[0]; lead = `${yy}년 ${P.label} 원자재 ${fmt(tot)} <span class="sub">최대 용도 ${top ? vcShort(top.label) + " " + (top.note || "") : "–"} · ${c1}</span>`; }
+      $("#vc-lead").innerHTML = lead;
+      const isSaw = (S.vcp || vcp) === "p01";
+      $("#vc-rule").innerHTML = (isSaw ? `왼쪽 = 국산 원목 공급지(시도)와 수입 원목 조달 경로, 가운데 = 제재소가 쓴 국산·수입 원목, 오른쪽 = 용도별 제재목 생산량(㎥) · 부산물·손실 = 원목 이용량 − 제재목 생산량(산출, 톱밥·칩·죽데기 등) · 응답업체 기준이라 전국 추계와 다름`
+        : P.kind === "2" ? `왼쪽 = 원료 출처(국산 원목 공급지·수입 원목 조달 경로·원목 외 원자재 종류), 가운데 = 원자재 구분, 오른쪽 = 제품 · 막대 높이 = 투입 원자재(㎥, 응답업체 기준), 생산량은 전국 추계 숫자로만 표시(원료 ㎥와 제품 단위가 달라 흐름으로 잇지 않음) · 용도별 판매 표가 없어 용도는 표시하지 않음`
+        : `왼쪽 = 원료 출처, 가운데 = 원자재 구분, 오른쪽 = 용도 · 오른쪽 막대 높이 = 투입 원자재(㎥)를 용도별 생산 비율로 나눈 값(산출), 숫자 = 용도별 생산 비율(${g.uses_table || ""}) · 원료(㎥)와 제품 단위가 달라 생산량 자체는 잇지 않음 · 응답업체 기준`)
+        + ` · 2% 미만 출처는 '그 밖'으로 묶음(마우스를 올리면 목록) · 선에 마우스를 올리면 물량 · 출처: ${VCA.source}`;
     };
     host.innerHTML =
       card("제품별 원자재 출처", `<select id="src-yr" class="mini-sel">${srcYs.map((yy) => `<option value="${yy}"${yy === sy ? " selected" : ""}>${yy}년</option>`).join("")}</select> 막대 = 비율 · 오른쪽 = 이용량`, `<div id="ds-src"></div>` +
         rule(`국내에서 만든 몫은 원자재별로(수입 단판으로 만든 합판, 수입 제재목을 처리한 방부목재 등 포함), 제품째 수입한 몫은 수입 제품으로 · 국내 생산 몫 = 실태조사 제품별 원자재 투입량(KOSIS, 2022~ 공표 제품), 그 밖의 제품(펄프·장작·톱밥·버섯 원목 등, 2024년만)과 2024년 수입 제품 = 실태조사 「국내 목재 이용 현황」 표, 2022·2023년 수입 제품 = 실태조사 제품별 수입량 · 원자재 투입량은 제품 생산량이 아니라 투입한 원자재 양이고, 중간재(수입 합판·단판 등)는 다른 제품의 수입량과 겹칠 수 있음 · 단위 ㎥ (펠릿 수입은 톤×1.67, 그 밖의 톤 단위 제품은 1:1, 실태조사 방식) · 출처: 산림청·한국임업진흥원 목재이용실태조사(KOSIS 제품별 원자재 표, 국내 목재 이용 현황)`), "span-2",
         (() => { const top = pr.slice(0, 3).map((d) => `${nm(d.key)} 수입 ${nf(impOf(d), 0)}%`); return top.join(" · "); })()) +
-      (VC ? card("가치사슬 — 제재목", `<select id="vc-yr" class="mini-sel">${vcYs.map((yy) => `<option value="${yy}"${yy === vy ? " selected" : ""}>${yy}년</option>`).join("")}</select> 응답업체 기준 · ㎥`,
-        `<div id="ds-vc"></div>` +
-        rule(`왼쪽 = 국산 원목 공급지(시도)와 수입 원목 조달 경로, 가운데 = 제재소가 쓴 국산·수입 원목, 오른쪽 = 용도별 제재목 생산량 · 부산물·손실 = 원목 이용량 − 제재목 생산량(산출, 톱밥·칩·죽데기 등) · 응답업체 기준이라 전국 추계(제재목 생산 ${nf(1900000 / 1e4, 0)}만 ㎥ 등)와 다름 · 선에 마우스를 올리면 물량 · 출처: ${VC.source}`),  "span-2",
-        `<span id="vc-lead"></span>`) : "");
+      (VC ? card("가치사슬", `<select id="vc-yr" class="mini-sel"></select> 응답업체 기준 · ㎥`,
+        `<div id="vc-chips" class="g-chips vc-chips">${vcOrder.map((k) => `<button type="button" data-k="${k}">${VC[k].label}${VC[k].kind === "3" ? "" : ""}</button>`).join("")}</div><div id="ds-vc"></div>` +
+        `<div class="rule" id="vc-rule"></div>`, "span-2", `<span id="vc-lead"></span>`) : "");
     $("#src-yr").onchange = (ev) => { S.srcy = ev.target.value; renderDist(); };
     stackRows($("#ds-src"), pr.map((d) => ({ label: nm(d.key), values: SRCS.map(([k]) => flowsOf(d)[k] || 0),
       text: `${nf(totOf(d) / 1e4, totOf(d) >= 1e5 ? 0 : 1)}만 ㎥`, onClick: isP(d.key) ? () => openDetail("product", d.key) : null })), SRCS.map(([, n, c]) => ({ name: n, color: c })), true);
-    if (VC) { $("#vc-yr").onchange = (ev) => { S.vcy = ev.target.value; drawVC(); }; drawVC(); }
+    if (VC) { $("#vc-yr").onchange = (ev) => { S.vcy = ev.target.value; drawVC(); };
+      $("#vc-chips").querySelectorAll("button").forEach((b) => b.onclick = () => { S.vcp = b.dataset.k; drawVC(); }); drawVC(); }
   }
 
   // ── 국내 공급 여력 (목재이용실태조사) ──────────────────

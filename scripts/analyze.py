@@ -417,7 +417,7 @@ def main() -> int:
     dp = judge.domestic_price(df, months, ROOT / "data" / "external" / "kfcf_price.csv", UNITS)
     kc = judge.kfs_check(df, kfs_csv)
     gl = judge.glance(survey_csv, ROOT / "data" / "external" / "wus_inputs.csv")
-    vc = judge.value_chain(ROOT / "data" / "external" / "kosis_wus_raw.json")
+    vc = judge.value_chain(ROOT / "data" / "external" / "kosis_wus_raw.json", ROOT / "data" / "external" / "wus_inputs.csv", survey_csv)
     ssf = judge.self_suff(ROOT / "data" / "external" / "wood_use_survey.csv", ROOT / "data" / "external" / "wus_inputs.csv",
                           {p["key"]: p["name"].replace("배향성스트랜드보드(OSB)", "OSB").replace("목재플라스틱복합재", "목재플라스틱(WPC)").split("(")[0] if p["key"] != "p04" else "목재플라스틱(WPC)" for p in CFG["products"] if p["status"] != "pending" or p["key"] == "p04"})
     write_json("judgments.json", {

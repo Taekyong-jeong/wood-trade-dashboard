@@ -607,3 +607,4 @@ svg.vc .vc-t { fill: var(--ink); font-size: 12px; }
 svg.vc .vc-t.b { font-weight: 700; font-size: 13px; }
 svg.vc .vc-s { fill: var(--muted); font-size: 11px; }
 svg.vc .vc-l:hover { stroke-opacity: .7; }
+.vc-chips { margin: 2px 0 8px; }

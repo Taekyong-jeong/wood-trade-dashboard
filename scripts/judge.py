@@ -735,31 +735,220 @@ def self_suff(survey_csv: Path, wus_csv: Path, labels: dict) -> dict | None:
 
 
 # ── ⑨ 가치사슬 (목재이용실태조사 KOSIS 원자료, 응답업체 기준) ─────────
-def value_chain(raw_json: Path) -> dict | None:
-    """제재목: 원목 출처(국산 공급지·수입 조달경로) → 국산/수입 원목 → 용도별 생산량 + 부산물·손실(= 원목 이용량 − 제품 생산량, 산출)"""
+_VC_SKIP = {"업체 수", "합계", "전체", "총 이용량", "원목", "원목 외", "국산", "수입"}
+
+
+def _vc_num(v):
+    try:
+        return float(v)
+    except (TypeError, ValueError):
+        return 0.0
+
+
+def _vc_items(rows, y, total_c1=("합계", "전체")):
+    """표 한 개에서 (항목, 값) 목록 — 단순형(C2 없음)이면 C1, 행렬형이면 C1이 합계/전체인 행의 C2"""
+    rs = [r for r in rows if r["PRD_DE"] == y]
+    if not rs:
+        return []
+    if all(r.get("C2_NM") in (None, "") for r in rs):
+        return [[r["C1_NM"].strip(), _vc_num(r["DT"])] for r in rs if r["C1_NM"].strip() not in _VC_SKIP]
+    out, seen = [], set()
+    for r in rs:
+        if r["C1_NM"] in total_c1 and r.get("C2_NM") and r["C2_NM"] not in _VC_SKIP and r["C2_NM"] not in seen:
+            seen.add(r["C2_NM"]); out.append([r["C2_NM"].strip(), _vc_num(r["DT"])])
+    return out
+
+
+def _vc_uses(rows, y):
+    """용도별 생산량 표: 용도마다 첫 번째 '생산량' 값(합계)"""
+    d = {}
+    for r in rows:
+        if r["PRD_DE"] == y and r.get("C2_NM") == "생산량" and r["C1_NM"] not in ("합계", "전체"):
+            d.setdefault(r["C1_NM"], _vc_num(r["DT"]))
+    return [[k, v] for k, v in d.items() if v > 0]
+
+
+def value_chain(raw_json: Path, wus_csv: Path | None = None, survey_csv: Path | None = None, labels: dict | None = None) -> dict | None:
+    """제품별 가치사슬: 0열 = 원료 출처(국산 원목 공급지·수입 원목 조달 경로·원목 외 원자재 종류),
+    1열 = 원자재 구분(국산 원목·국산 원목 외·수입 원목·수입 중간재·기타), 2열 = 용도(3단) 또는 제품(2단)."""
     if not raw_json.exists():
         return None
     j = json.loads(raw_json.read_text(encoding="utf-8"))
-    R = lambda k: (j.get(k) if isinstance(j.get(k), list) else (j.get(k) or {}).get("rows", [])) or []
-    num = lambda v: float(v) if v not in (None, "-", "") and str(v).replace(".", "", 1).isdigit() else 0.0
-    out = {}
-    a20, a23, a29 = R("DT_136034_2024_A020"), R("DT_136034_2024_A023"), R("DT_136034_2024_A029")
-    for y in sorted({r["PRD_DE"] for r in a29}):
-        dom = [[r["C2_NM"], num(r["DT"])] for r in a20 if r["PRD_DE"] == y and r["C1_NM"] == "합계" and r["C2_NM"] not in ("업체 수", "합계")]
-        imp = [[r["C2_NM"].replace("수입업체/ 에이전트", "수입업체·에이전트"), num(r["DT"])] for r in a23
-               if r["PRD_DE"] == y and r["C1_NM"] == "합계" and r["C2_NM"] not in ("업체 수", "합계")]
-        uses, cur = [], {}
-        for r in a29:
-            if r["PRD_DE"] != y or r["C2_NM"] != "생산량":
-                continue
-            cur.setdefault(r["C1_NM"], []).append(num(r["DT"]))
-        tot = cur.pop("합계", [0, 0, 0])
-        for k, v in cur.items():
-            v = (v + [0, 0, 0])[:3]
-            uses.append([k, v[1], v[2]])          # [용도, 국산 원목 이용 생산, 수입 원목 이용 생산]
-        uses.sort(key=lambda u: -(u[1] + u[2]))
+    T = lambda c: (j.get("DT_136034_2024_" + c) if isinstance(j.get("DT_136034_2024_" + c), list) else (j.get("DT_136034_2024_" + c) or {}).get("rows", [])) or []
+    w = pd.read_csv(wus_csv) if wus_csv is not None and wus_csv.exists() else None
+    sv = pd.read_csv(survey_csv) if survey_csv is not None and survey_csv.exists() else None
+    labels = labels or {}
+    G1 = {"dom": "국산 원목", "dom2": "국산 원목 외", "imp": "수입 원목", "imp2": "수입 중간재", "na": "기타·미상"}
+    route = lambda s: s.replace(" 통해 이용", "").replace("해외에서 직접 이용", "해외 직접 수입").replace("수입업체/ 에이전트", "수입업체·대리점").replace("수입업체/에이전트", "수입업체·대리점").replace("타 동종 업체", "타 동종업체")
+
+    def other_from_wus(key, y):
+        if w is None:
+            return []
+        g = w[(w["year"] == int(y)) & (w["product"] == key) & (~w["category"].str.endswith("원목"))]
+        return [[r["category"], float(r["value_m3"]), {"국산": "dom2", "수입": "imp2"}.get(r["origin"], "na")] for _, r in g.iterrows() if r["value_m3"] > 0]
+
+    def logs_from_wus(key, y):
+        if w is None:
+            return 0.0, 0.0
+        g = w[(w["year"] == int(y)) & (w["product"] == key) & (w["category"].str.endswith("원목"))]
+        return float(g[g["origin"] == "국산"]["value_m3"].sum()), float(g[g["origin"] == "수입"]["value_m3"].sum())
+
+    def prod_of(key, y):
+        if sv is None:
+            return None, None
+        x = sv[(sv["year"] == int(y)) & (sv["product"] == key) & (sv["metric"] == "production")]
+        return (float(x["value"].iloc[0]), x["unit"].iloc[0]) if len(x) else (None, None)
+
+    def build(dom_src, ld, imp_src, li, other, right, kind, extra=None):
+        nodes, links = [], []
+        def add(id_, label, col, grp, v, note=None):
+            nodes.append({"id": id_, "label": label, "col": col, "grp": grp, "v": round(v, 1), **({"note": note} if note else {})})
+        # 국산 원목
+        if ld > 0:
+            ds = [d for d in dom_src if d[1] > 0]
+            rest = ld - sum(v for _, v in ds)
+            if ds and rest > ld * 0.01:
+                ds.append(["공급지 미상", rest])
+            if not ds:
+                ds = [["국산 원목", ld]]
+            for i, (n, v) in enumerate(ds):
+                add(f"sd{i}", n, 0, "dom", v); links.append([f"sd{i}", "Ldom", v])
+            add("Ldom", G1["dom"], 1, "dom", ld)
+        if li > 0:
+            is_ = [[route(n), v] for n, v in imp_src if v > 0]
+            rest = li - sum(v for _, v in is_)
+            if is_ and rest > li * 0.01:
+                is_.append(["경로 미상", rest])
+            if not is_:
+                is_ = [["수입 원목", li]]
+            for i, (n, v) in enumerate(is_):
+                add(f"si{i}", n, 0, "imp", v); links.append([f"si{i}", "Limp", v])
+            add("Limp", G1["imp"], 1, "imp", li)
+        gsum = {}
+        for i, (n, v, g) in enumerate(other):
+            add(f"so{i}", n, 0, g, v); links.append([f"so{i}", "L" + g, v]); gsum[g] = gsum.get(g, 0) + v
+        for g, v in gsum.items():
+            add("L" + g, G1[g], 1, g, v)
+        tot1 = ld + li + sum(gsum.values())
+        if tot1 <= 0:
+            return None
+        if kind == "2":                               # 제품 하나로 모임
+            add("P", right["label"], 2, "prod", tot1, right.get("note"))
+            for n in [n for n in nodes if n["col"] == 1]:
+                links.append([n["id"], "P", n["v"]])
+        else:                                         # 용도별 (투입 원자재를 용도별 생산 비율로 나눔 = 산출)
+            us = [u for u in right["uses"] if u[1] > 0]
+            ptot = sum(u[1] for u in us)
+            if ptot <= 0:
+                return None
+            c1 = [n for n in nodes if n["col"] == 1]
+            for k, (n, v) in enumerate(us):
+                add(f"u{k}", n, 2, "use", tot1 * v / ptot, right.get("fmt", "{:.0f}%").format(v / ptot * 100) if right.get("pct") else None)
+                for c in c1:
+                    links.append([c["id"], f"u{k}", c["v"] * v / ptot])
+        out = {"kind": kind, "nodes": nodes, "links": [[a, b, round(v, 1)] for a, b, v in links if v > 0], "input": round(tot1)}
+        if extra:
+            out.update(extra)
+        return out
+
+    res = {}
+    years = sorted({r["PRD_DE"] for r in T("A029")})
+    # 1) 제재목: 용도별 실제 생산량(국산/수입 원목 이용 구분) + 부산물·손실 = 원목 이용량 − 생산량
+    sw = {}
+    for y in years:
+        dom = _vc_items(T("A020"), y); imp = _vc_items(T("A023"), y)
         ld, li = sum(v for _, v in dom), sum(v for _, v in imp)
-        out[y] = {"src_dom": [d for d in dom if d[1] > 0], "src_imp": [d for d in imp if d[1] > 0], "log_dom": ld, "log_imp": li,
-                  "prod_dom": tot[1] if len(tot) > 1 else 0, "prod_imp": tot[2] if len(tot) > 2 else 0, "uses": uses}
-    return {"p01": {"label": "제재목", "years": out,
-                    "source": "산림청·한국임업진흥원 목재이용실태조사 (KOSIS: 제재목 생산업체 국산 원목 공급지별 이용량·수입 원목 조달방법별 이용량·생산량 및 판매량), 응답업체 기준"}}
+        cur = {}
+        for r in T("A029"):
+            if r["PRD_DE"] == y and r.get("C2_NM") == "생산량":
+                cur.setdefault(r["C1_NM"], []).append(_vc_num(r["DT"]))
+        tot = (cur.pop("합계", [0, 0, 0]) + [0, 0, 0])[:3]
+        uses = sorted([[k, (v + [0, 0, 0])[1], (v + [0, 0, 0])[2]] for k, v in cur.items()], key=lambda u: -(u[1] + u[2]))
+        uu = [u for u in uses if u[0] != "기타"]; top = uu[:7]; rest = uu[7:] + [u for u in uses if u[0] == "기타"]
+        if rest:
+            top.append(["그 밖 용도", sum(u[1] for u in rest), sum(u[2] for u in rest)])
+        g = build(dom, ld, imp, li, [], {"uses": [[u[0], u[1] + u[2]] for u in top]}, "3")
+        if g is None:
+            continue
+        # 실제 국산/수입 분할로 링크 교체 + 부산물
+        g["nodes"] = [n for n in g["nodes"] if n["col"] < 2]; g["links"] = [l for l in g["links"] if not l[1].startswith("u")]
+        for k, (n, a, b) in enumerate(top):
+            g["nodes"].append({"id": f"u{k}", "label": n.replace("데크용 원목마루판용", "데크·원목마루판").rstrip("용") if n.endswith("용") else n, "col": 2, "grp": "use", "v": a + b, "a": a, "b": b})
+            if a > 0: g["links"].append(["Ldom", f"u{k}", a])
+            if b > 0: g["links"].append(["Limp", f"u{k}", b])
+        bd, bi = max(0, ld - tot[1]), max(0, li - tot[2])
+        g["nodes"].append({"id": "BY", "label": "부산물·손실(산출)", "col": 2, "grp": "by", "v": bd + bi})
+        if bd > 0: g["links"].append(["Ldom", "BY", bd])
+        if bi > 0: g["links"].append(["Limp", "BY", bi])
+        g.update({"prod": tot[0], "prod_unit": "㎥", "lead": "yield"})
+        sw[y] = g
+    res["p01"] = {"label": "제재목", "kind": "3", "years": sw, "tables": "A020·A023·A029"}
+
+    # 2) 2단 제품: 원료 출처 → 원자재 구분 → 제품 (원자재 투입 표 + 공급지·조달 경로 표)
+    P2 = [("p06", "합판", None, "B016"), ("p08", "섬유판", "C014", "C016"), ("p07", "파티클보드", None, None), ("p12", "목재칩", "K014", "K016"),
+          ("p11", "목재펠릿", "L016", None), ("p05", "집성재", "J013", "J015"), ("p02", "방부목재", "G015", "G017")]
+    for key, lab, dt, it in P2:
+        ys = {}
+        for y in years:
+            ld, li = logs_from_wus(key, y)
+            dom = _vc_items(T(dt), y) if dt else []
+            imp = []
+            if it:
+                rs = [r for r in T(it) if r["PRD_DE"] == y]
+                if rs and all(r.get("C2_NM") in (None, "") for r in rs):
+                    imp = _vc_items(T(it), y)
+                else:
+                    acc = {}
+                    for r in rs:
+                        if r.get("C2_NM") and r["C2_NM"] not in _VC_SKIP and r["C1_NM"] not in ("합계",):
+                            acc[r["C2_NM"]] = acc.get(r["C2_NM"], 0) + _vc_num(r["DT"])
+                    imp = [[k, v] for k, v in acc.items()]
+                    if any(r["C1_NM"] == "전체" for r in rs):
+                        imp = [[r["C2_NM"], _vc_num(r["DT"])] for r in rs if r["C1_NM"] == "전체" and r.get("C2_NM") and r["C2_NM"] not in _VC_SKIP]
+            pv, pu = prod_of(key, y)
+            note = f"국내 생산 {pv:,.0f}{'톤' if pu == 't' else '㎥'} (전국 추계)" if pv else None
+            g = build(dom, ld, imp, li, other_from_wus(key, y), {"label": f"{lab} 생산", "note": note}, "2", {"prod": pv, "prod_unit": pu})
+            if g:
+                ys[y] = g
+        if ys:
+            res[key] = {"label": lab, "kind": "2", "years": ys}
+
+    # 3) 3단(용도) 제품: 톱밥·목분, 숯, 성형숯, 목재상자·팔레트
+    def p_other(code, y, imp_words=("수입",), skip_parent=True):
+        out = []
+        for n, v in _vc_items(T(code), y):
+            if v <= 0:
+                continue
+            g = "imp2" if any(n.startswith(wd) for wd in imp_words) else "na" if n.startswith("기타") or "국산수입" in n else "dom2"
+            out.append([n, v, g])
+        return out
+
+    P3 = [
+        ("sawdust", "톱밥·목분", lambda y: (_vc_items(T("P016"), y), [[r["C2_NM"], _vc_num(r["DT"])] for r in T("P018") if r["PRD_DE"] == y and r["C1_NM"] == "전체" and r.get("C2_NM") not in _VC_SKIP],
+                                       [x for x in p_other("P014", y) if x[0] not in ("국산", "수입")]),
+         lambda y: [["톱밥 " + n, v] for n, v in _vc_uses(T("P021"), y)] + [["목분 " + n, v] for n, v in _vc_uses(T("P022"), y)], "P021·P022 용도별 생산량"),
+        ("p15", "숯", lambda y: (_vc_items(T("O015"), y), [], p_other("O016", y)), lambda y: _vc_uses(T("O019"), y), "O019 용도별 생산량"),
+        ("p14", "성형숯", lambda y: (_vc_items(T("N014"), y), [], [x for x in p_other("N012", y) if x[0] not in ("국산", "수입")]), lambda y: _vc_uses(T("N018"), y), "N018 용도별 생산량"),
+        ("pallet", "목재상자·팔레트", lambda y: (_vc_items(T("T020"), y), _vc_items(T("T023"), y), None), lambda y: [[n, v] for n, v in _vc_uses(T("T029"), y)], "T029 용도별 생산량"),
+    ]
+    for key, lab, srcf, usef, tb in P3:
+        ys = {}
+        for y in years:
+            dom, imp, oth = srcf(y)
+            ld, li = sum(v for _, v in dom), sum(v for _, v in imp)
+            if key == "pallet":                       # 원목 외 원자재 = 총 이용량 − 원목 (종류 구분 표 없음)
+                tot = [r for r in T("T014") if r["PRD_DE"] == y and r["C1_NM"] == "전체" and r.get("C2_NM") == "총 이용량"]
+                rest = (_vc_num(tot[0]["DT"]) if tot else 0) - ld - li
+                oth = [["원목 외 원자재(제재목 등)", rest, "na"]] if rest > 0 else []
+            us = usef(y)
+            g = build(dom, ld, imp, li, oth, {"uses": us, "pct": True}, "3", {"uses_raw": us, "uses_table": tb})
+            if g and key == "pallet":
+                for n in g["nodes"]:
+                    if n["id"] == "Lna":
+                        n["label"] = "원목 외(국산·수입 구분 없음)"
+            if g:
+                ys[y] = g
+        if ys:
+            res[key] = {"label": lab, "kind": "3", "years": ys}
+    return {"products": res, "order": ["p01", "p06", "p08", "p07", "p12", "p11", "p05", "p02", "pallet", "sawdust", "p15", "p14"],
+            "source": "산림청·한국임업진흥원 목재이용실태조사 (KOSIS 제품별 원자재·공급지·조달 경로·용도별 생산량 표), 응답업체 기준"}
