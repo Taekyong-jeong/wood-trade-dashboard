@@ -303,67 +303,81 @@ def domestic_supply(survey_csv: Path, sr: list[dict], labels: dict) -> dict | No
     return {"rows": rows, "overall": overall, "source": c["source"], "line": c["spare_cover_line"]}
 
 
-def calibrate_density(df: pd.DataFrame, survey_csv: Path, units: dict) -> list[dict]:
-    """관세청 kg ÷ 실태조사 ㎥ → 밀도(t/㎥). config/criteria.yaml density_calibration."""
-    if not survey_csv.exists():
+def calibrate_density(df: pd.DataFrame, kfs_csv: Path, survey_csv: Path, units: dict) -> list[dict]:
+    """관세청 순중량(t) ÷ 산림청 임산물수출입통계 수입 물량(㎥) → 산림청 환산계수. config/criteria.yaml density_calibration."""
+    if not kfs_csv.exists():
         return []
     c = CRIT["density_calibration"]
-    s = pd.read_csv(survey_csv)
+    k = pd.read_csv(kfs_csv)
+    sv = pd.read_csv(survey_csv) if survey_csv.exists() else None
     months = sorted(df["month"].unique())
     full = [y for y in sorted({m[:4] for m in months}) if sum(1 for m in months if m.startswith(y)) == 12]
     out = []
-    for item, prefixes in c["items"].items():
-        sk = c["survey_key"][item]
-        metric = (c.get("survey_metric") or {}).get(item, "imports")
+    for item, (prefixes, kname) in c["items"].items():
         sub = df[df["hs"].str.startswith(tuple(prefixes))]
-        imp = s[(s["product"] == sk) & (s["metric"] == metric)]
-        m3 = {str(int(y)): float(v) for y, v in zip(imp["year"], imp["value"])}
-        usd = s[(s["product"] == sk) & (s["metric"] == "imports_usd_k")]
-        usd = {str(int(y)): float(v) * 1000 for y, v in zip(usd["year"], usd["value"])}
-        per_year = []
-        for y in full:
-            if y not in m3:
+        kk = k[(k["item"] == kname) & (k["qty_unit"] == "천㎥")]
+        per_year, skipped = [], []
+        for _, r in kk.iterrows():
+            y = str(int(r["year"]))
+            if y not in full or r["qty"] <= 0:
                 continue
             ys = sub[sub["month"].str.startswith(y)]
             kg, dl = float(ys["imp_kg"].sum()), float(ys["imp_usd"].sum())
-            if y in usd and abs(dl / usd[y] - 1) * 100 > c["scope_check_pct"]:
-                continue                                   # 범위 불일치
-            per_year.append({"year": y, "density": kg / 1000 / m3[y]})
-        method = "kg÷㎥" + ("(이용량 기준)" if metric != "imports" else "")
-        if not per_year and "2023" in usd and "2023" in m3:   # 대체: 2023 단가 비율
-            ys = sub[sub["month"].str.startswith("2023")]
-            kg, dl = float(ys["imp_kg"].sum()), float(ys["imp_usd"].sum())
-            if kg > 0:
-                per_year.append({"year": "2023", "density": (usd["2023"] / m3["2023"]) / (dl / kg) / 1000})
-                method = "단가 비율(2023)"
+            if kg <= 0 or abs(dl / (r["usd_k"] * 1000) - 1) * 100 > c["scope_check_pct"]:
+                skipped.append(y); continue                 # 범위 불일치
+            per_year.append({"year": y, "density": kg / 1000 / (r["qty"] * 1000)})
         if not per_year:
             continue
-        # 고정 환산계수 연도 걸러내기: 실태조사(임산물수출입통계) ㎥가 중량 ÷ 고정계수로 만들어진 해는
-        # kg÷㎥가 해마다 똑같은 값(소수 셋째 자리)으로 나옴 → 측정값이 아니라 산림청 환산계수임
-        vals = [round(p["density"], 3) for p in per_year]
-        from collections import Counter
-        cnt = Counter(round(v, 2) for v in vals)
-        fixed = {v for v, n in cnt.items() if n >= c.get("fixed_factor_min_years", 3)}
-        measured = [p for p in per_year if round(p["density"], 2) not in fixed]
-        factor = None
-        if fixed:
-            factor = max(fixed, key=lambda v: cnt[v])
-        if len(measured) >= 2:
-            d = float(np.median([p["density"] for p in measured]))
-            method = method + " (신고 수량 연도)" if metric == "imports" else method
-            used = measured
-        elif factor is not None:
-            d = factor
-            method = "산림청 환산계수 (실태조사 ㎥ = 중량 ÷ 계수)"
-            used = [p for p in per_year if round(p["density"], 2) == factor]
-        else:
-            d = float(np.median([p["density"] for p in per_year]))
-            used = per_year
+        vals = [p["density"] for p in per_year]
+        d = float(np.median(vals))
+        const = (max(vals) - min(vals)) <= c.get("constant_tol", 0.01)
+        check = None
+        cs = (c.get("check_survey") or {}).get(item)
+        if cs and sv is not None:
+            x = sv[(sv["product"] == cs[0]) & (sv["metric"] == cs[1])]
+            ck = []
+            for y, v in zip(x["year"], x["value"]):
+                y = str(int(y))
+                if y in full and v > 0:
+                    ck.append(float(sub[sub["month"].str.startswith(y)]["imp_kg"].sum()) / 1000 / float(v))
+            if ck:
+                check = {"label": "실태조사 수입 원목 이용량 기준", "density": round(float(np.median(ck)), 3), "n": len(ck)}
         prov = (units.get("items") or {}).get(item, {}).get("density")
-        out.append({"item": item, "density": round(d, 3), "provisional": prov, "method": method, "metric": metric,
-                    "years": [p["year"] for p in used], "by_year": [round(p["density"], 3) for p in used],
-                    "all_years": [p["year"] for p in per_year], "all_by_year": vals, "fixed_factor": factor})
+        out.append({"item": item, "density": round(d, 3), "provisional": prov,
+                    "method": "산림청 환산계수" + (" (전 연도 고정 확인)" if const else " (연도별 중앙값)"),
+                    "kfs_item": kname, "years": [p["year"] for p in per_year], "by_year": [round(v, 3) for v in vals],
+                    "constant": const, "skipped": skipped, "check": check})
     return out
+
+
+def kfs_check(df: pd.DataFrame, kfs_csv: Path) -> dict | None:
+    """관세청 수집값 vs 산림청 임산물수출입통계 수입액 (연 누계). config/criteria.yaml kfs_check."""
+    if not kfs_csv.exists():
+        return None
+    c = CRIT["kfs_check"]
+    k = pd.read_csv(kfs_csv)
+    k["h4"] = k["item"].map(c["map"])
+    k = k.dropna(subset=["h4"]).groupby(["h4", "year"], as_index=False)["usd_k"].sum()
+    months = sorted(df["month"].unique())
+    full = {y for y in {m[:4] for m in months} if sum(1 for m in months if m.startswith(y)) == 12}
+    d = df.assign(h4=df["hs"].str[:4], year=df["month"].str[:4])
+    cus = d.groupby(["h4", "year"])["imp_usd"].sum()
+    rows, tol = [], c["tol_pct"]
+    for _, r in k.iterrows():
+        y = str(int(r["year"]))
+        if y not in full:
+            continue
+        cu = float(cus.get((r["h4"], y), 0)) / 1000
+        gap = (cu / r["usd_k"] - 1) * 100 if r["usd_k"] else None
+        note = (c.get("notes") or {}).get(f"{r['h4']}-{y}")
+        rows.append({"hs": r["h4"], "year": int(y), "kfs_usd_k": round(float(r["usd_k"]), 1), "customs_usd_k": round(cu, 1),
+                     "gap_pct": None if gap is None else round(gap, 2), "match": gap is not None and abs(gap) <= tol, "note": note})
+    rows.sort(key=lambda x: (x["hs"], x["year"]))
+    n_ok = sum(r["match"] for r in rows)
+    within = [abs(r["gap_pct"]) for r in rows if r["match"]]
+    return {"rows": rows, "n": len(rows), "n_match": n_ok, "max_abs_gap_match": round(max(within), 2) if within else None,
+            "years": [min(r["year"] for r in rows), max(r["year"] for r in rows)] if rows else None,
+            "tol_pct": tol, "source": c["source"]}
 
 
 # ── ⑦ 국산·수입 가격 수준 (참고) ────────────────────────────
@@ -388,14 +402,14 @@ def domestic_price(df: pd.DataFrame, months: list[str], price_csv: Path, units: 
                "krw_m3_median": round(float(d["krw_m3"].median())), "n": int(len(d)), "year": int(d["year"].iloc[0])}
         imps = []
         for im in pr["imports"]:
-            if "survey" in im:                         # 실태조사(임산물수출입통계) 신고 ㎥ 기준 단가
-                sv = pd.read_csv(price_csv.parent / "wood_use_survey.csv")
-                g = lambda m: sv[(sv["product"] == im["survey"]) & (sv["metric"] == m) & (sv["year"] == im["survey_year"])]["value"]
-                m3, uk = g("imports"), g("imports_usd_k")
-                if len(m3) and len(uk):
-                    pm3 = float(uk.iloc[0]) * 1000 / float(m3.iloc[0])
-                    imps.append({"label": im["label"], "usd": round(float(uk.iloc[0]) * 1000), "usd_t": None, "usd_m3": round(pm3),
-                                 "density": None, "calibrated": None, "basis": "신고 ㎥", "ratio": round(dom["median"] / pm3, 2)})
+            if "kfs" in im:                            # 산림청 임산물수출입통계 공표 ㎥ 기준 단가
+                kf = pd.read_csv(price_csv.parent / "kfs_trade.csv")
+                r = kf[(kf["item"] == im["kfs"]) & (kf["year"] == im["kfs_year"])]
+                if len(r) and float(r["qty"].iloc[0]) > 0:
+                    uk, q = float(r["usd_k"].iloc[0]), float(r["qty"].iloc[0])
+                    pm3 = uk * 1000 / (q * 1000)
+                    imps.append({"label": im["label"], "usd": round(uk * 1000), "usd_t": None, "usd_m3": round(pm3),
+                                 "density": None, "calibrated": None, "basis": "산림청 ㎥", "ratio": round(dom["median"] / pm3, 2)})
                 continue
             s = cur[cur["hs"].str.startswith(tuple(im["hs"]))]
             kg, usd = float(s["imp_kg"].sum()), float(s["imp_usd"].sum())

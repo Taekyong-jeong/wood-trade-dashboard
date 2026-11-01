@@ -350,14 +350,17 @@ def main() -> int:
         print("데이터 없음 — meta만 기록")
         return 0
 
-    # 부피 환산 밀도 보정 (목재이용실태조사 수입량 ㎥ 대비 관세청 중량) — 단가 계산 전에 적용
+    # 부피 환산 밀도 — 산림청 임산물수출입통계 ㎥와 같은 환산계수 (관세청 중량 ÷ 산림청 수입 ㎥) — 단가 계산 전에 적용
     survey_csv = ROOT / "data" / "external" / "wood_use_survey.csv"
-    calib = judge.calibrate_density(df, survey_csv, UNITS)
+    kfs_csv = ROOT / "data" / "external" / "kfs_trade.csv"
+    calib = judge.calibrate_density(df, kfs_csv, survey_csv, UNITS)
     for cb in calib:
         it = UNITS.setdefault("items", {}).setdefault(cb["item"], {"unit": "m3"})
         it["density"] = cb["density"]
         it["calibrated"] = True
-        it["basis"] = f"실태조사 보정 {cb['density']:.2f} t/㎥ ({cb['method']}, {', '.join(cb['years'])}) · 잠정값 {cb['provisional']}"
+        yrs = f"{cb['years'][0]}~{cb['years'][-1]}" if len(cb["years"]) > 1 else cb["years"][0]
+        ck = f" · 검증 {cb['check']['label']} {cb['check']['density']:.2f}" if cb.get("check") else ""
+        it["basis"] = f"산림청 환산계수 {cb['density']:.2f} t/㎥ ({cb['kfs_item']}, 임산물수출입통계 ㎥ = 관세청 중량 ÷ 계수, {yrs}){ck} · 이전 잠정값 {cb['provisional']}"
 
     months, series, countries, names, hs_names, long = build_outputs(df)
     ok, msg = validate(months, series)
@@ -411,10 +414,11 @@ def main() -> int:
     ds = judge.domestic_supply(survey_csv, sr, {p["key"]: p["name"] for p in CFG["products"]})
     ind = judge.industry(survey_csv, {p["key"]: p["name"] for p in CFG["products"]})
     dp = judge.domestic_price(df, months, ROOT / "data" / "external" / "kfcf_price.csv", UNITS)
+    kc = judge.kfs_check(df, kfs_csv)
     write_json("judgments.json", {
         "month": months[-1], "cards": judge.summary_cards(sr, pen, pa, dec, ds),
         "supply_risk": sr, "penetration": pen, "price_anomaly": pa, "decomposition": dec, "structure": st,
-        "domestic_supply": ds, "domestic_price": dp, "industry": ind,
+        "domestic_supply": ds, "domestic_price": dp, "industry": ind, "kfs_check": kc,
         "criteria": judge.CRIT,
     })
     # 그림 원자료 (논문·보고서용)
@@ -434,6 +438,11 @@ def main() -> int:
     if kp.exists():
         import shutil
         shutil.copy(kp, OUT_DIR / "kfcf_price.csv")
+    if kfs_csv.exists():
+        import shutil
+        shutil.copy(kfs_csv, OUT_DIR / "kfs_trade.csv")
+    if kc:
+        pd.DataFrame(kc["rows"]).to_csv(OUT_DIR / "fig_kfs_check.csv", index=False, encoding="utf-8-sig")
     sup = ROOT / "data" / "external" / "kosis_wood_supply.csv"
     if sup.exists():
         t = pd.read_csv(sup)

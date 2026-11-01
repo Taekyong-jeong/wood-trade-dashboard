@@ -42,7 +42,7 @@
   }
   const plabel = (axis, key) => ({ m3: "USD/㎥", t: "USD/t", kg: "USD/kg" }[unitOf(axis, key).unit]);
   const pfmt = (axis, key) => (v) => (unitOf(axis, key).unit === "kg" ? nf(v, 2) : nf(v, 0));
-  // ㎥ 환산 배지: 보정(실태조사) / 잠정(대표값). 툴팁에 공식·밀도 출처
+  // ㎥ 환산 배지: 산림청 계수(임산물수출입통계 환산계수) / 잠정(대표값). 툴팁에 공식·밀도 출처
   const pest = (axis, key) => { const u = unitOf(axis, key); if (u.unit !== "m3") return "";
     const f = `USD/㎥ = USD/t × 밀도 ${nf(u.density, 2)} t/㎥ · ${u.basis || ""}`;
     return u.calibrated ? ` <span class="badge" title="${f}">${/산림청 환산계수/.test(u.basis || "") ? "산림청 계수" : "보정"}</span>` : ` <span class="badge" title="${f}">잠정</span>`; };
@@ -50,7 +50,7 @@
   function ptwin(axis, key, usdv, kg) {
     const b = unitOf(axis, key, true);
     if (b.unit !== "m3" || !kg) return "";
-    return S.pu === "t" ? `≈ ${nf((usdv * b.density * 1000) / kg, 0)} USD/㎥(${b.calibrated ? "보정" : "잠정"})` : `= ${nf((usdv * 1000) / kg, 0)} USD/t (액면)`;
+    return S.pu === "t" ? `≈ ${nf((usdv * b.density * 1000) / kg, 0)} USD/㎥(${b.calibrated ? "산림청 계수" : "잠정"})` : `= ${nf((usdv * 1000) / kg, 0)} USD/t (액면)`;
   }
   function delta(cur, prev, unit = "%") {
     if (!prev || cur == null) return `<span class="delta">비교 불가</span>`;
@@ -128,7 +128,7 @@
 
   // ── 공통 렌더 ───────────────────────────────────────────
   // 자료 구분: 원자료(공표 통계 수치 그대로·합계) / 분석(본 페이지가 계산한 비율·지수·환산·판정)
-  const KIND_ANA = /^(수입 집중|품목별 판정|품목별 국내 공급 구조|원목 수입의존도|자급-수입 구조|목재제품별 수입의존도|가격 이상 판정|공급국 가격대 지도|단가 지수|국산·수입 가격 수준|수입액 변화 분해|공급국별 수입 단가|공급국 집중도|목재제품별 수입과 점유율|품목군 구성)/;
+  const KIND_ANA = /^(수입 집중|품목별 판정|품목별 국내 공급 구조|원목 수입의존도|자급-수입 구조|목재제품별 수입의존도|가격 이상 판정|공급국 가격대 지도|단가 지수|국산·수입 가격 수준|수입액 변화 분해|공급국별 수입 단가|공급국 집중도|목재제품별 수입과 점유율|품목군 구성|산림청 공표치 대조)/;
   const KIND_MIX = /^(국내 설비 가동률 추이)/;
   const KIND_RAW = /^(최대 수입국|최대 수입 품목|수입·수출 추이|주요 공급국|대분류별 원목|세부 수종|.+산 목재류 수입|목재산업 매출|목재제품별 매출)/;
   function kindOf(title, hint) {
@@ -152,7 +152,7 @@
     hhi: "공급국별 수입 점유율(%)을 제곱해 더한 값. 한 나라가 100% 공급하면 10,000, 10개국이 10%씩 나누면 1,000. 1,500 미만 분산 · 1,500~2,500 보통 · 2,500 이상 집중 (미국 법무부 시장집중도 기준).",
     dep: "공급국 의존도: 수입이 특정 국가에 얼마나 몰려 있는지. 최대 공급국 점유율 50% 이상 또는 HHI 2,500 이상이면 '높음', HHI 1,500~2,500이면 '보통', 그 미만이면 '낮음'.",
     logdep: "원목 수입의존도 = 100 − 원목자급률. 국내에서 쓰는 원목(㎥) 중 수입산의 비율. 산림청 목재수급통계(연 1회 공표).",
-    price: "수입 단가 = 수입액 ÷ 수입량. 운임·보험료가 포함된 도착 가격(CIF). 목재제품은 USD/㎥(중량을 밀도로 환산 — 실태조사로 보정한 품목은 ‘보정’, 나머지는 ‘추정’), 연료형은 USD/t, 혼합 분류는 USD/kg. 같은 품목도 수종·규격 구성이 바뀌면 달라짐.",
+    price: "수입 단가 = 수입액 ÷ 수입량. 운임·보험료가 포함된 도착 가격(CIF). 목재제품은 USD/㎥(중량을 밀도로 환산 — 산림청 임산물수출입통계와 같은 환산계수를 쓴 품목은 ‘산림청 계수’, 나머지는 ‘잠정’), 연료형은 USD/t, 혼합 분류는 USD/kg. 같은 품목도 수종·규격 구성이 바뀌면 달라짐.",
     r12: "12개월 누적: 해당 월까지 최근 12개월 합계. 계절에 따른 들쭉날쭉함을 없애고 추세를 볼 때 씀.",
     share: "점유율: 해당 품목 전체 수입액 중 그 나라가 차지하는 비율.",
     gap: "무역수지 = 수출액 − 수입액. 음수면 수입이 더 많음. 수입은 CIF, 수출은 FOB 기준.",
@@ -368,7 +368,7 @@
   }
 
   // ── 가격 ───────────────────────────────────────────────
-  const PU_RULE = "<b>톤 단가</b> = 수입액 ÷ 순중량 (관세청 액면, 환산 없음) · <b>㎥ 단가</b> = 톤 단가 × 밀도(t/㎥) — 밀도: 제재목은 관세청 중량 ÷ 신고 수량(㎥)으로 <b>보정</b>(2020~2022년, 목재이용실태조사 수록 임산물수출입통계), 합판·섬유판·파티클보드는 <b>산림청 환산계수</b>(실태조사 수입 ㎥가 중량 ÷ 계수로 산출됨을 확인), 원목은 수입 원목 이용량 기준 검증, 나머지는 <b>잠정</b> 대표값 · 단가 지수·이상 판정은 단위와 무관";
+  const PU_RULE = "<b>톤 단가</b> = 수입액 ÷ 순중량 (관세청 액면, 환산 없음) · <b>㎥ 단가</b> = 톤 단가 × 밀도(t/㎥) — 밀도: 원목·제재목·단판·합판·파티클보드·섬유판은 <b>산림청 환산계수</b>(산림청 임산물수출입통계 수입 ㎥ = 관세청 중량 ÷ 계수임을 2016~2025년 전 연도에서 확인 — 원목 0.855·제재목 0.60·단판 0.50·합판 0.65·파티클보드 0.65·섬유판 0.70), 나머지는 <b>잠정</b> 대표값 · 단가 지수·이상 판정은 단위와 무관";
   function renderPuSeg() {
     const el = $("#pu-seg"); if (!el) return;
     el.querySelectorAll("button").forEach((b) => { b.classList.toggle("on", b.dataset.pu === S.pu);
@@ -407,7 +407,7 @@
         `<div class="tbl-wrap"><table><thead><tr><th class="l">비교</th><th>USD/㎥</th><th>국산 ÷ 수입</th></tr></thead><tbody>` +
         DP.pairs.map((pr) => `<tr class="grp"><td class="l"><b>국산 ${pr.label}</b> <span class="sub">A급 ${pr.domestic.n}규격 중앙값</span></td><td><b>${nf(pr.domestic.median, 0)}</b> <span class="sub">${nf(pr.domestic.min, 0)}~${nf(pr.domestic.max, 0)}</span></td><td></td></tr>` +
           pr.imports.map((im) => im.small ? `<tr><td class="l">└ ${im.label}</td><td colspan="2" class="sub">수입 ${usd(im.usd)} — 100만 달러 미만, 비교 제외</td></tr>`
-            : `<tr><td class="l">└ ${im.label}</td><td>${nf(im.usd_m3, 0)}${im.basis ? "" : (im.calibrated ? " <span class='badge'>보정</span>" : " <span class='badge'>잠정</span>")}</td><td><b>${nf(im.ratio, 1)}배</b></td></tr>`).join("")).join("") +
+            : `<tr><td class="l">└ ${im.label}</td><td>${nf(im.usd_m3, 0)}${im.basis ? "" : (im.calibrated ? " <span class='badge'>산림청 계수</span>" : " <span class='badge'>잠정</span>")}</td><td><b>${nf(im.ratio, 1)}배</b></td></tr>`).join("")).join("") +
         `</tbody></table></div>` +
         rule(`국산 = 산림조합중앙회 목재유통센터 판매단가(A급·면세) ÷ 규격 부피(T×W×L), 원/달러 ${nf(DP.fx, 0)} (${DP.fx_basis.replace(/^.*?\(/, "").replace(/\)$/, "")}) · 수입 = CIF 단가 — 관세·통관·내륙운송·유통 마진 전이라 같은 단계 가격이 아님. 가격 수준 참고용이며 경쟁력 판정에 쓰지 않음 · ${DP.species_note} · ${DP.survey_note || ""}`), "",
         ref ? `국산 ${p0.label} ${nf(p0.domestic.median, 0)} USD/㎥ — 수입 제재목 평균의 ${nf(ref.ratio, 1)}배` : ""));
@@ -572,7 +572,7 @@
         const vals = e.imp_usd.map((v, i) => (since && months()[i] < since ? null : v));
         const K = l12(e, "imp_kg").cur, pv = K ? pconv("product", p.key)(L.cur, K) : null;
         body = `<div class="pv num">${usd(L.cur)}</div><div class="pd">최근 12개월 · ${delta(L.cur, L.prev)}</div>` +
-          `<div class="pd">단가 ${pv ? pfmt("product", p.key)(pv) + " " + plabel("product", p.key) : "–"}${unitOf("product", p.key).unit === "m3" ? (unitOf("product", p.key).calibrated ? " (보정)" : " (잠정)") : ""}</div>${C.sparkline(vals.slice(-60))}`;
+          `<div class="pd">단가 ${pv ? pfmt("product", p.key)(pv) + " " + plabel("product", p.key) : "–"}${unitOf("product", p.key).unit === "m3" ? (unitOf("product", p.key).calibrated ? " (산림청 계수)" : " (잠정)") : ""}</div>${C.sparkline(vals.slice(-60))}`;
       }
       const badge = p.status === "partial" ? `<span class="badge">일부</span>` : p.since ? `<span class="badge">${p.since.slice(0, 4)}~</span>` : "";
       return `<button class="pcard ${disabled ? "disabled" : ""}" data-k="${p.key}" aria-pressed="${p.key === S.product}">` +
@@ -655,16 +655,26 @@
         <tr><td class="l">수입 의존</td><td class="l" style="white-space:normal">수입침투율 = 수입 ÷ (생산 − 수출 + 수입). 원목 = 100 − 원목자급률. 최근 10년 Mann-Kendall 검정 p&lt;0.05면 상승/하락</td><td class="l" style="white-space:normal">${[R.oecd_stan, R.mann1945, R.kendall1975].filter(Boolean).join("<br>")}</td></tr>
         <tr><td class="l">가격 이상</td><td class="l" style="white-space:normal">IFPA = 0.4·z(분기 성장률) + 0.6·z(연간 성장률), z는 과거 같은 달 기준 표준화. ±0.5σ 정상 · 0.5~1σ 다소 높음 · 1σ↑ 비정상 (하락 대칭). 과거 3년↑, 월 수입액 100만 달러↑</td><td class="l" style="white-space:normal">${R.fao_ifpa || ""}</td></tr>
         <tr><td class="l">국내 공급 여력</td><td class="l" style="white-space:normal">수입 비중 = 수입량 ÷ (국내 생산 + 수입), 물량 기준, 5개년↑ Mann-Kendall · 가동률 = 연 생산량 ÷ 최대 생산가능량 · 대체 여력 = 생산량 × (100 ÷ 가동률 − 1) ÷ 수입량, 100% 선은 정의상 경계 · 등급 없이 수치만 제시</td><td class="l" style="white-space:normal">${[R.kfs_wus, R.oecd_stan].filter(Boolean).join("<br>")}</td></tr>
-        <tr><td class="l">밀도 보정</td><td class="l" style="white-space:normal">같은 연도 관세청 수입 중량(kg) ÷ 실태조사 수입량(㎥)의 중앙값. 12개월 자료가 없으면 2023년 실태조사 단가(USD/㎥) ÷ 관세청 단가(USD/kg). 수입액 차이 ±10% 넘으면 범위 불일치로 제외</td><td class="l" style="white-space:normal">${R.kfs_wus || ""}</td></tr>
-        <tr><td class="l">국산·수입 가격 수준</td><td class="l" style="white-space:normal">국산 ㎥ 가격 = 판매단가 ÷ (두께×폭×길이), 규격별 중앙값, 원/달러 2025년 연평균 · 수입 = 최근 12개월 CIF ㎥ 단가(보정 밀도) 및 2023년 신고 ㎥ 단가 · 수입 100만 달러 미만 비교 제외 · 판정 없음(참고)</td><td class="l" style="white-space:normal">${[R.kfcf2026, R.bok_fx].filter(Boolean).join("<br>")}</td></tr>
+        <tr><td class="l">부피 환산 밀도</td><td class="l" style="white-space:normal">연도별 관세청 수입 순중량(t) ÷ 산림청 임산물수출입통계 수입 물량(㎥)의 중앙값 = 산림청 환산계수 (2016~2025년 모든 연도에서 같은 값 확인). 수입액이 ±2% 넘게 다른 해는 제외. 원목은 실태조사 수입 원목 이용량 기준값을 검증용으로 병기</td><td class="l" style="white-space:normal">${[R.kfs_trade, R.kfs_wus].filter(Boolean).join("<br>")}</td></tr>
+        <tr><td class="l">산림청 공표치 대조</td><td class="l" style="white-space:normal">관세청 수집값의 연간 수입액을 산림청 임산물수출입통계(품목별현황)와 HS 4단위로 대조, ±1% 이내면 일치 · 판정 아님(수집 검증)</td><td class="l" style="white-space:normal">${R.kfs_trade || ""}</td></tr>
+        <tr><td class="l">국산·수입 가격 수준</td><td class="l" style="white-space:normal">국산 ㎥ 가격 = 판매단가 ÷ (두께×폭×길이), 규격별 중앙값, 원/달러 2025년 연평균 · 수입 = 최근 12개월 CIF ㎥ 단가(산림청 환산계수) 및 2025년 산림청 공표 ㎥ 단가 · 수입 100만 달러 미만 비교 제외 · 판정 없음(참고)</td><td class="l" style="white-space:normal">${[R.kfcf2026, R.bok_fx].filter(Boolean).join("<br>")}</td></tr>
         <tr><td class="l">분석 도구</td><td class="l" style="white-space:normal">수집 scripts/fetch.py · 지표 계산 scripts/analyze.py · 판정 scripts/judge.py · 화면 scripts/build.py (Python 3: pandas, NumPy, PyYAML) · 차트 web/assets/charts.js (자체 SVG) · 실행 GitHub Actions(매월 20일 갱신) · 게시 GitHub Pages · 판정 규칙 config/criteria.yaml</td><td class="l" style="white-space:normal">github.com/Taekyong-jeong/wood-trade-dashboard (코드·원자료 공개)</td></tr>
         <tr><td class="l">변화 요인</td><td class="l" style="white-space:normal">ΔV = Σ L(V₁,V₀)·ln(Q₁/Q₀) + Σ L(V₁,V₀)·ln(P₁/P₀), HS6 단위. 한 효과 60%↑면 '주도'</td><td class="l" style="white-space:normal">${R.ang2005 || ""}</td></tr>
       </tbody></table></div><div class="downloads" style="margin-top:10px">
         <span class="dl-k">분석</span><a href="data/fig_supply_risk.csv" download>⬇ 수입 집중 판정</a><a href="data/fig_price_anomaly.csv" download>⬇ 가격 이상 판정</a>
         <a href="data/fig_decomposition.csv" download>⬇ 변화 요인 분해</a><a href="data/fig_structure.csv" download>⬇ 자급-수입 구조</a>
-        <a href="data/fig_domestic_supply.csv" download>⬇ 국내 공급 여력</a>
-        <span class="dl-k">원자료</span><a href="data/wood_use_survey.csv" download>⬇ 목재이용실태조사 전사 자료</a><a href="data/kfcf_price.csv" download>⬇ 산림조합 판매단가 전사 자료</a></div>`, "span-2");
-    host.innerHTML = `<div class="grid g-2">` + crit +
+        <a href="data/fig_domestic_supply.csv" download>⬇ 국내 공급 여력</a><a href="data/fig_kfs_check.csv" download>⬇ 산림청 공표치 대조</a>
+        <span class="dl-k">원자료</span><a href="data/wood_use_survey.csv" download>⬇ 목재이용실태조사 전사 자료</a><a href="data/kfcf_price.csv" download>⬇ 산림조합 판매단가 전사 자료</a><a href="data/kfs_trade.csv" download>⬇ 산림청 임산물수출입통계 전사 자료</a></div>`, "span-2");
+    const KC = D.judg && D.judg.kfs_check;
+    const kcCard = KC && KC.rows.length ? (() => {
+      const hs = [...new Set(KC.rows.map((r) => r.hs))];
+      const body = hs.map((h) => { const rr = KC.rows.filter((r) => r.hs === h), ok = rr.filter((r) => r.match), bad = rr.filter((r) => !r.match);
+        const mx = ok.length ? Math.max(...ok.map((r) => Math.abs(r.gap_pct))) : null;
+        return `<tr><td class="l">${h} ${m.headings[h] || ""}</td><td>${ok.length}/${rr.length}</td><td>${mx == null ? "–" : nf(mx, 2) + "%"}</td><td class="l" style="white-space:normal">${bad.map((r) => `<b>${r.year}년 ${r.gap_pct > 0 ? "+" : ""}${nf(r.gap_pct, 1)}%</b> — ${r.note || "원인 확인 중"}`).join("<br>") || "–"}</td></tr>`; }).join("");
+      return card("산림청 공표치 대조", `${KC.years[0]}~${KC.years[1]}년 · ${KC.n_match}/${KC.n} 일치(±${KC.tol_pct}%)`,
+        `<div class="tbl-wrap"><table><thead><tr><th class="l">HS</th><th>일치 연도</th><th>최대 차이</th><th class="l">불일치 연도와 원인</th></tr></thead><tbody>${body}</tbody></table></div>
+        <div class="foot">관세청 수집값(본 페이지) vs 산림청 임산물수출입통계 품목별현황 수입액(연 누계). 4418 = 산림청 건축목공 + 마루판 · 출처: 산림청 누리집 산림통계(2026-11-01 조회)</div>`, "span-2"); })() : "";
+    host.innerHTML = `<div class="grid g-2">` + crit + kcCard +
       card("데이터 내려받기", "CSV (엑셀에서 바로 열림)", `<div class="downloads"><span class="dl-k">원자료</span>
         <a href="data/monthly_by_category.csv" download>⬇ 분류별 월별 수출입</a>
         <a href="data/yearly_by_category_country.csv" download>⬇ 분류별·국가별 연간</a>
@@ -673,7 +683,7 @@
       card("용어", "", `<div class="note" style="line-height:1.8">
         <b>HHI(허핀달-허쉬만 지수)</b>: 공급국별 점유율(%) 제곱의 합. 1,500 미만 분산, 1,500~2,500 중간 집중, 2,500 이상 고집중.<br>
         <b>상위 3개국 점유율</b>: 수입액 상위 3개 공급국의 합계 비중.<br>
-        <b>수입 단가</b>: 수입액 ÷ 수입량. 목재제품은 USD/㎥(보정 또는 추정), 연료형은 USD/t, 혼합 분류는 USD/kg. 품목 구성이 바뀌면 단가도 바뀌므로 해석에 주의.<br>
+        <b>수입 단가</b>: 수입액 ÷ 수입량. 목재제품은 USD/㎥(산림청 환산계수 또는 잠정 밀도로 환산), 연료형은 USD/t, 혼합 분류는 USD/kg. 품목 구성이 바뀌면 단가도 바뀌므로 해석에 주의.<br>
         <b>12개월 누적</b>: 해당 월을 포함한 직전 12개월 합계. 계절성을 없애고 추세를 볼 때 사용.<br>
         <b>HS 개정</b>: ${(m.hs_revisions || []).map((r) => `${r.name}(${ym(r.month)})`).join(", ")} — 개정 시점에 일부 품목의 코드가 나뉘거나 합쳐져 시계열이 끊길 수 있음.</div>`) +
       card("목재제품 분류 기준", "목재이용법 15종 + CLT + LVL", `<div class="tbl-wrap"><table><thead><tr><th>No.</th><th class="l">제품</th><th class="l">HS/HSK 코드</th><th class="l">비고</th></tr></thead><tbody>` +
@@ -681,9 +691,9 @@
       (() => { const U = m.units || { items: {} }; const nameOf = (k) => { const [ax, ky] = k.split(":");
           return ax === "heading" ? `${ky} ${m.headings[ky] || ""}` : ax === "product" ? (m.products.find((p) => p.key === ky) || {}).name : ax === "group" ? (m.groups.find((g) => g.key === ky) || {}).name : k; };
         const rows = Object.entries(U.items || {});
-        return card("단가 단위와 기준 밀도", U.status === "confirmed" ? "확정" : "일부 실태조사 보정 · 나머지 잠정",
+        return card("단가 단위와 기준 밀도", U.status === "confirmed" ? "확정" : "6개 품목 산림청 환산계수 · 나머지 잠정",
           `<div class="note" style="margin-bottom:8px">관세청 자료는 금액과 순중량(kg)만 있음. <b>톤 단가</b> = 수입액 ÷ 순중량 × 1,000 (액면, 환산 없음). <b>㎥ 단가</b> = 톤 단가 × 밀도(t/㎥).<br>
-            밀도 출처: ① <b>보정</b> — 같은 연도 관세청 순중량 ÷ 목재이용실태조사 수입량(㎥, 임산물수출입통계)의 중앙값. 단, 실태조사 ㎥가 ‘중량 ÷ 고정 환산계수’로 만들어진 연도(kg÷㎥가 3개 연도 이상 같은 값)는 측정값에서 빼고, 남은 신고 수량 연도가 2개 이상이면 그 중앙값(제재목: 2020~2022년, 0.52), 없으면 그 계수를 <b>산림청 환산계수</b>로 표시(합판 0.65·섬유판 0.70·파티클보드 0.65). 관세청 수입액이 실태조사와 ±10% 넘게 다른 해는 범위 불일치로 제외 (산림청·한국임업진흥원 2024, 2023년 기준 목재이용실태조사) ② <b>잠정</b> — 대표값, FAO·ITTO·UNECE(2020) Forest product conversion factors와 대조 전.<br>
+            밀도 출처: ① <b>산림청 환산계수</b> — 산림청 임산물수출입통계의 수입 물량(천㎥)이 2016~2025년 모든 연도에서 ‘관세청 순중량 ÷ 고정 계수’와 일치함을 확인(원목 0.855·제재목 0.60·단판 0.50·합판 0.65·파티클보드 0.65·섬유판 0.70). 공표 ㎥ 자체가 환산값이므로 같은 계수를 써서 ㎥ 기준을 공표 통계와 맞춤. 원목은 목재이용실태조사 수입 원목 이용량 기준값(0.84)과 1.5% 차이 ② <b>잠정</b> — 대표값, FAO·ITTO·UNECE(2020) Forest product conversion factors와 대조 전<br>
             가격 섹션의 ‘㎥ 환산 / 톤 액면’ 버튼으로 단위를 바꿔 볼 수 있음. 밀도가 10% 다르면 ㎥ 단가도 약 10% 달라지지만 오르내림(추세)과 이상 판정은 단위와 무관함.</div>` +
           `<div class="tbl-wrap"><table><thead><tr><th class="l">분류</th><th>단위</th><th>기준 밀도(t/㎥)</th><th class="l">기준 상태</th></tr></thead><tbody>` +
           rows.map(([k, v]) => `<tr><td class="l">${nameOf(k)}</td><td>${{ m3: "USD/㎥", t: "USD/t", kg: "USD/kg" }[v.unit]}</td><td>${v.density != null ? nf(v.density, 2) : "–"}</td><td class="l" style="white-space:normal">${v.basis || (v.unit === "t" ? "중량 그대로 (환산 없음)" : "")}</td></tr>`).join("") +
