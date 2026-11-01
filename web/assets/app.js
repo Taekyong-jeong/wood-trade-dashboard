@@ -537,8 +537,8 @@
     // 1) 핵심 숫자
     const tile = (lab, val, sub, src) => `<div class="g-tile"><div class="g-lab">${lab}</div><div class="g-val num">${val}</div><div class="g-sub">${sub}</div><div class="g-src">${src}</div></div>`;
     const indY = IND ? IND.year : null, indI = IND ? IND.years.indexOf(indY) : -1;
-    const tiles = tile("한 해 쓰는 목재", `${nf(G.total / 1e6, 1)}<small>백만 ㎥</small>`, `원목·부산물·수입 제품 합계 (${nf(G.total / 1e4, 0)}만 ㎥)`, `${G.year}년 · 산림청 목재이용실태조사`) +
-      tile("그중 수입", `${nf(G.import_share, 1)}<small>%</small>`, `<b>${nf((impLog + impProd) / 1e4, 0)}만 ㎥</b> (원목 ${nf(impLog / 1e4, 0)}만 + 제품 ${nf(impProd / 1e4, 0)}만)`, `${G.year}년 · 산림청 목재이용실태조사`) +
+    const tiles = tile("한 해 쓰는 목재", `${nf(G.total / 1e4, 0)}<small>만 ㎥</small>`, `국산 ${nf((G.total - impLog - impProd) / 1e4, 0)}만 + 수입 ${nf((impLog + impProd) / 1e4, 0)}만 ㎥`, `${G.year}년 · 산림청 목재이용실태조사`) +
+      tile("그중 수입", `${nf(G.import_share, 1)}<small>%</small>`, `${nf(G.total / 1e4, 0)}만 ㎥ 중 <b>${nf((impLog + impProd) / 1e4, 0)}만 ㎥</b> (원목 ${nf(impLog / 1e4, 0)}만 + 제품 ${nf(impProd / 1e4, 0)}만)`, `${G.year}년 · 산림청 목재이용실태조사`) +
       tile("목재류 수입액", `${nf(L.cur / 1e8, 1)}<small>억 달러</small>`, yoy == null ? "최근 12개월" : `최근 12개월 · 1년 전보다 <b class="${yoy < 0 ? "dn" : "up"}">${yoy > 0 ? "+" : ""}${nf(yoy, 1)}%</b>`, `${per} · 관세청`) +
       (IND ? tile("목재산업 규모", `${nf(IND.sales[indI] / 1e4, 1)}<small>조 원</small>`, `종사자 ${nf(IND.employees[indI], 0)}명 · 국내 생산 ${nf((IND.domestic[indI] / IND.sales[indI]) * 100, 0)}%`, `${indY}년 매출 · 산림청 목재이용실태조사`) : "");
     // 2) 주의 신호
