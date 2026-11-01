@@ -24,34 +24,42 @@ hs_revisions:
 groups:
   - key: raw
     name: 원자재
+    jfsq: "원목(Roundwood) · 목재칩·잔재(Wood chips, particles and residues)"
     desc: 원목, 목재칩 등 가공 전 원료
     prefixes: ["4403", "440121", "440122", "4404", "4405", "4406"]
   - key: primary
     name: 1차 가공재
+    jfsq: "제재목(Sawnwood) · 단판(Veneer sheets)"
     desc: 제재목, 단판, 성형목재(마루재 포함)
     prefixes: ["4407", "4408", "4409"]
   - key: panel
     name: 보드·패널
+    jfsq: "목질 패널(Wood-based panels)"
     desc: 파티클보드·OSB, 섬유판, 합판, 강화목재
     prefixes: ["4410", "4411", "4412", "4413"]
   - key: ewp
     name: 구조용 공학목재
+    jfsq: "2차 가공 목제품(SPWP) — 건축용 목공품(Builder’s joinery and carpentry, 집성재·CLT 포함)"
     desc: 집성재, CLT, I형 장선, 기타 공학목재, LVL (HS 2022~)
     prefixes: ["441881", "441882", "441883", "441889", "441241", "441242", "441249"]
   - key: building
     name: 건축용 목제품
+    jfsq: "2차 가공 목제품(SPWP) — 건축용 목공품(Builder’s joinery and carpentry)"
     desc: 창호, 문, 거푸집, 마루판, 기둥·보 등
     prefixes: ["4418"]
   - key: bioenergy
     name: 바이오에너지
+    jfsq: "목재연료(Wood fuel) · 펠릿 등 성형연료(Wood pellets and other agglomerates) · 목탄(Wood charcoal)"
     desc: 연료용 목재, 목재펠릿, 브리켓, 톱밥, 목탄
     prefixes: ["4401", "4402"]
   - key: packaging
     name: 포장·물류
+    jfsq: "2차 가공 목제품(SPWP) — 목재 포장재(Wooden packaging)"
     desc: 팔레트, 상자, 통
     prefixes: ["4415", "4416"]
   - key: consumer
     name: 생활 목제품
+    jfsq: "2차 가공 목제품(SPWP) — 생활·기타 목제품"
     desc: 액자, 공구자루, 식탁·주방용품, 장식품, 기타 목제품
     prefixes: ["4414", "4417", "4419", "4420", "4421"]
 

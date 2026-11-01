@@ -138,7 +138,11 @@
         const first = s.values.findIndex((v) => v != null), uid = "bl" + Math.random().toString(36).slice(2, 8);
         const defs = el("defs", {}, svg);
         const base = Y(Math.max(0, ymin));
-        const bandOf = (v) => opts.bands.findIndex((b) => v >= b.from && v < b.to);
+        const bandOf = (v) => { const k = opts.bands.findIndex((b) => v >= b.from && v < b.to); return k >= 0 ? k : (v >= opts.bands[opts.bands.length - 1].to ? opts.bands.length - 1 : -1); };
+        // 아래 면적 경로: 값이 이어진 구간마다 바닥까지 닫음 (중간에 빈 달이 있어도 사선이 생기지 않게)
+        let areaD = "", run = [];
+        const flush = () => { if (run.length) { areaD += `M${X(run[0][0]).toFixed(1)},${base}` + run.map(([i, v]) => `L${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join("") + `L${X(run[run.length - 1][0]).toFixed(1)},${base}Z`; run = []; } };
+        s.values.forEach((v, i) => { if (v == null || !isFinite(v)) flush(); else run.push([i, v]); }); flush();
         // 아래 면적: 그 시점 값이 속한 구간 색으로 바닥까지 칠함 (가로 구간별로 자름) — 첫 구간(분산)은 옅게
         if (opts.area) {
           const xr = opts.bands.map(() => []);
@@ -151,7 +155,7 @@
             if (!rs.length) return;
             const cp = el("clipPath", { id: `${uid}-a${k}` }, defs);
             rs.forEach(([a, b2]) => el("rect", { x: a - 0.3, y: 0, width: b2 - a + 0.6, height: H }, cp));
-            el("path", { d: d + `L${X(n - 1)},${base}L${X(first)},${base}Z`, fill: opts.bands[k].color, opacity: k === 0 ? 0.10 : 0.20, "clip-path": `url(#${uid}-a${k})` }, g);
+            el("path", { d: areaD, fill: opts.bands[k].color, opacity: k === 0 ? 0.10 : 0.20, "clip-path": `url(#${uid}-a${k})` }, g);
           });
         }
         // 꺾은선: 값의 높이가 속한 구간 색

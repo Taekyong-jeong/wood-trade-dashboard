@@ -379,7 +379,7 @@ def main() -> int:
         "checked_at": now,
         "source": "관세청 품목별 국가별 수출입실적(GW), 공공데이터포털 15100475",
         "hs_revisions": CFG["hs_revisions"],
-        "groups": [{k: g[k] for k in ("key", "name", "desc", "prefixes")} for g in CFG["groups"]],
+        "groups": [{k: g.get(k) for k in ("key", "name", "desc", "prefixes", "jfsq")} for g in CFG["groups"]],
         "products": [{k: p.get(k) for k in ("key", "num", "name", "status", "since", "note", "prefixes")} for p in CFG["products"]],
         "headings": HEADING_NAMES,
         "processing_stages": CFG["processing_stages"],
