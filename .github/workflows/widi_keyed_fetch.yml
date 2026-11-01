@@ -1,0 +1,37 @@
+name: WIDI 해설 외부 지표 수집 (키 필요)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ["scripts/external/widi_keyed_fetch.py", ".github/workflows/widi_keyed_fetch.yml"]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: 외부 지표 받기
+        env:
+          COMTRADE_KEY: ${{ secrets.COMTRADE_KEY || secrets.UN_COMTRADE_KEY || secrets.COMTRADE || secrets.UN_COMTRADE || secrets.UN }}
+          ESTAT_APP_ID: ${{ secrets.ESTAT_APP_ID || secrets.ESTAT_KEY || secrets.ESTAT || secrets.E_STAT }}
+        run: python scripts/external/widi_keyed_fetch.py
+      - name: 결과 커밋
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/external/comtrade_4407.json data/external/estat_wood_price.json 2>/dev/null || true
+          git diff --cached --quiet || git commit -m "WIDI 해설 외부 지표 원자료 (Comtrade·e-Stat)"
+          git pull --rebase
+          git push
