@@ -476,7 +476,14 @@ def glance(survey_csv: Path) -> dict | None:
     total = sum(g["total"] for g in groups)
     src = [{"key": m, "label": lab, "total": float(u[u["metric"] == m]["value"].sum())} for m, lab in GLANCE_SOURCES]
     imp = sum(x["total"] for x in src if x["key"] in ("use_log_imported", "use_imported_products"))
-    return {"year": y, "total": total, "sources": src, "groups": groups, "import_share": round(imp / total * 100, 1),
+    prods = []                                    # 제품별 원자재 출처 (국내 유통 라인)
+    for k, g in u.groupby("product"):
+        f = {m: float(g[g["metric"] == m]["value"].sum()) for m, _ in GLANCE_SOURCES}
+        tt = sum(f.values())
+        if tt > 0:
+            prods.append({"key": k, "flows": f, "total": tt})
+    prods.sort(key=lambda d: -d["total"])
+    return {"year": y, "total": total, "sources": src, "groups": groups, "products": prods, "import_share": round(imp / total * 100, 1),
             "note": "단위 ㎥ — 펠릿 수입은 톤×1.67, 그 밖의 톤 단위 제품은 1:1로 환산(실태조사 방식). 폐목재 제외",
             "source": "산림청·한국임업진흥원 목재이용실태조사 국내 목재 이용 현황"}
 
