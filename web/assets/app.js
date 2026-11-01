@@ -118,6 +118,19 @@
     const a = e[field], i = iLast();
     return { cur: i >= 11 ? sum(a.slice(i - 11, i + 1)) : null, prev: i >= 23 ? sum(a.slice(i - 23, i - 11)) : null };
   }
+  // 연도별 공급국 순위 (관세청 연간 합계) — y = "2024" 등, 전년 대비는 y-1
+  function topSuppliersYear(axis, key, y, n = 10, m = "usd") {
+    const rows = (D.countries[axis] || {})[key] || {}, j = m === "kg" ? 1 : 0, py = String(+y - 1);
+    const val = (r, yy) => (r.y && r.y[yy] ? r.y[yy][j] || 0 : 0);
+    const tot = sum(Object.values(rows).map((r) => val(r, y)));
+    return Object.entries(rows).map(([c, r]) => ({ c, v: val(r, y), prev: val(r, py), share: tot ? (val(r, y) / tot) * 100 : 0 }))
+      .filter((r) => r.v > 0).sort((a, b) => b.v - a.v).slice(0, n);
+  }
+  // 기본 연도 = 실태조사(수입의존도)가 있는 가장 최근 해 (표들과 같은 기준)
+  function defYear() {
+    const DS = D.judg.domestic_supply, ys = DS ? DS.rows.flatMap((r) => r.share_years || []) : [];
+    return ys.length ? String(Math.max(...ys)) : months()[months().length - 1].slice(0, 4);
+  }
   function topSuppliers(axis, key, n = 10, m = "usd") {   // m = "usd"(수입액) | "kg"(물량·중량)
     const rows = (D.countries[axis] || {})[key] || {}, j = m === "kg" ? 1 : 0;
     const tot = sum(Object.values(rows).map((r) => r.l12[j]));
@@ -845,7 +858,7 @@
       `</div><div class="grid g-2" style="margin-top:12px">` +
       card(`수입·수출 추이`, trendTitle([axis, key]), `<div id="d-trend"></div>`, "span-2",
         L.prev ? `최근 12개월 수입 ${usd(L.cur)} <span class="sub">직전 12개월 대비 ${delta(L.cur, L.prev)}</span>` : `최근 12개월 수입 ${usd(L.cur)}`) +
-      card(`주요 공급국 ${q("share")}`, `<span class="yr-seg" id="sup-m"><button type="button" data-m="usd">수입액</button><button type="button" data-m="kg">물량</button></span> 최근 12개월 · 전년 대비`, `<div id="d-sup"></div>`, "",
+      card(`주요 공급국 ${q("share")}`, `<span class="yr-seg" id="sup-m"><button type="button" data-m="usd">수입액</button><button type="button" data-m="kg">물량</button></span> <select id="sup-y" class="mini-sel"></select> 전년 대비`, `<div id="d-sup"></div>`, "",
         `<span id="d-sup-lead"></span>`) +
       card(`공급국별 수입 단가 ${q("price")}`, `연간 · 상위 5개국 · ${pl}`, `<div id="d-price"></div>`, "", "<span id='d-price-lead'></span>") +
       card(`공급국 집중도 (HHI) ${q("hhi")}`, "12개월 누적", (e.hhi[i] != null ? hhiScale(e.hhi[i]) : "") + `<div id="d-hhi"></div>` +
@@ -858,14 +871,20 @@
     C.lineChart($("#d-trend"), { x: a.x, series: [{ name: "수입", values: a.v }, { name: "수출", values: b.v }],
       yFmt: S.measure === "price" ? pf : yFmt(S.measure), markers: S.agg === "year" ? [] : revMarkers(a.x), xLabelFmt: xFmt, height: 260 });
     const drawSup = () => {
-      const m = S.supm || "usd", ts = topSuppliers(axis, key, 10, m), fmtV = m === "kg" ? ton : usd;
+      const rowsC = (D.countries[axis] || {})[key] || {};
+      const fullY = [...new Set(months().map((mm) => mm.slice(0, 4)))].filter((yy) => months().filter((mm) => mm.startsWith(yy)).length === 12)
+        .filter((yy) => Object.values(rowsC).some((r) => r.y && r.y[yy] && r.y[yy][0] > 0)).reverse();
+      const y = fullY.includes(S.supy) ? S.supy : fullY.includes(defYear()) ? defYear() : fullY[0];
+      $("#sup-y").innerHTML = fullY.map((yy) => `<option value="${yy}"${yy === y ? " selected" : ""}>${yy}년</option>`).join("");
+      const m = S.supm || "usd", ts = y ? topSuppliersYear(axis, key, y, 10, m) : [], fmtV = m === "kg" ? ton : usd;
       $("#sup-m").querySelectorAll("button").forEach((b) => b.classList.toggle("on", b.dataset.m === m));
-      $("#d-sup-lead").innerHTML = ts[0] ? `1위 ${cname(ts[0].c)} ${nf(ts[0].share, 1)}% <span class="sub">${m === "kg" ? "물량" : "수입액"} 기준 · 상위 3개국 ${nf(sum(ts.slice(0, 3).map((x) => x.share)), 0)}%</span>` : "";
+      $("#d-sup-lead").innerHTML = ts[0] ? `${y}년 1위 ${cname(ts[0].c)} ${nf(ts[0].share, 1)}% <span class="sub">${m === "kg" ? "물량" : "수입액"} 기준 · 상위 3개국 ${nf(sum(ts.slice(0, 3).map((x) => x.share)), 0)}%</span>` : "";
       C.hbars($("#d-sup"), ts.map((x) => ({ label: cname(x.c), value: x.v,
         text: `${fmtV(x.v)} · ${nf(x.share, 1)}% · ${x.prev ? ((x.v / x.prev - 1) * 100 >= 0 ? "▲" : "▼") + nf(Math.abs((x.v / x.prev - 1) * 100), 0) + "%" : "신규"}`,
         onClick: () => { S.country = x.c; go("country"); } })));
     };
     $("#sup-m").querySelectorAll("button").forEach((b) => b.onclick = (ev) => { ev.stopPropagation(); S.supm = b.dataset.m; drawSup(); });
+    $("#sup-y").onchange = (ev) => { S.supy = ev.target.value; drawSup(); };
     drawSup();
     // 국가별 단가 (연간)
     const rows = (D.countries[axis] || {})[key] || {};
