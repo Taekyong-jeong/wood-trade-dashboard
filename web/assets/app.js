@@ -538,9 +538,8 @@
       (U.length ? card("한 해 쓰는 목재", `${u0.y}~${u1.y} · 만 ㎥`, `<div id="bs-use"></div>` +
         rule(`국산 = 전체 이용량 − 수입 원목 − 수입 목재제품 · 수입 비중 = 수입 ÷ 전체, 100에서 뺀 값이 산림청 공표 목재자급률 · 펠릿 수입은 톤×1.67, 그 밖의 톤 단위 제품은 1:1 (실태조사 방식) · 2023년 조사부터 국산 이용량 산정 기준이 벌채 허가량 → 실제 이용량으로 바뀌어 2022년 이전과 단순 비교 주의 · 출처: 산림청·한국임업진흥원 목재이용실태조사 국내 목재 이용 현황 (연도별 보고서, 2023년은 2024년 기준 보고서 수정치)`), "",
         `${u1.y}년 ${nf(u1.tt / 1e4, 0)}만 ㎥ · 그중 수입 ${nf(u1.share, 1)}% <span class="sub">목재자급률 ${nf(100 - u1.share, 1)}% · ${u0.y}년 ${nf(u0.tt / 1e4, 0)}만 ㎥, 수입 ${nf(u0.share, 1)}%</span>`) : "") +
-      (SS.length ? card("제품별 자급률 (국산재 기준)", `${SS[0].year}년 · ㎥ · 누르면 상세`, `<div id="bs-ss"></div>` +
-        rule(`자급률 = 국산 원료로 만든 양 ÷ 전체 이용량 · 국산 원료 = 국산 원목 + 국내 원목 외 원자재(폐목재·부산물 등, 산림청 목재자급률 산정과 같음) · <b>수입 원목으로 국내에서 만든 양은 수입으로 셈</b> · 괄호 = 국산 원료 / 전체 이용량 · 이용량은 원자재 투입량 기준(실태조사 「국내 목재 이용 현황」), 펠릿 수입 톤×1.67 · <b>주의: 이 표는 폐목재를 빼고 집계해, 폐목재가 주원료인 파티클보드 등은 국산재 자급률이 실제보다 낮게 나옴</b> · 출처: 산림청·한국임업진흥원 목재이용실태조사`), "",
-        `${SS.slice(0, 3).map((d) => `${d.label} ${nf(d.ss, 0)}%`).join(" · ")} <span class="sub">국산재 자급률 높은 순</span>`) : "") +
+      (SS.length ? card("제품별 자급률 (국산재 기준)", `${SS[0].year}년 · ㎥ · 누르면 상세`, `<div class="ssl" id="bs-ss"></div>` +
+        rule(`국산 원료(국산 원목 + 국내 부산물)로 만든 양 ÷ 전체 이용량 · 수입 원목으로 만든 양은 수입으로 셈 · 폐목재가 빠진 통계라 파티클보드 등은 낮게 나옴 · 출처: 산림청 목재이용실태조사`)) : "") +
       card("목재류 수입·수출 추이", "12개월 누적 · 억 달러", `<div id="bs-trade"></div>` +
         rule(`HS 44류 전체 · 수입 CIF, 수출 FOB · 출처: ${SRC}`), "",
         `최근 12개월 수입 ${nf(L.cur / 1e8, 1)}억 달러 · ${nf(Lk.cur / 1e9, 1)}백만 톤 <span class="sub">수출 ${nf(Lexp / 1e8, 1)}억 달러</span>`) +
@@ -553,8 +552,12 @@
       // 막대 위 수입 비중 표시
       $("#bs-use").insertAdjacentHTML("beforeend", `<div class="foot" style="display:flex;justify-content:space-around;margin-top:2px">${U.map((d) => `<span>${d.y} 수입 <b>${nf(d.share, 1)}%</b></span>`).join("")}</div>`);
     }
-    if (SS.length) C.hbars($("#bs-ss"), SS.map((d) => ({ label: d.label, value: d.ss, color: C.color(2),
-      text: `${nf(d.ss, d.ss > 0 && d.ss < 1 ? 1 : 0)}% <span class="sub">(${nf((d.dlog + d.doth) / 1e4, d.dlog + d.doth >= 1e5 ? 0 : 1)}만 / ${nf(d.tot / 1e4, d.tot >= 1e5 ? 0 : 1)}만 ㎥)</span>`, onClick: () => openDetail(d.axis, d.key) })), { max: 100 });
+    if (SS.length) {
+      const el = $("#bs-ss");
+      el.innerHTML = SS.map((d, k) => `<div class="ss-r" data-k="${k}" title="${d.label}: 국산 원료 ${nf((d.dlog + d.doth) / 1e4, 1)}만 ㎥ / 전체 ${nf(d.tot / 1e4, 1)}만 ㎥ (수입 원목 ${nf(d.ilog / 1e4, 1)}만 · 수입 제품 ${nf(d.iprod / 1e4, 1)}만)">` +
+        `<span class="ss-l">${d.label}</span><span class="ss-t"><i style="width:${Math.max(0, Math.min(100, d.ss))}%"></i></span><span class="ss-v">${nf(d.ss, d.ss > 0 && d.ss < 1 ? 1 : 0)}%</span></div>`).join("");
+      el.querySelectorAll(".ss-r").forEach((r) => r.onclick = () => { const d = SS[+r.dataset.k]; openDetail(d.axis, d.key); });
+    }
     C.lineChart($("#bs-trade"), { x: ms.slice(pk), series: [{ name: "수입액", values: ru.slice(pk).map((v) => v / 1e8) }, { name: "수출액", values: re.slice(pk).map((v) => v / 1e8) }],
       yFmt: (v) => nf(v, 0), tipFmt: (v) => nf(v, 2) + "억 달러", height: 250, xLabelFmt: xFmt });
     C.hbars($("#bs-prod"), pr.slice(0, 10).map((x) => ({ label: x.n, value: x.v,
