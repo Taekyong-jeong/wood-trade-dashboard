@@ -417,11 +417,12 @@ def main() -> int:
     dp = judge.domestic_price(df, months, ROOT / "data" / "external" / "kfcf_price.csv", UNITS)
     kc = judge.kfs_check(df, kfs_csv)
     gl = judge.glance(survey_csv, ROOT / "data" / "external" / "wus_inputs.csv")
+    vc = judge.value_chain(ROOT / "data" / "external" / "kosis_wus_raw.json")
     ssf = judge.self_suff(ROOT / "data" / "external" / "wood_use_survey.csv", ROOT / "data" / "external" / "wus_inputs.csv",
                           {p["key"]: p["name"].replace("배향성스트랜드보드(OSB)", "OSB").replace("목재플라스틱복합재", "목재플라스틱(WPC)").split("(")[0] if p["key"] != "p04" else "목재플라스틱(WPC)" for p in CFG["products"] if p["status"] != "pending" or p["key"] == "p04"})
     write_json("judgments.json", {
         "month": months[-1], "cards": judge.summary_cards(sr, pen, pa, dec, ds),
-        "supply_risk": sr, "supply_hist": sh, "penetration": pen, "price_anomaly": pa, "decomposition": dec, "structure": st,
+        "supply_risk": sr, "supply_hist": sh, "value_chain": vc, "penetration": pen, "price_anomaly": pa, "decomposition": dec, "structure": st,
         "domestic_supply": ds, "domestic_price": dp, "industry": ind, "kfs_check": kc, "glance": gl, "self_suff": ssf,
         "criteria": judge.CRIT,
     })

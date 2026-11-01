@@ -143,7 +143,7 @@
   // ── 공통 렌더 ───────────────────────────────────────────
   // 자료 구분: 원자료(공표 통계 수치 그대로·합계) / 분석(본 페이지가 계산한 비율·지수·환산·판정)
   const KIND_ANA = /^(제품별 자급률|국내 공급 여력|품목별 수입 위험|수입 집중|품목별 판정|품목별 국내 공급 구조|원목 수입의존도|자급-수입 구조|목재제품별 수입의존도|가격 이상 판정|공급국 가격대 지도|수입 단가 지수|단가 지수|국산·수입 가격 수준|수입액 변화 분해|공급국별 수입 단가|공급국 집중도|공급국 쏠림 정도|목재제품별 수입과 점유율|품목군 구성|산림청 공표치 대조)/;
-  const KIND_MIX = /^(한 해 쓰는 목재|국내 설비 가동률 추이|국내 생산능력과 생산량)/;
+  const KIND_MIX = /^(한 해 쓰는 목재|가치사슬|국내 설비 가동률 추이|국내 생산능력과 생산량)/;
   const KIND_RAW = /^(목재류 수입·수출 추이|품목별 수입액|제품별 원자재 출처|제품별 매출 구조|최대 수입국|최대 수입 품목|수입·수출 추이|주요 공급국|대분류별 원목|세부 수종|.+산 목재류 수입|목재산업 매출|목재제품별 매출|목재는 어디서 와서 무엇이 되나|어디서 사오나)/;
   function kindOf(title, hint) {
     const t = title.replace(/<[^>]+>/g, "").trim();
@@ -238,6 +238,8 @@
   const GRADE_CLS = { "취약": "hi", "주의": "mid", "안정": "lo", "판정 제외": "ex", "비정상 상승": "hi", "다소 높음": "mid", "정상": "lo",
     "다소 낮음": "mid", "비정상 하락": "hi", "판정 보류": "na" };
   const badge = (t) => `<span class="grade ${GRADE_CLS[t] || "lo"}">${t}</span>`;
+  // 국산·수입 색 체계 (원자재 출처·가치사슬 공통): 국산 = 초록 계열, 수입 = 파랑 계열, 기타·미상 = 회색
+  const VC_COL = { dom: "#1e8a57", dom2: "#7cc795", imp: "#1f4e9c", imp2: "#3f7fd6", imp3: "#9cc0ee", na: "#8a8f98" };
   const rule = (html) => `<div class="rule">${html}</div>`;
 
   // ── 판정 요약 ──────────────────────────────────────────
@@ -382,27 +384,69 @@
     const isP = (k) => !!D.meta.products.find((x) => x.key === k);
     // 제품별 원자재 투입 표(KOSIS)가 있으면 그것으로, 없으면 「국내 목재 이용 현황」(p.11) 값으로
     const OTH = getComputedStyle(document.documentElement).getPropertyValue("--other").trim();
-    // 색: 국산 = 초록 계열(진→연), 수입 = 붉은 계열(원목 진 → 중간재 → 제품 연), 기타·미상 = 회색
-    const SRCS = [["in_log_dom", "국산 원목", "#1e8a57"], ["in_sec_dom", "국산 원목 외(부산물·폐목재 등)", "#7cc795"], ["in_log_imp", "수입 원목", "#a8322a"],
-      ["in_mid_imp", "수입 중간재(단판·제재목 등)", "#df5f43"], ["use_imported_products", "수입 제품", "#f2a48c"], ["in_unk", "기타·미상", "#8a8f98"]];
+    // 색: 국산 = 초록 계열(진→연), 수입 = 파랑 계열(원목 진 → 중간재 → 제품 연), 기타·미상 = 회색 — 가치사슬과 같은 체계
+    const SRCS = [["in_log_dom", "국산 원목", VC_COL.dom], ["in_sec_dom", "국산 원목 외(부산물·폐목재 등)", VC_COL.dom2], ["in_log_imp", "수입 원목", VC_COL.imp],
+      ["in_mid_imp", "수입 중간재(단판·제재목 등)", VC_COL.imp2], ["use_imported_products", "수입 제품", VC_COL.imp3], ["in_unk", "기타·미상", VC_COL.na]];
     const PBY = G.products_by_year || {}, srcYs = Object.keys(PBY).sort().reverse();
     const sy = PBY[S.srcy] ? S.srcy : PBY[defYear()] ? defYear() : srcYs[0];
     const flowsOf = (d) => d.flows;
     const totOf = (d) => sum(Object.values(flowsOf(d)));
     const impOf = (d) => { const f = flowsOf(d); return (f.in_log_imp + f.in_mid_imp + f.use_imported_products) / (totOf(d) || 1) * 100; };
     const pr = (PBY[sy] || []).filter((d) => totOf(d) >= 1e4).sort((a, b) => totOf(b) - totOf(a));
+    // 가치사슬 (제재목): 3단 흐름 — 원목 출처 → 국산/수입 원목 → 용도·부산물
+    const VC = D.judg.value_chain && D.judg.value_chain.p01, vcYs = VC ? Object.keys(VC.years).sort().reverse() : [];
+    const vy = VC ? (VC.years[S.vcy] ? S.vcy : VC.years[defYear()] ? defYear() : vcYs[0]) : null;
+    const drawVC = () => {
+      const yy = VC.years[S.vcy] ? S.vcy : vy, d = VC.years[yy], box = $("#ds-vc");
+      const greens = ["#1e8a57", "#2f9d68", "#45ad7a", "#5dbd8c", "#76c99d", "#8fd4ae", "#a8dfbf", "#c0e9cf"];
+      const blues = ["#1f4e9c", "#2d62b5", "#3f77c9", "#5a8fd6", "#7aa7e0"];
+      const uu = d.uses.filter((u) => u[0] !== "기타"), TOPN = 7, us = uu.slice(0, TOPN), rest = uu.slice(TOPN).concat(d.uses.filter((u) => u[0] === "기타"));
+      const usesG = rest.length ? us.concat([["그 밖 용도", sum(rest.map((u) => u[1])), sum(rest.map((u) => u[2]))]]) : us;
+      const byD = Math.max(0, d.log_dom - d.prod_dom), byI = Math.max(0, d.log_imp - d.prod_imp);
+      const tot0 = d.log_dom + d.log_imp, small = d.src_dom.filter(([, v]) => v < tot0 * 0.02);
+      const srcD = d.src_dom.filter(([, v]) => v >= tot0 * 0.02).concat(small.length ? [["그 밖 시도", sum(small.map((s) => s[1])), small.map((s) => s[0]).join("·")]] : []);
+      const col0 = srcD.map(([n, v, sub], i) => ({ id: "d" + i, label: n, sub, v, c: greens[Math.min(i, greens.length - 1)], to: "LD" }))
+        .concat(d.src_imp.map(([n, v], i) => ({ id: "i" + i, label: n.replace(" 통해 이용", "").replace("해외에서 직접 이용", "해외 직접 수입").replace("수입업체·에이전트", "수입업체·대리점"), v, c: blues[Math.min(i, blues.length - 1)], to: "LI" })));
+      const col1 = [{ id: "LD", label: "국산 원목", v: d.log_dom, c: VC_COL.dom }, { id: "LI", label: "수입 원목", v: d.log_imp, c: VC_COL.imp }];
+      const col2 = usesG.map(([n, a, b], i) => ({ id: "u" + i, label: n.replace("데크용 원목마루판용", "데크·원목마루판").replace(/용$/, ""), v: a + b, a, b, c: "#9aa3ad" }))
+        .concat([{ id: "BY", label: "부산물·손실(산출)", v: byD + byI, a: byD, b: byI, c: VC_COL.na }]);
+      const W = Math.max(box.clientWidth || 560, 520), H = 560, L = 158, R = 168, nw = 10, gap = 6;
+      const xs = [L, (L + W - R) / 2 - nw / 2, W - R - nw], tot = d.log_dom + d.log_imp;
+      const sc = (H - 8 - gap * (Math.max(col0.length, col2.length) - 1)) / tot;
+      const place = (col) => { let y = 4; const sp = (H - 8 - sum(col.map((n) => n.v * sc))) / Math.max(col.length - 1, 1); col.forEach((n) => { n.y = y; n.h = Math.max(n.v * sc, 1.2); n.oo = 0; n.io = 0; y += n.h + sp; }); };
+      place(col0); place(col1); place(col2);
+      const N = {}; [col0, col1, col2].forEach((c) => c.forEach((n) => { N[n.id] = n; }));
+      const links = col0.map((n) => ({ s: n.id, t: n.to, v: n.v, c: n.c }))
+        .concat(col2.flatMap((u) => [{ s: "LD", t: u.id, v: u.a, c: VC_COL.dom }, { s: "LI", t: u.id, v: u.b, c: VC_COL.imp }]).filter((l) => l.v > 0));
+      const ci = (id) => (col0.includes(N[id]) ? 0 : col1.includes(N[id]) ? 1 : 2);
+      const fmt = (v) => (v >= 1e4 ? nf(v / 1e4, v >= 1e5 ? 0 : 1) + "만" : nf(v, 0)) + " ㎥";
+      let svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}" class="vc">`;
+      links.forEach((l) => { const a = N[l.s], b = N[l.t], h = l.v * sc, x0 = xs[ci(l.s)] + nw, x1 = xs[ci(l.t)], y0 = a.y + a.oo + h / 2, y1 = b.y + b.io + h / 2; a.oo += h; b.io += h;
+        const xm = (x0 + x1) / 2;
+        svg += `<path d="M${x0},${y0} C${xm},${y0} ${xm},${y1} ${x1},${y1}" stroke="${l.c}" stroke-width="${Math.max(h, 0.8)}" fill="none" stroke-opacity=".38" class="vc-l"><title>${a.label} → ${b.label}: ${fmt(l.v)}</title></path>`; });
+      [col0, col1, col2].forEach((col, k) => col.forEach((n) => {
+        svg += `<rect x="${xs[k]}" y="${n.y}" width="${nw}" height="${n.h}" fill="${k === 2 && n.id !== "BY" ? (n.a >= n.b ? VC_COL.dom : VC_COL.imp) : n.c}" rx="2"><title>${n.label}${n.sub ? " (" + n.sub + ")" : ""}: ${fmt(n.v)}</title></rect>`;
+        const ty = n.y + n.h / 2 + 4;
+        if (k === 0) svg += `<text x="${xs[0] - 6}" y="${ty}" text-anchor="end" class="vc-t">${n.label} <tspan class="vc-s">${fmt(n.v)}</tspan></text>`;
+        else if (k === 1) svg += `<text x="${xs[1] + nw + 6}" y="${n.y + 14}" class="vc-t b">${n.label}</text><text x="${xs[1] + nw + 6}" y="${n.y + 30}" class="vc-s">${fmt(n.v)}</text>`;
+        else svg += `<text x="${xs[2] + nw + 6}" y="${ty}" class="vc-t">${n.label} <tspan class="vc-s">${fmt(n.v)}</tspan></text>`;
+      }));
+      box.innerHTML = svg + `</svg>`;
+      const prod = d.prod_dom + d.prod_imp, top = usesG.filter((u) => u[0] !== "그 밖 용도")[0];
+      $("#vc-lead").innerHTML = `${yy}년 원목 ${fmt(tot)} → 제재목 ${fmt(prod)} <span class="sub">수율 ${nf(prod / tot * 100, 0)}% · 최대 용도 ${top[0].replace(/용$/, "")} ${fmt(top[1] + top[2])}</span>`;
+    };
     host.innerHTML =
       card("제품별 원자재 출처", `<select id="src-yr" class="mini-sel">${srcYs.map((yy) => `<option value="${yy}"${yy === sy ? " selected" : ""}>${yy}년</option>`).join("")}</select> 막대 = 비율 · 오른쪽 = 이용량`, `<div id="ds-src"></div>` +
         rule(`국내에서 만든 몫은 원자재별로(수입 단판으로 만든 합판, 수입 제재목을 처리한 방부목재 등 포함), 제품째 수입한 몫은 수입 제품으로 · 국내 생산 몫 = 실태조사 제품별 원자재 투입량(KOSIS, 2022~ 공표 제품), 그 밖의 제품(펄프·장작·톱밥·버섯 원목 등, 2024년만)과 2024년 수입 제품 = 실태조사 「국내 목재 이용 현황」 표, 2022·2023년 수입 제품 = 실태조사 제품별 수입량 · 원자재 투입량은 제품 생산량이 아니라 투입한 원자재 양이고, 중간재(수입 합판·단판 등)는 다른 제품의 수입량과 겹칠 수 있음 · 단위 ㎥ (펠릿 수입은 톤×1.67, 그 밖의 톤 단위 제품은 1:1, 실태조사 방식) · 출처: 산림청·한국임업진흥원 목재이용실태조사(KOSIS 제품별 원자재 표, 국내 목재 이용 현황)`), "",
         (() => { const top = pr.slice(0, 3).map((d) => `${nm(d.key)} 수입 ${nf(impOf(d), 0)}%`); return top.join(" · "); })()) +
-      (I ? card("제품별 매출 구조", `${I.year}년 · 억 원`, `<div id="ds-sales"></div>` +
-        rule(`국내 생산업체 = 국내에서 제품을 만든 업체 매출 · 수입·유통업체 = 수입해서 파는 업체 매출(실태조사 가중치 추정) · 출처: ${I.source}`), "",
-        `국내 생산 ${nf(I.domestic[I.years.length - 1] / 1e4, 1)}조 · 수입·유통 ${nf(I.imports[I.years.length - 1] / 1e4, 1)}조 원`) : "");
+      (VC ? card("가치사슬 — 제재목", `<select id="vc-yr" class="mini-sel">${vcYs.map((yy) => `<option value="${yy}"${yy === vy ? " selected" : ""}>${yy}년</option>`).join("")}</select> 응답업체 기준 · ㎥`,
+        `<div id="ds-vc"></div>` +
+        rule(`왼쪽 = 국산 원목 공급지(시도)와 수입 원목 조달 경로, 가운데 = 제재소가 쓴 국산·수입 원목, 오른쪽 = 용도별 제재목 생산량 · 부산물·손실 = 원목 이용량 − 제재목 생산량(산출, 톱밥·칩·죽데기 등) · 응답업체 기준이라 전국 추계(제재목 생산 ${nf(1900000 / 1e4, 0)}만 ㎥ 등)와 다름 · 선에 마우스를 올리면 물량 · 출처: ${VC.source}`), "",
+        `<span id="vc-lead"></span>`) : "");
     $("#src-yr").onchange = (ev) => { S.srcy = ev.target.value; renderDist(); };
     stackRows($("#ds-src"), pr.map((d) => ({ label: nm(d.key), values: SRCS.map(([k]) => flowsOf(d)[k] || 0),
       text: `${nf(totOf(d) / 1e4, totOf(d) >= 1e5 ? 0 : 1)}만 ㎥`, onClick: isP(d.key) ? () => openDetail("product", d.key) : null })), SRCS.map(([, n, c]) => ({ name: n, color: c })), true);
-    if (I) stackRows($("#ds-sales"), I.products.filter((d) => d.sales >= 100).slice(0, 15).map((d) => ({ label: d.label.replace(/\(.+\)/, "").replace("배향성스트랜드보드", "OSB").replace("목재플라스틱복합재", "목재플라스틱(WPC)"), values: [d.domestic || 0, d.import || 0],
-      text: `${nf(d.sales, 0)}억`, onClick: d.is_product ? () => openDetail("product", d.key) : null })), [{ name: "국내 생산업체", color: C.color(2) }, { name: "수입·유통업체", color: C.color(0) }], false);
+    if (VC) { $("#vc-yr").onchange = (ev) => { S.vcy = ev.target.value; drawVC(); }; drawVC(); }
   }
 
   // ── 국내 공급 여력 (목재이용실태조사) ──────────────────

@@ -14,6 +14,7 @@ import math
 from pathlib import Path
 
 import numpy as np
+import json
 import pandas as pd
 import yaml
 
@@ -731,3 +732,34 @@ def self_suff(survey_csv: Path, wus_csv: Path, labels: dict) -> dict | None:
     return {"years": years, "rows": out,
             "source": "산림청·한국임업진흥원 목재이용실태조사 — KOSIS 제품별 '원자재 이용량' 표(2022~2024), 수입 제품량은 실태조사 수록 임산물수출입통계",
             "rule": "국산 원료 = 국산 원목 + 국산 제재목·단판·합판·섬유판·톱밥·목분·칩 + 국내 발생 원료(폐목재·죽데기·미이용 산림바이오매스 등) · 수입 원료(수입 원목·제재목·단판 등)와 수입 제품은 수입 · 출처가 '기타'인 원료는 미상(분모에만 포함) · 플라스틱 등 비목재 제외"}
+
+
+# ── ⑨ 가치사슬 (목재이용실태조사 KOSIS 원자료, 응답업체 기준) ─────────
+def value_chain(raw_json: Path) -> dict | None:
+    """제재목: 원목 출처(국산 공급지·수입 조달경로) → 국산/수입 원목 → 용도별 생산량 + 부산물·손실(= 원목 이용량 − 제품 생산량, 산출)"""
+    if not raw_json.exists():
+        return None
+    j = json.loads(raw_json.read_text(encoding="utf-8"))
+    R = lambda k: (j.get(k) if isinstance(j.get(k), list) else (j.get(k) or {}).get("rows", [])) or []
+    num = lambda v: float(v) if v not in (None, "-", "") and str(v).replace(".", "", 1).isdigit() else 0.0
+    out = {}
+    a20, a23, a29 = R("DT_136034_2024_A020"), R("DT_136034_2024_A023"), R("DT_136034_2024_A029")
+    for y in sorted({r["PRD_DE"] for r in a29}):
+        dom = [[r["C2_NM"], num(r["DT"])] for r in a20 if r["PRD_DE"] == y and r["C1_NM"] == "합계" and r["C2_NM"] not in ("업체 수", "합계")]
+        imp = [[r["C2_NM"].replace("수입업체/ 에이전트", "수입업체·에이전트"), num(r["DT"])] for r in a23
+               if r["PRD_DE"] == y and r["C1_NM"] == "합계" and r["C2_NM"] not in ("업체 수", "합계")]
+        uses, cur = [], {}
+        for r in a29:
+            if r["PRD_DE"] != y or r["C2_NM"] != "생산량":
+                continue
+            cur.setdefault(r["C1_NM"], []).append(num(r["DT"]))
+        tot = cur.pop("합계", [0, 0, 0])
+        for k, v in cur.items():
+            v = (v + [0, 0, 0])[:3]
+            uses.append([k, v[1], v[2]])          # [용도, 국산 원목 이용 생산, 수입 원목 이용 생산]
+        uses.sort(key=lambda u: -(u[1] + u[2]))
+        ld, li = sum(v for _, v in dom), sum(v for _, v in imp)
+        out[y] = {"src_dom": [d for d in dom if d[1] > 0], "src_imp": [d for d in imp if d[1] > 0], "log_dom": ld, "log_imp": li,
+                  "prod_dom": tot[1] if len(tot) > 1 else 0, "prod_imp": tot[2] if len(tot) > 2 else 0, "uses": uses}
+    return {"p01": {"label": "제재목", "years": out,
+                    "source": "산림청·한국임업진흥원 목재이용실태조사 (KOSIS: 제재목 생산업체 국산 원목 공급지별 이용량·수입 원목 조달방법별 이용량·생산량 및 판매량), 응답업체 기준"}}
