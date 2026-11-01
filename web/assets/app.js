@@ -234,9 +234,14 @@
   }
 
   function goSec(id) {
-    const tg = document.getElementById(id); if (!tg) return;
+    let tg = document.getElementById(id); if (!tg) return;
     let d = tg; while (d) { if (d.tagName === "DETAILS") d.open = true; d = d.parentElement; }
-    setTimeout(() => window.scrollTo({ top: tg.getBoundingClientRect().top + scrollY - 70, behavior: "smooth" }), 60);
+    setTimeout(() => {
+      tg = document.getElementById(id); if (!tg) return;          // 펼칠 때 다시 그려지므로 새로 찾음
+      const box = tg.closest(".card") || tg;
+      window.scrollTo({ top: box.getBoundingClientRect().top + scrollY - 80, behavior: "smooth" });
+      if (box.classList.contains("card")) { box.classList.remove("sr-flash"); void box.offsetWidth; box.classList.add("sr-flash"); }
+    }, 120);
   }
   // 가로 누적 막대 (pct: 비율 막대) — rows [{label, values, text, onClick}], parts [{name, color}]
   function stackRows(host, rows, parts, pct) {
@@ -507,21 +512,41 @@
   function renderBasic() {
     const host = $("#a-basic"); if (!host) return;
     const per = periodL12(), tot = entry("total", "all"), L = l12(tot), Lk = l12(tot, "imp_kg"), Lexp = l12(tot, "exp_usd").cur;
-    const ms = months(), I = D.judg.industry;
+    const ms = months(), I = D.judg.industry, G = D.judg.glance;
     const r12 = (f) => ms.map((_, i) => (i < 11 ? null : sum(tot[f].slice(i - 11, i + 1))));
-    const ru = r12("imp_usd"), rk = r12("imp_kg"), re = r12("exp_usd");
-    const pk = ru.map((v, i) => v != null).indexOf(true);
+    const ru = r12("imp_usd"), re = r12("exp_usd");
+    const pk = ru.map((v) => v != null).indexOf(true);
+    // 목재 이용량 (실태조사): 국산 = 전체 − 수입 원목 − 수입 제품
+    const U = I && I.use_years && I.use_years.length ? I.use_years.map((y, k) => {
+      const li = (I.log_years || []).indexOf(y), lim = li >= 0 ? I.log_imported[li] : 0, ip = I.use_imp_products[k] || 0, tt = I.use_total[k];
+      return { y, tt, dom: tt - lim - ip, lim, ip, share: ((lim + ip) / tt) * 100 }; }) : [];
+    const u1 = U[U.length - 1], u0 = U[0];
+    // 목재제품별 수입액 (최근 12개월)
+    const pr = D.meta.products.filter((p) => p.status !== "pending").map((p) => { const e = entry("product", p.key); const a = e ? l12(e) : {};
+      return { k: p.key, n: p.name.replace(/\(.+\)/, ""), v: a.cur || 0, pv: a.prev || 0 }; }).filter((x) => x.v > 0).sort((a, b) => b.v - a.v);
+    const ptot = sum(pr.map((x) => x.v));
     host.innerHTML =
+      (U.length ? card("한 해 쓰는 목재", `${u0.y}~${u1.y} · 만 ㎥`, `<div id="bs-use"></div>` +
+        rule(`국산 = 전체 이용량 − 수입 원목 − 수입 목재제품 · 펠릿 수입은 톤×1.67, 그 밖의 톤 단위 제품은 1:1 (실태조사 방식) · 출처: 산림청·한국임업진흥원 목재이용실태조사 국내 목재 이용 현황 (연도별 보고서, 2023년은 2024년 기준 보고서 수정치)`), "",
+        `${u1.y}년 ${nf(u1.tt / 1e4, 0)}만 ㎥ <span class="sub">${u0.y}년 ${nf(u0.tt / 1e4, 0)}만 ㎥ · 국산 ${nf(u1.dom / 1e4, 0)}만 ㎥</span>`) : "") +
+      (U.length ? card("그중 수입 비중", `${u0.y}~${u1.y} · %`, `<div id="bs-share"></div>` +
+        rule(`수입 비중 = (수입 원목 + 수입 목재제품) ÷ 전체 이용량, ㎥ 기준 · 100에서 뺀 값이 산림청 공표 목재자급률 (${u1.y}년 ${nf(100 - u1.share, 1)}%) · 2023년 조사부터 국산 이용량 산정 기준이 벌채 허가량 → 실제 이용량으로 바뀌어 2022년 이전과 단순 비교 주의`), "",
+        `${u1.y}년 ${nf(u1.share, 1)}% <span class="sub">${u0.y}년 ${nf(u0.share, 1)}% · 목재자급률 ${nf(100 - u1.share, 1)}%</span>`) : "") +
       card("목재류 수입·수출 추이", "12개월 누적 · 억 달러", `<div id="bs-trade"></div>` +
-        rule(`HS 44류 전체 · 수입 CIF, 수출 FOB · 수입량은 마우스를 올리면 표시 · 출처: ${SRC}`), "",
+        rule(`HS 44류 전체 · 수입 CIF, 수출 FOB · 출처: ${SRC}`), "",
         `최근 12개월 수입 ${nf(L.cur / 1e8, 1)}억 달러 · ${nf(Lk.cur / 1e9, 1)}백만 톤 <span class="sub">수출 ${nf(Lexp / 1e8, 1)}억 달러</span>`) +
-      (I ? card("목재산업 매출 추이", `${I.years[0]}~${I.years[I.years.length - 1]} · 억 원`, `<div id="in-bar"></div>` +
-        rule(`${I.scope} · 출처: ${I.source} · 조사 범위·가중치가 해마다 조정돼 연도 간 비교는 참고`), "",
-        `${I.years[I.years.length - 1]}년 ${nf(I.sales[I.sales.length - 1] / 1e4, 1)}조 원 · 종사자 ${nf(I.employees[I.employees.length - 1], 0)}명`) : "");
+      card("목재제품별 수입액", `${per} · 누르면 상세`, `<div id="bs-prod"></div>` +
+        rule(`목재이용법 15종 + CLT + LVL 기준 HS 코드 합계 · 괄호 = 1년 전 대비 · 원목·칩 등 원자재와 펄프는 제외 · 출처: ${SRC}`), "",
+        pr.length ? `1위 ${pr[0].n} ${nf((pr[0].v / ptot) * 100, 0)}% <span class="sub">상위 3개 ${nf((sum(pr.slice(0, 3).map((x) => x.v)) / ptot) * 100, 0)}%</span>` : "");
+    if (U.length) {
+      C.barChart($("#bs-use"), { x: U.map((d) => String(d.y)), series: [{ name: "국산", values: U.map((d) => d.dom / 1e4), color: C.color(2) }, { name: "수입 원목", values: U.map((d) => d.lim / 1e4), color: C.color(1) },
+        { name: "수입 목재제품", values: U.map((d) => d.ip / 1e4), color: C.color(0) }], stacked: true, yFmt: (v) => nf(v, 0), tipFmt: (v) => nf(v, 0) + "만 ㎥", height: 250 });
+      C.lineChart($("#bs-share"), { x: U.map((d) => String(d.y)), series: [{ name: "수입 비중", values: U.map((d) => d.share) }], yFmt: (v) => nf(v, 0) + "%", tipFmt: (v) => nf(v, 1) + "%", height: 250, area: true, yMin0: false });
+    }
     C.lineChart($("#bs-trade"), { x: ms.slice(pk), series: [{ name: "수입액", values: ru.slice(pk).map((v) => v / 1e8) }, { name: "수출액", values: re.slice(pk).map((v) => v / 1e8) }],
-      yFmt: (v) => nf(v, 0), tipFmt: (v) => nf(v, 2) + "억 달러", height: 260, xLabelFmt: xFmt });
-    if (I) C.barChart($("#in-bar"), { x: I.years.map(String), series: [{ name: "국내 생산업체", values: I.domestic, color: C.color(2) }, { name: "수입·유통업체", values: I.imports, color: C.color(0) }],
-      yFmt: (v) => nf(v / 1e4, 1) + "조", tipFmt: (v) => nf(v, 0) + "억 원", height: 260, stacked: true });
+      yFmt: (v) => nf(v, 0), tipFmt: (v) => nf(v, 2) + "억 달러", height: 250, xLabelFmt: xFmt });
+    C.hbars($("#bs-prod"), pr.slice(0, 10).map((x) => ({ label: x.n, value: x.v,
+      text: `${nf(x.v / 1e8, 2)}억 달러 <span class="sub">(${x.pv ? ((g) => (g >= 0 ? "+" : "") + nf(g, Math.abs(g) < 10 ? 1 : 0) + "%")((x.v / x.pv - 1) * 100) : "–"})</span>`, onClick: () => openDetail("product", x.k) })));
   }
   function renderAlerts() {
     const al = D.insights.alerts;
@@ -551,12 +576,12 @@
     if (I.log_years && I.log_years.length >= 2) {
       const m = I.log_years.length - 1;
       logs = it("국산 원목 이용량", `${nf(I.log_domestic[m] / 1e4, 0)}만 ㎥`, `${I.log_years[0]}년 ${nf(I.log_domestic[0] / 1e4, 0)}만 ㎥ · ${chg(I.log_domestic[0], I.log_domestic[m])}`,
-        `수입 원목 ${nf(I.log_imported[m] / 1e4, 0)}만 ㎥ (${I.log_years[0]}년 ${nf(I.log_imported[0] / 1e4, 0)}만)`, I.log_domestic, "#sec-risk");
+        `수입 원목 ${nf(I.log_imported[m] / 1e4, 0)}만 ㎥ (${I.log_years[0]}년 ${nf(I.log_imported[0] / 1e4, 0)}만)`, I.log_domestic, "#sec-basic");
     }
     return `<div class="g-ind"><div class="gi-h"><b>목재산업 규모 및 실태</b><span>연도별 추이 · 산림청 목재이용실태조사 공표값</span></div><div class="gi-row">` +
-      it("매출", `${nf(I.sales[n] / 1e4, 1)}조 원`, `${y0}년 ${nf(I.sales[0] / 1e4, 1)}조 · ${chg(I.sales[0], I.sales[n])}`, "국내 생산 + 수입·유통업체", I.sales, "#sec-basic") +
-      it("국내 생산업체 매출", `${nf(I.domestic[n] / 1e4, 1)}조 원`, `${y0}년 ${nf(I.domestic[0] / 1e4, 1)}조 · ${chg(I.domestic[0], I.domestic[n])}`, `수입·유통업체 ${nf(I.imports[n] / 1e4, 1)}조 원`, I.domestic, "#sec-basic") +
-      it("종사자", `${nf(I.employees[n], 0)}명`, `${y0}년 ${nf(I.employees[0], 0)}명 · ${chg(I.employees[0], I.employees[n])}`, "국내 생산 + 수입·유통업체", I.employees, "#sec-basic") +
+      it("매출", `${nf(I.sales[n] / 1e4, 1)}조 원`, `${y0}년 ${nf(I.sales[0] / 1e4, 1)}조 · ${chg(I.sales[0], I.sales[n])}`, "국내 생산 + 수입·유통업체", I.sales, "#sec-dist") +
+      it("국내 생산업체 매출", `${nf(I.domestic[n] / 1e4, 1)}조 원`, `${y0}년 ${nf(I.domestic[0] / 1e4, 1)}조 · ${chg(I.domestic[0], I.domestic[n])}`, `수입·유통업체 ${nf(I.imports[n] / 1e4, 1)}조 원`, I.domestic, "#sec-dist") +
+      it("종사자", `${nf(I.employees[n], 0)}명`, `${y0}년 ${nf(I.employees[0], 0)}명 · ${chg(I.employees[0], I.employees[n])}`, "국내 생산 + 수입·유통업체", I.employees, "#sec-dist") +
       logs + `</div><div class="gi-f">매출·종사자 ${y0}~${y1}, 원목 ${(I.log_years || [y0])[0]}~${y1} · 조사 범위·가중치가 해마다 조정돼 연도 간 비교는 참고 (2023년은 2024년 기준 보고서 수정치) · 누르면 자세히 보기로 이동</div></div>`;
   }
   function renderGlance() {
@@ -572,16 +597,16 @@
     const big = [...G.groups].sort((a, b) => b.total - a.total);
     const pct = (v) => Math.round((v / G.total) * 100);
     // 1) 핵심 숫자
-    const tile = (lab, val, sub, src) => `<div class="g-tile"><div class="g-lab">${lab}</div><div class="g-val num">${val}</div><div class="g-sub">${sub}</div><div class="g-src">${src}</div></div>`;
+    const tile = (lab, val, sub, src, go) => `<a class="g-tile go" href="#${go}" data-go="${go}"><div class="g-lab">${lab}<span class="g-go">자세히 →</span></div><div class="g-val num">${val}</div><div class="g-sub">${sub}</div><div class="g-src">${src}</div></a>`;
     const indY = IND ? IND.year : null, indI = IND ? IND.years.indexOf(indY) : -1;
-    const tiles = tile("한 해 쓰는 목재", `${nf(G.total / 1e4, 0)}<small>만 ㎥</small>`, `국산 ${nf((G.total - impLog - impProd) / 1e4, 0)}만 + 수입 ${nf((impLog + impProd) / 1e4, 0)}만 ㎥`, `${G.year}년 · 산림청 목재이용실태조사`) +
-      tile("그중 수입", `${nf(G.import_share, 1)}<small>%</small>`, `${nf(G.total / 1e4, 0)}만 ㎥ 중 <b>${nf((impLog + impProd) / 1e4, 0)}만 ㎥</b> (원목 ${nf(impLog / 1e4, 0)}만 + 제품 ${nf(impProd / 1e4, 0)}만)`, `${G.year}년 · 산림청 목재이용실태조사`) +
-      tile("목재류 수입액", `${nf(L.cur / 1e8, 1)}<small>억 달러</small>`, yoy == null ? "최근 12개월" : `최근 12개월 · 1년 전보다 <b class="${yoy < 0 ? "dn" : "up"}">${yoy > 0 ? "+" : ""}${nf(yoy, 1)}%</b>`, `${per} · 관세청`) +
+    const tiles = tile("한 해 쓰는 목재", `${nf(G.total / 1e4, 0)}<small>만 ㎥</small>`, `국산 ${nf((G.total - impLog - impProd) / 1e4, 0)}만 + 수입 ${nf((impLog + impProd) / 1e4, 0)}만 ㎥`, `${G.year}년 · 산림청 목재이용실태조사`, "bs-use") +
+      tile("그중 수입", `${nf(G.import_share, 1)}<small>%</small>`, `${nf(G.total / 1e4, 0)}만 ㎥ 중 <b>${nf((impLog + impProd) / 1e4, 0)}만 ㎥</b> (원목 ${nf(impLog / 1e4, 0)}만 + 제품 ${nf(impProd / 1e4, 0)}만)`, `${G.year}년 · 산림청 목재이용실태조사`, "bs-share") +
+      tile("목재류 수입액", `${nf(L.cur / 1e8, 1)}<small>억 달러</small>`, yoy == null ? "최근 12개월" : `최근 12개월 · 1년 전보다 <b class="${yoy < 0 ? "dn" : "up"}">${yoy > 0 ? "+" : ""}${nf(yoy, 1)}%</b>`, `${per} · 관세청`, "bs-trade") +
       (() => {   // 가장 많이 사오는 목재제품 (수입액, 최근 12개월)
         const pr = D.meta.products.filter((p) => p.status !== "pending").map((p) => { const e = entry("product", p.key); return { n: p.name.replace(/\(.+\)/, ""), v: e ? l12(e).cur || 0 : 0 }; })
           .sort((a, b) => b.v - a.v);
         if (!pr.length || !pr[0].v) return "";
-        return tile("가장 많이 사오는 제품", `${pr[0].n} <small>${nf(pr[0].v / 1e8, 1)}억 달러</small>`, `2위 ${pr[1].n} ${nf(pr[1].v / 1e8, 1)}억 · 3위 ${pr[2].n} ${nf(pr[2].v / 1e8, 1)}억 달러`, `${per} · 관세청 · 목재제품 17종 기준`);
+        return tile("가장 많이 사오는 제품", `${pr[0].n} <small>${nf(pr[0].v / 1e8, 1)}억 달러</small>`, `2위 ${pr[1].n} ${nf(pr[1].v / 1e8, 1)}억 · 3위 ${pr[2].n} ${nf(pr[2].v / 1e8, 1)}억 달러`, `${per} · 관세청 · 목재제품 17종 기준`, "bs-prod");
       })();
     // 2) 지금 주의할 점 (4개)
     const sig = (lv, ic, title, body, href) => `<a class="g-sig ${lv}" href="${href}"><span class="g-ic" aria-hidden="true">${ic}</span><span><b>${title}</b><span class="g-sb">${body}</span></span></a>`;
@@ -910,7 +935,7 @@
       sub.addEventListener("toggle", () => { if (sub.open) renderAll(); });   // 접힌 상태에서는 차트 폭을 잴 수 없어 펼칠 때 다시 그림
     });
     const openTo = (el) => { let d = el; while (d) { if (d.tagName === "DETAILS") d.open = true; d = d.parentElement; } };
-    document.addEventListener("click", (ev) => { const a = ev.target.closest("a[href^='#sec-']"); if (!a) return; ev.preventDefault();
+    document.addEventListener("click", (ev) => { const a = ev.target.closest("a[href^='#sec-'], a.go"); if (!a) return; ev.preventDefault();
       goSec(a.getAttribute("href").slice(1)); });
     det.addEventListener("toggle", () => { if (det.open) { renderAll(); } });
   }
@@ -921,7 +946,7 @@
   const SR_ITEMS = [
     { label: "수입의존도", sub: "원목·목재제품별 수입의존도 · 추세 · 자급-수입 구조", alias: "수입 의존 의존도 자급률 수입비중 수입침투율", target: "#sec-risk" },
     { label: "가동률", sub: "국내 설비 가동률 · 생산능력과 생산량", alias: "가동 설비 생산능력 캐파 공급여력 국내 공급 여력", target: "#sec-domestic" },
-    { label: "목재산업 규모", sub: "매출액 · 종사자 (목재이용실태조사)", alias: "산업규모 매출 종사자 고용 산업", target: "#sec-basic" },
+    { label: "목재산업 규모", sub: "매출액 · 종사자 (목재이용실태조사)", alias: "산업규모 매출 종사자 고용 산업", target: "#sec-dist" },
     { label: "품목별 정보", sub: "상세 탐색 — 목재제품 탭 (제품별 수입·공급국·단가)", alias: "품목 제품 목재제품 합판 제재목 CLT 집성재 펠릿", tab: "product" },
     { label: "수종별 정보", sub: "상세 탐색 — 수종 탭 (원목·제재목 세부 수종)", alias: "수종 나무 원목 제재목 소나무 라디에타 낙엽송 삼나무", tab: "species" },
   ];

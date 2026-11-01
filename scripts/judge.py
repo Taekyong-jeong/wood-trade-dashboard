@@ -517,6 +517,7 @@ def industry(survey_csv: Path, labels: dict) -> dict | None:
     _, li = ser("log_use_imported")
     return {"years": years, "sales": tot, "domestic": dom, "imports": imp, "employees": emp, "year": y0, "products": prods,
             "log_years": ly, "log_domestic": ld, "log_imported": li,
+            "use_years": ser("wood_use_total")[0], "use_total": ser("wood_use_total")[1], "use_imp_products": ser("imported_products")[1],
             "source": "산림청·한국임업진흥원 목재이용실태조사 표2-4 (2020년은 2021년 기준, 2023년은 2024년 기준 보고서 수정치)",
             "scope": "목재생산업 등록업체(21개 목재제품의 국내 생산업체 + 수입·유통업체) 매출. 가구·건축·종이 제외. 수입·유통업체 값은 가중치 추정"}
 
