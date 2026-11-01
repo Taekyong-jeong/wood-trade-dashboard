@@ -564,19 +564,6 @@ th.sortable { cursor: pointer; user-select: none; }
 th.sortable:hover { color: var(--accent); }
 th.sortable.on { color: var(--accent); }
 
-td.spk { padding-top: 2px; padding-bottom: 2px; width: 118px; }
-td.spk svg { display: block; margin-left: auto; }
-.spk-l { fill: none; stroke: var(--s1); stroke-width: 1.8; }
-.spk-d { fill: var(--s1); }
-.spk-ref { stroke: var(--axis); stroke-dasharray: 3 3; stroke-width: 1; }
-th.spk-h { text-align: right; }
-table.gh { table-layout: fixed; }
-table.gh th, table.gh td { text-align: center; padding: 3px 2px; }
-table.gh th.l, table.gh td.l { text-align: left; width: 170px; padding-left: 8px; white-space: nowrap; }
-.ghc { display: block; font-size: 10.5px; font-weight: 700; line-height: 20px; border-radius: 4px; white-space: nowrap; }
-.ghc.hi { background: color-mix(in srgb, var(--s8) 22%, var(--surface)); color: var(--s8); }
-.ghc.mid { background: color-mix(in srgb, var(--s4) 26%, var(--surface)); color: var(--ink); }
-.ghc.lo { background: var(--accent-soft); color: var(--ink-2); font-weight: 500; }
-.ghc.ex { background: var(--surface-2); color: var(--muted); font-weight: 400; }
-.ghc.none { background: transparent; border: 1px dashed var(--border); height: 20px; box-sizing: border-box; }
-table.gh .gh-now { border-left: 2px solid var(--border); padding-left: 6px; }
+.rk-per { display: flex; align-items: center; gap: 6px; margin: 0 0 6px; flex-wrap: wrap; }
+.rk-now { font-size: 10.5px; color: var(--muted); margin-left: 5px; white-space: nowrap; }
+tr.rk-none td { color: var(--muted); font-size: 11.5px; }
