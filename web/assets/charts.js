@@ -125,6 +125,14 @@
     }
     // 특정 기간 띠 (예: 변동 해설 대상 기간 ① 2021~2022) — x가 "YYYY-MM"일 때
     (opts.xSpans || []).forEach((sp) => {
+      if (!sp.to) {   // 시작점만 표시 (점선 + 작은 번호)
+        const i = opts.x.findIndex((s) => s >= sp.from); if (i < 0) return;
+        const xa = X(i), col = sp.color || css("--warn");
+        el("line", { x1: xa, x2: xa, y1: pad.t + 16, y2: pad.t + ih, stroke: col, "stroke-opacity": 0.7, "stroke-dasharray": "2 3" }, g);
+        el("circle", { cx: xa, cy: pad.t + 8, r: 8, fill: col }, g);
+        el("text", { x: xa, y: pad.t + 12, "text-anchor": "middle", style: `fill:#111;font-size:11px;font-weight:700` }, g).textContent = sp.label;
+        return;
+      }
       let i0 = opts.x.findIndex((s) => s >= sp.from), i1 = -1;
       opts.x.forEach((s, i) => { if (s <= sp.to) i1 = i; });
       if (i0 < 0 || i1 < i0) return;

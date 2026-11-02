@@ -27,7 +27,7 @@
       const pidx = document.querySelector("#pidx");
       const card = pidx && pidx.closest(".card");
       if (card && !card.querySelector(`.ins-foot[data-ins="${it.id}"]`)) {
-        card.insertAdjacentHTML("beforeend", `<div class="ins-foot" data-ins="${it.id}"><b>${num(it)}</b> ${it.period} — ${it.title} ${btn(it)} <span style="color:var(--muted);font-size:12px">그래프의 ${num(it)} 띠 = 해설 대상 기간 (회원 전용)</span></div>`);
+        card.insertAdjacentHTML("beforeend", `<div class="ins-foot" data-ins="${it.id}"><b>${num(it)}</b> ${it.period} — ${it.title} ${btn(it)} <span style="color:var(--muted);font-size:12px">그래프의 ${num(it)} 표시 = 해설 대상 기간 시작점 (회원 전용)</span></div>`);
       }
     });
   }

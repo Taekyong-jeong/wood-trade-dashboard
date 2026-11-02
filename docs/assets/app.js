@@ -686,7 +686,7 @@
     }
     const pi = pser.length ? pser[0].values.findIndex((v) => v != null) : 0;
     const CIRC = "①②③④⑤⑥⑦⑧⑨⑩";
-    const xSpans = (D.ins || []).map((it, n) => { const m = String(it.period || "").match(/(\d{4})(?:\s*~\s*(\d{4}))?/); return m ? { from: `${m[1]}-01`, to: `${m[2] || m[1]}-12`, label: `${CIRC[n] || n + 1} ${m[1]}${m[2] ? "~" + m[2].slice(2) : ""}` } : null; }).filter(Boolean);
+    const xSpans = (D.ins || []).map((it, n) => { const m = String(it.period || "").match(/(\d{4})(?:\s*~\s*(\d{4}))?/); return m ? { from: it.start || `${m[1]}-01`, label: String(n + 1) } : null; }).filter(Boolean);   // 시작점만 표시 (2026-11-02)
     C.lineChart($("#pidx"), { x: ms.slice(pi), series: pser.map((p) => ({ name: p.name, values: p.values.slice(pi) })), yFmt: (v) => nf(v, 0), tipFmt: (v) => nf(v, 1), yMin0: false, height: 230, xLabelFmt: xFmt, xSpans });
     $("#a-price").querySelectorAll("tr[data-axis]").forEach((tr) => tr.onclick = () => openDetail(tr.dataset.axis, tr.dataset.key));
     const drawMap = () => {
