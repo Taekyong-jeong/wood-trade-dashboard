@@ -1,0 +1,1018 @@
+{
+ "한국은행 기준금리": [
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_103Y002",
+   "TBL_NM": "한국은행 주요계정(말잔)",
+   "STRT_PRD_DE": "1961",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_641Y001",
+   "TBL_NM": "한국은행 원화대출금",
+   "STRT_PRD_DE": "1971",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  }
+ ],
+ "시장금리": [
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_2KAA716",
+   "TBL_NM": "주요 국제금리",
+   "STRT_PRD_DE": "1950",
+   "END_PRD_DE": "2025",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_121Y011",
+   "TBL_NM": "예금은행 고정 및 변동금리대출 비중(잔액 기준)",
+   "STRT_PRD_DE": "2009",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_121Y010",
+   "TBL_NM": "예금은행 고정 및 변동금리대출 비중(신규취급액 기준)",
+   "STRT_PRD_DE": "2001",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_XNN0117",
+   "TBL_NM": "주요 국제금리 - 동북·중앙아시아",
+   "STRT_PRD_DE": "1992",
+   "END_PRD_DE": "2025",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_XNS0117",
+   "TBL_NM": "주요 국제금리 - 남부·동남아시아",
+   "STRT_PRD_DE": "1966",
+   "END_PRD_DE": "2025",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "343",
+   "ORG_NM": "한국거래소",
+   "TBL_ID": "DT_343_2010_S0094",
+   "TBL_NM": "채권금리상품 총괄",
+   "STRT_PRD_DE": "2004",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "343",
+   "ORG_NM": "한국거래소",
+   "TBL_ID": "DT_343_2010_S0183",
+   "TBL_NM": "3년국채선물 거래실적",
+   "STRT_PRD_DE": "1999",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "343",
+   "ORG_NM": "한국거래소",
+   "TBL_ID": "DT_343_2010_S0158",
+   "TBL_NM": "10년국채선물 투자자별 거래실적",
+   "STRT_PRD_DE": "2008",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "343",
+   "ORG_NM": "한국거래소",
+   "TBL_ID": "DT_343_2010_S0191",
+   "TBL_NM": "30년국채선물 거래실적",
+   "STRT_PRD_DE": "2024",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "343",
+   "ORG_NM": "한국거래소",
+   "TBL_ID": "DT_343_2010_S0157",
+   "TBL_NM": "10년국채선물 거래실적",
+   "STRT_PRD_DE": "2008",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "343",
+   "ORG_NM": "한국거래소",
+   "TBL_ID": "DT_343_2010_S0192",
+   "TBL_NM": "30년국채선물 투자자별 거래실적",
+   "STRT_PRD_DE": "2024",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "343",
+   "ORG_NM": "한국거래소",
+   "TBL_ID": "DT_343_2010_S0155",
+   "TBL_NM": "5년국채선물 거래실적",
+   "STRT_PRD_DE": "2003",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "343",
+   "ORG_NM": "한국거래소",
+   "TBL_ID": "DT_343_2010_S0156",
+   "TBL_NM": "5년국채선물 투자자별 거래실적",
+   "STRT_PRD_DE": "2003",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "343",
+   "ORG_NM": "한국거래소",
+   "TBL_ID": "DT_343_2010_S0101",
+   "TBL_NM": "3년국채선물 투자자별 거래실적",
+   "STRT_PRD_DE": "2004",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_2OEEO033",
+   "TBL_NM": "단기 이자율",
+   "STRT_PRD_DE": "1960",
+   "END_PRD_DE": "2027",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "321",
+   "ORG_NM": "한국주택금융공사",
+   "TBL_ID": "DT_KHFC_032",
+   "TBL_NM": "MBS 지수 - 시장가격지수",
+   "STRT_PRD_DE": "2022",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_121Y013",
+   "TBL_NM": "예금은행 수신금리(잔액 기준)",
+   "STRT_PRD_DE": "1996",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_2IFS009",
+   "TBL_NM": "펀드계정(IMF 신용 및 대출 이용)",
+   "STRT_PRD_DE": "1960",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_121Y002",
+   "TBL_NM": "예금은행 수신금리(신규취급액 기준)",
+   "STRT_PRD_DE": "1996",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_2OEEO034",
+   "TBL_NM": "장기 국채 이자율",
+   "STRT_PRD_DE": "1960",
+   "END_PRD_DE": "2027",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_2KAA718",
+   "TBL_NM": "공적개발원조",
+   "STRT_PRD_DE": "1960",
+   "END_PRD_DE": "2025",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "303",
+   "ORG_NM": "중소기업은행",
+   "TBL_ID": "DT_303003_829",
+   "TBL_NM": "금리상승 대응방안(복수응답)",
+   "STRT_PRD_DE": "2023",
+   "END_PRD_DE": "2023",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "321",
+   "ORG_NM": "한국주택금융공사",
+   "TBL_ID": "DT_KHFC_031",
+   "TBL_NM": "MBS 지수 - 총수익지수",
+   "STRT_PRD_DE": "2022",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "136",
+   "ORG_NM": "산림청",
+   "TBL_ID": "DT_136022_2019_03_028",
+   "TBL_NM": "산림청에 바라는 점",
+   "STRT_PRD_DE": "2019",
+   "END_PRD_DE": "2019",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "303",
+   "ORG_NM": "중소기업은행",
+   "TBL_ID": "DT_30303N_5150",
+   "TBL_NM": "자본시장을 통한 자금조달이 없는 이유",
+   "STRT_PRD_DE": "2014",
+   "END_PRD_DE": "2014",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "136",
+   "ORG_NM": "산림청",
+   "TBL_ID": "DT_13622_A886",
+   "TBL_NM": "산림청에 바라는 점",
+   "STRT_PRD_DE": "2011",
+   "END_PRD_DE": "2011",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "453",
+   "ORG_NM": "재단법인 여성기업종합지원센터",
+   "TBL_ID": "DT_39301_11_123",
+   "TBL_NM": "정부에서 여성기업의 애로해결을 위해 중점적으로 추진해야할 일",
+   "STRT_PRD_DE": "2010",
+   "END_PRD_DE": "2010",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "136",
+   "ORG_NM": "산림청",
+   "TBL_ID": "DT_13634_A033",
+   "TBL_NM": "일반제재업_산림청 건의사항",
+   "STRT_PRD_DE": "2008",
+   "END_PRD_DE": "2010",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "136",
+   "ORG_NM": "산림청",
+   "TBL_ID": "DT_13622_A1050",
+   "TBL_NM": "산림청에 바라는 점",
+   "STRT_PRD_DE": "2011",
+   "END_PRD_DE": "2011",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "136",
+   "ORG_NM": "산림청",
+   "TBL_ID": "TX_136_2009_H6124",
+   "TBL_NM": "육림업하면서 느끼는 애로사항",
+   "STRT_PRD_DE": "2005",
+   "END_PRD_DE": "2005",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "136",
+   "ORG_NM": "산림청",
+   "TBL_ID": "TX_136_2009_H7133",
+   "TBL_NM": "조경수 재배시 느끼는 애로사항",
+   "STRT_PRD_DE": "2005",
+   "END_PRD_DE": "2005",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "620",
+   "ORG_NM": "경기도 고양시",
+   "TBL_ID": "DT_620004_B047",
+   "TBL_NM": "고양시에 바라는 점",
+   "STRT_PRD_DE": "2018",
+   "END_PRD_DE": "2018",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "376",
+   "ORG_NM": "금융감독원",
+   "TBL_ID": "DT_376_90_SDMP038V_1",
+   "TBL_NM": "[자본시장] 16. 채권금리상품 주요지표",
+   "STRT_PRD_DE": "2001",
+   "END_PRD_DE": "2016",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "376",
+   "ORG_NM": "금융감독원",
+   "TBL_ID": "DT_376_100_SDMZ021V_1",
+   "TBL_NM": "[주요경제지표] 1. 국내 주요경제지표(Ⅰ)",
+   "STRT_PRD_DE": "2005",
+   "END_PRD_DE": "2016",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "115",
+   "ORG_NM": "산업통상부",
+   "TBL_ID": "TX_115140765",
+   "TBL_NM": "프랜차이즈 산업 건의사항",
+   "STRT_PRD_DE": "2005",
+   "END_PRD_DE": "2005",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "999",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "CS122001942",
+   "TBL_NM": "대금업자 평균금리",
+   "STRT_PRD_DE": "1911",
+   "END_PRD_DE": "1943",
+   "PRD_SE": null
+  }
+ ],
+ "예금은행 대출금리": [
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_121Y006",
+   "TBL_NM": "예금은행 대출금리(신규취급액 기준)",
+   "STRT_PRD_DE": "1996",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_121Y015",
+   "TBL_NM": "예금은행 대출금리(잔액 기준)",
+   "STRT_PRD_DE": "1996",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_121Y010",
+   "TBL_NM": "예금은행 고정 및 변동금리대출 비중(신규취급액 기준)",
+   "STRT_PRD_DE": "2001",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_121Y011",
+   "TBL_NM": "예금은행 고정 및 변동금리대출 비중(잔액 기준)",
+   "STRT_PRD_DE": "2009",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_XNS0117",
+   "TBL_NM": "주요 국제금리 - 남부·동남아시아",
+   "STRT_PRD_DE": "1966",
+   "END_PRD_DE": "2025",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_XNN0117",
+   "TBL_NM": "주요 국제금리 - 동북·중앙아시아",
+   "STRT_PRD_DE": "1992",
+   "END_PRD_DE": "2025",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_2KAA716",
+   "TBL_NM": "주요 국제금리",
+   "STRT_PRD_DE": "1950",
+   "END_PRD_DE": "2025",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_121Y008",
+   "TBL_NM": "예금은행 금리수준별 여수신 비중(신규취급액 기준)",
+   "STRT_PRD_DE": "1990",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_2AQ555",
+   "TBL_NM": "금융기관 이용, 안정성 및 효율성",
+   "STRT_PRD_DE": "1960",
+   "END_PRD_DE": "2025",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "376",
+   "ORG_NM": "금융감독원",
+   "TBL_ID": "DT_376_100_SDMZ021V_1",
+   "TBL_NM": "[주요경제지표] 1. 국내 주요경제지표(Ⅰ)",
+   "STRT_PRD_DE": "2005",
+   "END_PRD_DE": "2016",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "999",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_999N_116042",
+   "TBL_NM": "조선은행 평균금리(1917~1943)",
+   "STRT_PRD_DE": "1917",
+   "END_PRD_DE": "1943",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "999",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_999N_117042",
+   "TBL_NM": "조선식산은행 평균금리",
+   "STRT_PRD_DE": "1918",
+   "END_PRD_DE": "1943",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "999",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_999N_119042",
+   "TBL_NM": "보통은행 평균금리",
+   "STRT_PRD_DE": "1917",
+   "END_PRD_DE": "1943",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "999",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "CS118001942",
+   "TBL_NM": "조선저축은행 평균금리",
+   "STRT_PRD_DE": "1933",
+   "END_PRD_DE": "1943",
+   "PRD_SE": null
+  }
+ ],
+ "건설공사비지수": [
+  {
+   "ORG_ID": "397",
+   "ORG_NM": "한국건설기술연구원",
+   "TBL_ID": "DT_39701_A003",
+   "TBL_NM": "건설공사비지수(2020년기준)",
+   "STRT_PRD_DE": "2000",
+   "END_PRD_DE": "2026",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "154",
+   "ORG_NM": "성평등가족부",
+   "TBL_ID": "DT_MOGE_15000001005",
+   "TBL_NM": "가족친화지수 영역별 결과",
+   "STRT_PRD_DE": "2015",
+   "END_PRD_DE": "2025",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_2FAIA",
+   "TBL_NM": "물가",
+   "STRT_PRD_DE": "1960",
+   "END_PRD_DE": "2023",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "154",
+   "ORG_NM": "성평등가족부",
+   "TBL_ID": "DT_MOGE_1500000115",
+   "TBL_NM": "탄력적 근무제도 체감지수",
+   "STRT_PRD_DE": "2010",
+   "END_PRD_DE": "2010",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "154",
+   "ORG_NM": "성평등가족부",
+   "TBL_ID": "DT_MOGE_1500000114",
+   "TBL_NM": "전체 가족친화 체감지수",
+   "STRT_PRD_DE": "2010",
+   "END_PRD_DE": "2010",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "154",
+   "ORG_NM": "성평등가족부",
+   "TBL_ID": "DT_MOGE_1500000118",
+   "TBL_NM": "근로자 지원제도 체감지수",
+   "STRT_PRD_DE": "2010",
+   "END_PRD_DE": "2010",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "154",
+   "ORG_NM": "성평등가족부",
+   "TBL_ID": "DT_MOGE_1500000117",
+   "TBL_NM": "부양가족 지원제도 체감지수",
+   "STRT_PRD_DE": "2010",
+   "END_PRD_DE": "2010",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "154",
+   "ORG_NM": "성평등가족부",
+   "TBL_ID": "DT_MOGE_1500000021",
+   "TBL_NM": "가족친화 문화조성 프로그램 체감지수(2010)",
+   "STRT_PRD_DE": "2010",
+   "END_PRD_DE": "2010",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "154",
+   "ORG_NM": "성평등가족부",
+   "TBL_ID": "DT_MOGE_1500000116",
+   "TBL_NM": "자녀 출산 양육 및 교육지원제도 체감지수",
+   "STRT_PRD_DE": "2010",
+   "END_PRD_DE": "2010",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "154",
+   "ORG_NM": "성평등가족부",
+   "TBL_ID": "DT_MOGE_1500000229",
+   "TBL_NM": "부양가족 지원제도 체감지수(2012)",
+   "STRT_PRD_DE": "2012",
+   "END_PRD_DE": "2012",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "154",
+   "ORG_NM": "성평등가족부",
+   "TBL_ID": "DT_MOGE_1500000230",
+   "TBL_NM": "근로자 지원제도 체감지수(2012)",
+   "STRT_PRD_DE": "2012",
+   "END_PRD_DE": "2012",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "154",
+   "ORG_NM": "성평등가족부",
+   "TBL_ID": "DT_MOGE_1500000231",
+   "TBL_NM": "가족친화 문화조성 체감지수(2012)",
+   "STRT_PRD_DE": "2012",
+   "END_PRD_DE": "2012",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "154",
+   "ORG_NM": "성평등가족부",
+   "TBL_ID": "DT_MOGE_1500000039",
+   "TBL_NM": "조사대상별 가족친화지수 분포현황(2010)",
+   "STRT_PRD_DE": "2010",
+   "END_PRD_DE": "2010",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "154",
+   "ORG_NM": "성평등가족부",
+   "TBL_ID": "DT_MOGE_1500000178",
+   "TBL_NM": "세부기관(기업)별 가족친화지수 영역별 결과(2012)",
+   "STRT_PRD_DE": "2012",
+   "END_PRD_DE": "2012",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "154",
+   "ORG_NM": "성평등가족부",
+   "TBL_ID": "DT_MOGE_1500000179",
+   "TBL_NM": "세부 기관별 단계별 가족친화지수 수준(2012)",
+   "STRT_PRD_DE": "2012",
+   "END_PRD_DE": "2012",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "154",
+   "ORG_NM": "성평등가족부",
+   "TBL_ID": "DT_MOGE_1500000228",
+   "TBL_NM": "자녀 출산.양육 및 교육지원제도 체감지수(2012)",
+   "STRT_PRD_DE": "2012",
+   "END_PRD_DE": "2012",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "154",
+   "ORG_NM": "성평등가족부",
+   "TBL_ID": "DT_MOGE_1500000023",
+   "TBL_NM": "세부기관(기업)별가족친화지수 결과(2010)",
+   "STRT_PRD_DE": "2010",
+   "END_PRD_DE": "2010",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "154",
+   "ORG_NM": "성평등가족부",
+   "TBL_ID": "DT_MOGE_1500000025",
+   "TBL_NM": "세부기관(기업)별 가족친화지수 영역별 결과(2010)",
+   "STRT_PRD_DE": "2010",
+   "END_PRD_DE": "2010",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_A721",
+   "TBL_NM": "인천광역시",
+   "STRT_PRD_DE": "1996",
+   "END_PRD_DE": "1996",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_A716",
+   "TBL_NM": "대구광역시",
+   "STRT_PRD_DE": "1996",
+   "END_PRD_DE": "1996",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_A706",
+   "TBL_NM": "서울특별시",
+   "STRT_PRD_DE": "1996",
+   "END_PRD_DE": "1996",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_A778",
+   "TBL_NM": "제주도",
+   "STRT_PRD_DE": "1996",
+   "END_PRD_DE": "1996",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_A711",
+   "TBL_NM": "부산광역시",
+   "STRT_PRD_DE": "1996",
+   "END_PRD_DE": "1996",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_A726",
+   "TBL_NM": "광주광역시",
+   "STRT_PRD_DE": "1996",
+   "END_PRD_DE": "1996",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_A701",
+   "TBL_NM": "전국총괄",
+   "STRT_PRD_DE": "1996",
+   "END_PRD_DE": "1996",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_A731",
+   "TBL_NM": "대전광역시",
+   "STRT_PRD_DE": "1996",
+   "END_PRD_DE": "1996",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_A738",
+   "TBL_NM": "경기도",
+   "STRT_PRD_DE": "1996",
+   "END_PRD_DE": "1996",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_A743",
+   "TBL_NM": "강원도",
+   "STRT_PRD_DE": "1996",
+   "END_PRD_DE": "1996",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_A773",
+   "TBL_NM": "경상남도",
+   "STRT_PRD_DE": "1996",
+   "END_PRD_DE": "1996",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_A768",
+   "TBL_NM": "경상북도",
+   "STRT_PRD_DE": "1996",
+   "END_PRD_DE": "1996",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_A758",
+   "TBL_NM": "전라북도",
+   "STRT_PRD_DE": "1996",
+   "END_PRD_DE": "1996",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_A748",
+   "TBL_NM": "충청북도",
+   "STRT_PRD_DE": "1996",
+   "END_PRD_DE": "1996",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_A763",
+   "TBL_NM": "전라남도",
+   "STRT_PRD_DE": "1996",
+   "END_PRD_DE": "1996",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_A753",
+   "TBL_NM": "충청남도",
+   "STRT_PRD_DE": "1996",
+   "END_PRD_DE": "1996",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_A737",
+   "TBL_NM": "경기도",
+   "STRT_PRD_DE": "1994",
+   "END_PRD_DE": "1995",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_A725",
+   "TBL_NM": "광주광역시",
+   "STRT_PRD_DE": "1994",
+   "END_PRD_DE": "1995",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_A710",
+   "TBL_NM": "부산광역시",
+   "STRT_PRD_DE": "1994",
+   "END_PRD_DE": "1995",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_A715",
+   "TBL_NM": "대구광역시",
+   "STRT_PRD_DE": "1994",
+   "END_PRD_DE": "1995",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_A730",
+   "TBL_NM": "대전광역시",
+   "STRT_PRD_DE": "1994",
+   "END_PRD_DE": "1995",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_A720",
+   "TBL_NM": "인천광역시",
+   "STRT_PRD_DE": "1994",
+   "END_PRD_DE": "1995",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_A742",
+   "TBL_NM": "강원도",
+   "STRT_PRD_DE": "1994",
+   "END_PRD_DE": "1995",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_A757",
+   "TBL_NM": "전라북도",
+   "STRT_PRD_DE": "1994",
+   "END_PRD_DE": "1995",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_A752",
+   "TBL_NM": "충청남도",
+   "STRT_PRD_DE": "1994",
+   "END_PRD_DE": "1995",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_A777",
+   "TBL_NM": "제주도",
+   "STRT_PRD_DE": "1994",
+   "END_PRD_DE": "1995",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_A747",
+   "TBL_NM": "충청북도",
+   "STRT_PRD_DE": "1994",
+   "END_PRD_DE": "1995",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_A772",
+   "TBL_NM": "경상남도",
+   "STRT_PRD_DE": "1994",
+   "END_PRD_DE": "1995",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_A762",
+   "TBL_NM": "전라남도",
+   "STRT_PRD_DE": "1994",
+   "END_PRD_DE": "1995",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_A705",
+   "TBL_NM": "서울특별시",
+   "STRT_PRD_DE": "1994",
+   "END_PRD_DE": "1995",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_A767",
+   "TBL_NM": "경상북도",
+   "STRT_PRD_DE": "1994",
+   "END_PRD_DE": "1995",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_A700",
+   "TBL_NM": "전국총괄",
+   "STRT_PRD_DE": "1994",
+   "END_PRD_DE": "1995",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_B001",
+   "TBL_NM": "개별법령에 규정된 각종 인·허가 수수료(전남)",
+   "STRT_PRD_DE": "1981",
+   "END_PRD_DE": "1989",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_B039",
+   "TBL_NM": "부산직할시",
+   "STRT_PRD_DE": "1993",
+   "END_PRD_DE": "1993",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_B056",
+   "TBL_NM": "충청남도",
+   "STRT_PRD_DE": "1993",
+   "END_PRD_DE": "1993",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_B058",
+   "TBL_NM": "전라북도",
+   "STRT_PRD_DE": "1993",
+   "END_PRD_DE": "1993",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_B060",
+   "TBL_NM": "전라남도",
+   "STRT_PRD_DE": "1993",
+   "END_PRD_DE": "1993",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_B063",
+   "TBL_NM": "경상북도",
+   "STRT_PRD_DE": "1993",
+   "END_PRD_DE": "1993",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_B068",
+   "TBL_NM": "제주도",
+   "STRT_PRD_DE": "1993",
+   "END_PRD_DE": "1993",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_B035",
+   "TBL_NM": "전국총괄",
+   "STRT_PRD_DE": "1993",
+   "END_PRD_DE": "1993",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_B037",
+   "TBL_NM": "서울특별시",
+   "STRT_PRD_DE": "1993",
+   "END_PRD_DE": "1993",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "110",
+   "ORG_NM": "행정안전부",
+   "TBL_ID": "TX_11006_B066",
+   "TBL_NM": "경상남도",
+   "STRT_PRD_DE": "1993",
+   "END_PRD_DE": "1993",
+   "PRD_SE": null
+  }
+ ]
+}
