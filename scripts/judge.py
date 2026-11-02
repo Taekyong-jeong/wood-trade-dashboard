@@ -890,6 +890,25 @@ def value_chain(raw_json: Path, wus_csv: Path | None = None, survey_csv: Path | 
     # 2) 2단 제품: 원료 출처 → 원자재 구분 → 제품 (원자재 투입 표 + 공급지·조달 경로 표)
     P2 = [("p06", "합판", None, "B016"), ("p08", "섬유판", "C014", "C016"), ("p07", "파티클보드", None, None), ("p12", "목재칩", "K014", "K016"),
           ("p11", "목재펠릿", "L016", None), ("p05", "집성재", "J013", "J015"), ("p02", "방부목재", "G015", "G017")]
+    def _strip(us, mp=None):
+        out = []
+        for n, v in us:
+            n2 = (mp or {}).get(n, n[:-1] if n.endswith("용") and n != "기타" else n)
+            out.append([n2, v])
+        return out
+
+    def _chip_uses(y):   # 목재칩: 용도별 판매량(유통채널 합계) — 생산량 표가 없어 판매량 비율 사용
+        return [[{"펄프제조용": "펄프 제조", "보드제조용": "보드 제조", "연료용": "연료"}.get(r["C1_NM"], r["C1_NM"]), _vc_num(r["DT"])]
+                for r in T("K023") if r["PRD_DE"] == y and r.get("C2_NM") == "합계" and r["C1_NM"] not in ("전체", "합계") and _vc_num(r["DT"]) > 0]
+
+    USE2 = {
+        "p06": (lambda y: _strip(_vc_uses(T("B021"), y)), "B021 합판 용도별 생산량"),
+        "p08": (lambda y: _strip(_vc_uses(T("C022"), y)), "C022 섬유판 용도별 생산량"),
+        "p07": (lambda y: _strip(_vc_uses(T("D017"), y)), "D017 파티클보드 용도별 생산량"),
+        "p05": (lambda y: _strip(_vc_uses(T("J018"), y), {"구조용집성재": "구조용 집성재", "수장용집성재": "수장용 집성재"}), "J018 집성재 종류별 생산량"),
+        "p11": (lambda y: _vc_uses(T("L020"), y), "L020 목재펠릿 용도별 생산량"),
+        "p12": (_chip_uses, "K023 목재칩 용도별 판매량(유통채널 합계)"),
+    }
     for key, lab, dt, it in P2:
         ys = {}
         for y in years:
@@ -910,11 +929,17 @@ def value_chain(raw_json: Path, wus_csv: Path | None = None, survey_csv: Path | 
                         imp = [[r["C2_NM"], _vc_num(r["DT"])] for r in rs if r["C1_NM"] == "전체" and r.get("C2_NM") and r["C2_NM"] not in _VC_SKIP]
             pv, pu = prod_of(key, y)
             note = f"국내 생산 {pv:,.0f}{'톤' if pu == 't' else '㎥'} (전국 추계)" if pv else None
-            g = build(dom, ld, imp, li, other_from_wus(key, y), {"label": f"{lab} 생산", "note": note}, "2", {"prod": pv, "prod_unit": pu})
+            # 용도별 표가 있으면 용도까지 잇기 (2026-11-02): 투입 원자재를 용도별 생산 비율로 나눔(산출)
+            us = USE2[key][0](y) if key in USE2 else []
+            if us:
+                g = build(dom, ld, imp, li, other_from_wus(key, y), {"uses": us, "pct": True}, "3",
+                          {"uses_raw": us, "uses_table": USE2[key][1], "prod": pv, "prod_unit": pu})
+            else:
+                g = build(dom, ld, imp, li, other_from_wus(key, y), {"label": f"{lab} 생산", "note": note}, "2", {"prod": pv, "prod_unit": pu})
             if g:
                 ys[y] = g
         if ys:
-            res[key] = {"label": lab, "kind": "2", "years": ys}
+            res[key] = {"label": lab, "kind": "3" if all(v["kind"] == "3" for v in ys.values()) else "2", "years": ys}
 
     # 3) 3단(용도) 제품: 톱밥·목분, 숯, 성형숯, 목재상자·팔레트
     def p_other(code, y, imp_words=("수입",), skip_parent=True):
