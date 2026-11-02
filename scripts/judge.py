@@ -972,4 +972,15 @@ def roundwood_price(csv_path: Path) -> dict | None:
             rng = {r["ym"]: [r["lo"], r["hi"]] for _, r in s.iterrows() if pd.notna(r["lo"])}
             series.append({"species": sp, "grade": gr, "origin": org, "unit": un, "values": v, **({"ranges": rng} if rng else {})})
         out[kind] = {"months": months, "series": series, "source": g["source"].iloc[0]}
+    # 등급 규격(지름·재장·용도): 원목시장가격조사 보고서 표 1-5·1-7(산림청 고시 원목규격), 표 8-1~8-4
+    sp_csv = csv_path.parent / "roundwood_grade_spec.csv"
+    if sp_csv.exists():
+        spec = pd.read_csv(sp_csv).fillna("")
+        for kind, o in out.items():
+            k0 = "국산" if kind.startswith("국산") else "수입"
+            for s in o["series"]:
+                m = spec[(spec["kind"] == k0) & (spec["grade"] == s["grade"]) & spec["species"].apply(lambda x: s["species"] in str(x).split("|"))]
+                if len(m):
+                    r = m.iloc[0]
+                    s["spec"] = {"group": r["group"], "diameter": r["diameter"], "length": r["length"], "use": r["use"], "note": r["note"], "source": r["source"]}
     return out

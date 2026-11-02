@@ -644,18 +644,25 @@
       const iGrp = IM ? [...new Set(IM.series.map((s) => s.unit))] : [];
       $("#a-price").insertAdjacentHTML("beforeend",
         card("국산 원목 시장가격", `${DM.months[0].replace("-", ".")}~${DM.months[DM.months.length - 1].replace("-", ".")} · 전국 월별 · 만 원/㎥`,
-          `<div class="g-chips" id="rwd-chips">${dSp.map((s) => `<button type="button" data-k="${s}">${s}</button>`).join("")}</div><div id="rwd"></div>` +
+          `<div class="g-chips" id="rwd-chips">${dSp.map((s) => `<button type="button" data-k="${s}">${s}</button>`).join("")}</div><div id="rwd"></div><div class="foot rw-spec" id="rwd-spec"></div>` +
           rule(`한국임업진흥원 「원목시장가격조사」 통계 요약표의 전국 월별 시장가격(등급별) 그대로 · 원료재급(톤) 행은 단위가 달라 제외 · 그래프의 한 달을 누르면 해마다 같은 달 고정 · 출처: ${DM.source}`), "", `<span id="rwd-lead"></span>`) +
         (IM ? card("수입 원목 가격", `${IM.months[0].replace("-", ".")}~${IM.months[IM.months.length - 1].replace("-", ".")} · CNF 인천 · 월별`,
-          `<div class="g-chips" id="rwi-chips">${iGrp.map((u) => `<button type="button" data-k="${u}">${u === "US$/MBF" ? "북미재 (US$/MBF)" : "뉴질랜드·남양재 (US$/㎥)"}</button>`).join("")}</div><div id="rwi"></div>` +
+          `<div class="g-chips" id="rwi-chips">${iGrp.map((u) => `<button type="button" data-k="${u}">${u === "US$/MBF" ? "북미재 (US$/MBF)" : "뉴질랜드·남양재 (US$/㎥)"}</button>`).join("")}</div><div id="rwi"></div><div class="foot rw-spec" id="rwi-spec"></div>` +
           rule(`원목시장가격조사 부록 수입원목가격 통계표 그대로 · CNF 인천 = 인천항 도착 운임 포함 가격(보험료 제외) · 범위로 공표된 값(예 133~134)은 가운데 값 · MBF = 1,000 보드피트(약 2.36㎥) · 관세청 CIF 단가와는 조사 방식이 달라 직접 비교하지 않음 · 출처: ${IM.source}`), "", `<span id="rwi-lead"></span>`) : ""));
+      // 지름 짧은 표기: "지름 24cm 이상" → "24cm↑", "말구직경 34cm 이상" → "말구 34cm↑"
+      const dShort = (s) => { const d = (s.spec && s.spec.diameter) || ""; const m = d.match(/(\d+)cm\s*(이상|이하|초과)/);
+        return m ? `${/말구/.test(d) ? "말구 " : ""}${m[1]}cm${m[2] === "이하" ? "↓" : "↑"}` : ""; };
       const yoy = (v, i) => (i >= 12 && v[i] != null && v[i - 12] ? (v[i] / v[i - 12] - 1) * 100 : null);
       const pct = (x) => (x == null ? "" : ` <span class="sub">전년 같은 달 대비 ${x > 0 ? "▲" : x < 0 ? "▼" : ""}${nf(Math.abs(x), 1)}%</span>`);
       const drawD = () => {
         const sp = dSp.includes(S.rwd) ? S.rwd : (dSp.includes("낙엽송") ? "낙엽송" : dSp[0]);
         $("#rwd-chips").querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.k === sp)));
         const ss = DM.series.filter((s) => s.species === sp && s.unit === "원/㎥");
-        C.lineChart($("#rwd"), { x: DM.months, series: ss.map((s) => ({ name: s.grade, values: s.values.map((v) => (v == null ? null : v / 1e4)) })),
+        const sg = ss[0] && ss[0].spec ? ss[0].spec.group : "";
+        $("#rwd-spec").innerHTML = ss.filter((s) => s.spec).length ? `<b>${sp} 등급 규격</b>(${sg}, 산림청 고시 「원목규격」 제2025-22호): ` +
+          ss.filter((s) => s.spec).map((s) => `${s.grade} ${s.spec.diameter.replace("지름 ", "").replace(" 이상", "↑")}·${s.spec.length.replace("재장 ", "").replace(" 이상", "↑")} <span class="sub">(${s.spec.use})</span>`).join(" · ") +
+          ` · 지름 = 원목 지름, 재장 = 원목 길이 · 출처: 원목시장가격조사 2026년 1분기 보고서 표 1-5·1-7` : "";
+        C.lineChart($("#rwd"), { x: DM.months, series: ss.map((s) => ({ name: `${s.grade}${dShort(s) ? " " + dShort(s) : ""}`, values: s.values.map((v) => (v == null ? null : v / 1e4)) })),
           yFmt: (v) => nf(v, 0), tipFmt: (v) => nf(v, 1) + "만 원", yMin0: false, height: 250, xLabelFmt: xFmt, pinMonth: true });
         const k = ss.find((s) => s.grade === "1등급") || ss[0], i = DM.months.length - 1 - [...k.values].reverse().findIndex((v) => v != null);
         $("#rwd-lead").innerHTML = `${sp} ${k.grade} ${DM.months[i].replace("-", ".")} ${nf(k.values[i] / 1e4, 1)}만 원/㎥${pct(yoy(k.values, i))}`;
@@ -667,7 +674,10 @@
           const u = iGrp.includes(S.rwi) ? S.rwi : (iGrp.includes("US$/㎥") ? "US$/㎥" : iGrp[0]);
           $("#rwi-chips").querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.k === u)));
           const ss = IM.series.filter((s) => s.unit === u);
-          C.lineChart($("#rwi"), { x: IM.months, series: ss.map((s) => ({ name: `${s.species}${s.grade && s.grade !== "-" ? " " + s.grade : ""} (${s.origin})`, values: s.values })),
+          const gdef = {}; ss.forEach((s) => { if (s.spec && !gdef[s.grade]) gdef[s.grade] = s; });
+          $("#rwi-spec").innerHTML = Object.keys(gdef).length ? `<b>등급 규격</b>: ` + Object.values(gdef).map((s) => `${s.species === "라디에타파인" || /^(MQ|RE)$/.test(s.grade) ? s.grade : s.species + " " + s.grade} = ${s.spec.diameter}${s.spec.length ? ", " + s.spec.length : ""}${s.spec.use ? " <span class=\"sub\">(" + s.spec.use + ")</span>" : ""}${s.spec.note ? " · " + s.spec.note : ""}`).join(" / ") +
+            ` · 출처: 원목시장가격조사 2026년 1분기 보고서 표 8-1~8-4` : "";
+          C.lineChart($("#rwi"), { x: IM.months, series: ss.map((s) => ({ name: `${s.species}${s.grade && s.grade !== "-" && !/cm/.test(s.grade) ? " " + s.grade : ""}${dShort(s) ? " " + dShort(s) : ""} (${s.origin})`, values: s.values })),
             yFmt: (v) => nf(v, 0), tipFmt: (v) => nf(v, 0) + " " + u, yMin0: false, height: 250, xLabelFmt: xFmt, pinMonth: true });
           const k = ss.find((s) => s.species === "라디에타파인" && s.grade === "KS") || ss[0], i = IM.months.length - 1 - [...k.values].reverse().findIndex((v) => v != null);
           $("#rwi-lead").innerHTML = `${k.species} ${k.grade !== "-" ? k.grade : ""} ${IM.months[i].replace("-", ".")} ${nf(k.values[i], 0)} ${u}${pct(yoy(k.values, i))}`;

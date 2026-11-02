@@ -617,3 +617,6 @@ table.pm-t th.l, table.pm-t td.l { text-align: left; }
 table.pm-t td.l i { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 4px; }
 table.pm-t td em { display: block; font-size: 10.5px; margin: 0; }
 .pm-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+
+.rw-spec { line-height: 1.6; margin-top: 4px; }
+.rw-spec b { color: var(--ink); }
