@@ -11,9 +11,9 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%232a78d6'/><path d='M16 6l7 10h-4l5 8H8l5-8H9z' fill='white'/></svg>">
 <link rel="manifest" href="app.webmanifest"><meta name="theme-color" content="#141917">
 <link rel="apple-touch-icon" href="assets/widi-icon-180.png"><meta name="apple-mobile-web-app-title" content="WIDI"><meta name="apple-mobile-web-app-capable" content="yes">
-<link rel="stylesheet" href="assets/style.css?v=202611021504">
-<link rel="stylesheet" href="assets/mobile.css?v=202611021504">
-<script>window.BUILD_ID = "202611021504";</script>
+<link rel="stylesheet" href="assets/style.css?v=202611021512">
+<link rel="stylesheet" href="assets/mobile.css?v=202611021512">
+<script>window.BUILD_ID = "202611021512";</script>
 <script>(function(){var t="dark";try{t=localStorage.getItem("widi-theme")||"dark";}catch(e){}document.documentElement.setAttribute("data-theme",t==="light"?"light":"dark");})();</script>
 </head>
 <body>
@@ -31,12 +31,14 @@
 <div class="wrap">
   <div class="m-note"><b>데스크톱(PC)</b>으로 보면 모든 표·그래프를 한눈에 볼 수 있음</div>
   <div class="search" id="search" role="search">
+    <nav class="sheets" id="sheets" aria-label="화면 선택"><button type="button" data-sheet="main">수급·유통</button><button type="button" data-sheet="ind">목재산업</button></nav>
     <div class="sr-box"><span class="sr-ic" aria-hidden="true">⌕</span><input id="sr-q" type="search" placeholder="찾기 — 수입의존도 · 가동률 · 목재산업 규모 · 품목별 · 수종별" autocomplete="off" aria-label="페이지 안에서 찾기"><kbd>/</kbd>
       <div class="sr-res" id="sr-res" hidden></div></div>
     <div class="sr-sug" id="sr-sug"><span class="sr-sug-l">추천</span></div>
   </div>
   <div id="banner"></div>
   <main id="main">
+    <section class="ind-sheet" id="ind-sheet"></section>
     <section class="glance" id="glance" hidden></section>
     <section class="intro" id="intro">
       <p class="intro-lead" id="intro-lead"><span class="one-line">국내 목재 이용량의 대부분은 수입재입니다</span><span class="one-line">본 페이지는 목재 수입의 <b>특정국 의존도</b>와 <b>국내 대체 생산 여력</b>을 공인 기준에 따라 매월 진단합니다</span></p>
@@ -87,13 +89,13 @@
     해석 문구는 규칙에 따라 자동 작성되며, 원인에 대한 판단은 포함하지 않음.<br>
     발행: <a href="about.html">목재산업데이터연구회(WIDI, Wood Industry Data Initiative)</a> · 운영: 정택용 (농학 박사) · 문의: jty2533@naver.com<br>
     <span class="feedback-f">추가·수정·삭제 의견은 언제든 메일(<a href="mailto:jty2533@naver.com">jty2533@naver.com</a>)로 주세요. 필요에 따라 의견 주신 분의 소속·성함을 함께 넣어드릴 수 있습니다.</span><br>
-    분석 도구: Python 3 (pandas·NumPy·PyYAML) 수집·분석 스크립트, 자체 SVG 차트(JavaScript), GitHub Actions 자동 수집·GitHub Pages 게시 · 빌드 202611021504
+    분석 도구: Python 3 (pandas·NumPy·PyYAML) 수집·분석 스크립트, 자체 SVG 차트(JavaScript), GitHub Actions 자동 수집·GitHub Pages 게시 · 빌드 202611021512
   </footer>
 </div>
-<script src="assets/charts.js?v=202611021504"></script>
-<script src="assets/app.js?v=202611021504"></script>
-<script src="assets/insight-links.js?v=202611021504"></script>
-<script src="assets/pwa.js?v=202611021504"></script>
-<script src="assets/mobile.js?v=202611021504"></script>
+<script src="assets/charts.js?v=202611021512"></script>
+<script src="assets/app.js?v=202611021512"></script>
+<script src="assets/insight-links.js?v=202611021512"></script>
+<script src="assets/pwa.js?v=202611021512"></script>
+<script src="assets/mobile.js?v=202611021512"></script>
 </body>
 </html>

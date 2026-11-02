@@ -605,17 +605,29 @@ def industry(survey_csv: Path, labels: dict) -> dict | None:
     _, emp = ser("employees")
     p = s[(s["product"] != "total") & s["metric"].isin(["sales_100m_krw", "sales_domestic_100m_krw", "sales_import_100m_krw", "employees"])]
     y0 = int(p["year"].max())
-    q = p[p["year"] == y0].pivot_table(index="product", columns="metric", values="value", aggfunc="first")
     extra = {"sawdust": "톱밥·목분", "firewood": "장작", "pulp": "펄프"}
-    prods = []
-    for k, r in q.iterrows():
-        prods.append({"key": k, "label": labels.get(k, extra.get(k, k)), "is_product": k in labels,
-                      "sales": _r(r.get("sales_100m_krw"), 0), "domestic": _r(r.get("sales_domestic_100m_krw"), 0),
-                      "import": _r(r.get("sales_import_100m_krw"), 0), "employees": _r(r.get("employees"), 0)})
-    prods.sort(key=lambda d: -(d["sales"] or 0))
+
+    def prods_of(yy):
+        q = p[p["year"] == yy].pivot_table(index="product", columns="metric", values="value", aggfunc="first")
+        out = []
+        for k, r in q.iterrows():
+            out.append({"key": k, "label": labels.get(k, extra.get(k, k)), "is_product": k in labels,
+                        "sales": _r(r.get("sales_100m_krw"), 0), "domestic": _r(r.get("sales_domestic_100m_krw"), 0),
+                        "import": _r(r.get("sales_import_100m_krw"), 0), "employees": _r(r.get("employees"), 0)})
+        out.sort(key=lambda d: -(d["sales"] or 0))
+        return out
+    prods = prods_of(y0)
+    by_year = {str(int(yy)): prods_of(int(yy)) for yy in sorted(p["year"].unique()) if len(p[p["year"] == yy]["product"].unique()) >= 5}
+    # 제품별 생산업체 수 (실태조사, 2014~)
+    fm = s[(s["metric"] == "firms") & (s["product"] != "total")]
+    firms = []
+    for k, g in fm.groupby("product"):
+        g = g.sort_values("year")
+        firms.append({"key": k, "label": labels.get(k, extra.get(k, k)), "years": [int(y) for y in g["year"]], "values": [_r(v, 0) for v in g["value"]]})
+    firms.sort(key=lambda d: -(d["values"][-1] or 0))
     ly, ld = ser("log_use_domestic")
     _, li = ser("log_use_imported")
-    return {"years": years, "sales": tot, "domestic": dom, "imports": imp, "employees": emp, "year": y0, "products": prods,
+    return {"years": years, "sales": tot, "domestic": dom, "imports": imp, "employees": emp, "year": y0, "products": prods, "by_year": by_year, "firms": firms,
             "log_years": ly, "log_domestic": ld, "log_imported": li,
             "use_years": ser("wood_use_total")[0], "use_total": ser("wood_use_total")[1], "use_imp_products": ser("imported_products")[1],
             "source": "산림청·한국임업진흥원 목재이용실태조사 표2-4 (2020년은 2021년 기준, 2023년은 2024년 기준 보고서 수정치)",

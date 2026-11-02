@@ -31,12 +31,14 @@
 <div class="wrap">
   <div class="m-note"><b>데스크톱(PC)</b>으로 보면 모든 표·그래프를 한눈에 볼 수 있음</div>
   <div class="search" id="search" role="search">
+    <nav class="sheets" id="sheets" aria-label="화면 선택"><button type="button" data-sheet="main">수급·유통</button><button type="button" data-sheet="ind">목재산업</button></nav>
     <div class="sr-box"><span class="sr-ic" aria-hidden="true">⌕</span><input id="sr-q" type="search" placeholder="찾기 — 수입의존도 · 가동률 · 목재산업 규모 · 품목별 · 수종별" autocomplete="off" aria-label="페이지 안에서 찾기"><kbd>/</kbd>
       <div class="sr-res" id="sr-res" hidden></div></div>
     <div class="sr-sug" id="sr-sug"><span class="sr-sug-l">추천</span></div>
   </div>
   <div id="banner"></div>
   <main id="main">
+    <section class="ind-sheet" id="ind-sheet"></section>
     <section class="glance" id="glance" hidden></section>
     <section class="intro" id="intro">
       <p class="intro-lead" id="intro-lead"><span class="one-line">국내 목재 이용량의 대부분은 수입재입니다</span><span class="one-line">본 페이지는 목재 수입의 <b>특정국 의존도</b>와 <b>국내 대체 생산 여력</b>을 공인 기준에 따라 매월 진단합니다</span></p>

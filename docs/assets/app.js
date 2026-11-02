@@ -142,9 +142,9 @@
 
   // ── 공통 렌더 ───────────────────────────────────────────
   // 자료 구분: 원자료(공표 통계 수치 그대로·합계) / 분석(본 페이지가 계산한 비율·지수·환산·판정)
-  const KIND_ANA = /^(제품별 자급률|국내 공급 여력|품목별 수입 위험|수입 집중|품목별 판정|품목별 국내 공급 구조|원목 수입의존도|자급-수입 구조|목재제품별 수입의존도|가격 이상 판정|공급국 가격대 지도|수입 단가 지수|단가 지수|국산·수입 가격 수준|수입액 변화 분해|공급국별 수입 단가|공급국 집중도|공급국 쏠림 정도|목재제품별 수입과 점유율|품목군 구성|산림청 공표치 대조)/;
+  const KIND_ANA = /^(종사자 1인당 매출|제품별 자급률|국내 공급 여력|품목별 수입 위험|수입 집중|품목별 판정|품목별 국내 공급 구조|원목 수입의존도|자급-수입 구조|목재제품별 수입의존도|가격 이상 판정|공급국 가격대 지도|수입 단가 지수|단가 지수|국산·수입 가격 수준|수입액 변화 분해|공급국별 수입 단가|공급국 집중도|공급국 쏠림 정도|목재제품별 수입과 점유율|품목군 구성|산림청 공표치 대조)/;
   const KIND_MIX = /^(한 해 쓰는 목재|가치사슬|국내 설비 가동률 추이|국내 생산능력과 생산량)/;
-  const KIND_RAW = /^(품목별 수입량|국산 원목 시장가격|수입 원목 가격|목재류 수입·수출 추이|품목별 수입액|제품별 원자재 출처|제품별 매출 구조|최대 수입국|최대 수입 품목|수입·수출 추이|주요 공급국|대분류별 원목|세부 수종|.+산 목재류 수입|목재산업 매출|목재제품별 매출|목재는 어디서 와서 무엇이 되나|어디서 사오나)/;
+  const KIND_RAW = /^(목재산업 종사자|제품별 생산업체 수|품목별 수입량|국산 원목 시장가격|수입 원목 가격|목재류 수입·수출 추이|품목별 수입액|제품별 원자재 출처|제품별 매출 구조|최대 수입국|최대 수입 품목|수입·수출 추이|주요 공급국|대분류별 원목|세부 수종|.+산 목재류 수입|목재산업 매출|목재제품별 매출|목재는 어디서 와서 무엇이 되나|어디서 사오나)/;
   function kindOf(title, hint) {
     const t = title.replace(/<[^>]+>/g, "").trim();
     if (/^수입·수출 추이/.test(t) && /단가/.test(hint || "")) return "ana";
@@ -255,6 +255,7 @@
 
   function goSec(id) {
     let tg = document.getElementById(id); if (!tg) return;
+    const inInd = !!tg.closest("#ind-sheet"); if ((S.sheet === "ind") !== inInd) setSheet(inInd ? "ind" : "main", true);
     let d = tg; while (d) { if (d.tagName === "DETAILS") d.open = true; d = d.parentElement; }
     setTimeout(() => {
       tg = document.getElementById(id); if (!tg) return;          // 펼칠 때 다시 그려지므로 새로 찾음
@@ -876,14 +877,14 @@
   const V2 = new URLSearchParams(location.search).get("v") !== "1";   // 한눈에 보기 + 자세히 보기 구조가 기본 (?v=1 = 예전 화면)
   // 한눈에 보기 — 목재산업 실태 한 줄 (목재이용실태조사 시계열, 각 항목에 추세선)
   const SHOW_IND = /[?&]ind=1/.test(location.search);   // 2026-11-02 첫 화면에서 잠시 가림 → 목재산업 화면으로 옮길 예정 (?ind=1 이면 표시)
-  function indStrip() {
-    if (!SHOW_IND) return "";
+  function indStrip(force) {
+    if (!SHOW_IND && !force) return "";
     const I = (D.judg || {}).industry;
     if (!I || I.years.length < 2) return "";
     const n = I.years.length - 1, y0 = I.years[0], y1 = I.years[n];
     const sp = (vals) => `<span class="gi-sp">${C.sparkline(vals, 90, 26)}</span>`;
     const chg = (a, b) => `${b >= a ? "+" : ""}${nf((b / a - 1) * 100, 0)}%`;
-    const it = (lab, val, from, sub, vals, href) => `<a class="gi" href="${href}"><span class="gi-l">${lab}</span><span class="gi-v">${val}</span>${sp(vals)}<span class="gi-s">${from}<br>${sub}</span></a>`;
+    const it = (lab, val, from, sub, vals, href) => `<a class="gi" href="${force ? (href === "#sec-basic" ? href : "#ind-size") : href}"><span class="gi-l">${lab}</span><span class="gi-v">${val}</span>${sp(vals)}<span class="gi-s">${from}<br>${sub}</span></a>`;
     let logs = "";
     if (I.log_years && I.log_years.length >= 2) {
       const m = I.log_years.length - 1;
@@ -894,7 +895,7 @@
       it("매출", `${nf(I.sales[n] / 1e4, 1)}조 원`, `${y0}년 ${nf(I.sales[0] / 1e4, 1)}조 · ${chg(I.sales[0], I.sales[n])}`, "국내 생산 + 수입·유통업체", I.sales, "#sec-dist") +
       it("국내 생산업체 매출", `${nf(I.domestic[n] / 1e4, 1)}조 원`, `${y0}년 ${nf(I.domestic[0] / 1e4, 1)}조 · ${chg(I.domestic[0], I.domestic[n])}`, `수입·유통업체 ${nf(I.imports[n] / 1e4, 1)}조 원`, I.domestic, "#sec-dist") +
       it("종사자", `${nf(I.employees[n], 0)}명`, `${y0}년 ${nf(I.employees[0], 0)}명 · ${chg(I.employees[0], I.employees[n])}`, "국내 생산 + 수입·유통업체", I.employees, "#sec-dist") +
-      logs + `</div><div class="gi-f">매출·종사자 ${y0}~${y1}, 원목 ${(I.log_years || [y0])[0]}~${y1} · 조사 범위·가중치가 해마다 조정돼 연도 간 비교는 참고 (2023년은 2024년 기준 보고서 수정치) · 누르면 자세히 보기로 이동</div></div>`;
+      logs + `</div><div class="gi-f">매출·종사자 ${y0}~${y1}, 원목 ${(I.log_years || [y0])[0]}~${y1} · 조사 범위·가중치가 해마다 조정돼 연도 간 비교는 참고 (2023년은 2024년 기준 보고서 수정치) · ${force ? "출처: 산림청·한국임업진흥원 목재이용실태조사" : "누르면 자세히 보기로 이동"}</div></div>`;
   }
   function renderGlance() {
     const host = $("#glance");
@@ -980,7 +981,80 @@
     C.hbars($("#g-cty"), tops.map((x) => ({ label: cname(x.c), value: x.imp, text: `${nf(x.share, 0)}% · ${x.imp >= 1e7 ? nf(x.imp / 1e8, 2) + "억" : nf(x.imp / 1e6, 1) + "백만"} 달러`,
       onClick: () => { if (g[0] === "total") { S.country = x.c; go("country"); } else openDetail(g[0], g[1]); } })));
   }
-  function renderAll() { renderGlance(); renderIntro(); renderVerdicts(); renderBasic(); renderRisk(); renderDomestic(); renderDist(); renderPrice(); }
+  function renderAll() { if (S.sheet === "ind") { renderInd(); return; } renderGlance(); renderIntro(); renderVerdicts(); renderBasic(); renderRisk(); renderDomestic(); renderDist(); renderPrice(); }
+
+  // ── 화면(시트) 전환 ─────────────────────────────────────
+  function setSheet(s, noScroll) {
+    S.sheet = s === "ind" ? "ind" : "main";
+    document.body.classList.toggle("sheet-ind", S.sheet === "ind");
+    document.querySelectorAll("#sheets button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.sheet === S.sheet)));
+    try { const u = new URL(location.href); if (S.sheet === "ind") u.searchParams.set("sheet", "ind"); else u.searchParams.delete("sheet"); history.replaceState(null, "", u); } catch (e) {}
+    renderAll(); if (S.sheet === "main") renderTab();
+    if (!noScroll) window.scrollTo({ top: 0 });
+  }
+
+  // ── 목재산업 화면 ───────────────────────────────────────
+  function renderInd() {
+    const host = $("#ind-sheet"), I = (D.judg || {}).industry; if (!host) return;
+    if (!I) { host.innerHTML = `<div class="loading">목재산업 자료 준비 중</div>`; return; }
+    const yrs = Object.keys(I.by_year || {}).sort(), Y = yrs.includes(S.iy) ? S.iy : yrs[yrs.length - 1];
+    const jo = (v) => nf(v / 1e4, 1) + "조";
+    host.innerHTML =
+      `<div class="sec-title" style="margin-top:14px"><h2>목재산업</h2><span class="hint">규모 · 제품별 구조 · 생산업체 — 산림청·한국임업진흥원 목재이용실태조사 (목재생산업 등록업체)</span></div>` +
+      indStrip(true) +
+      `<section class="grid g-2" style="margin-top:12px">` +
+      card("목재산업 매출 추이", `${I.years[0]}~${I.years[I.years.length - 1]} · 억 원`, `<div id="ind-sales"></div>` +
+        rule(`매출 = 목재생산업 등록업체(21개 목재제품 국내 생산업체 + 수입·유통업체) 매출, 가구·건축·종이 제외 · 수입·유통업체 값은 조사 가중치 추정 · 조사 범위·가중치가 해마다 조정돼 연도 간 비교는 참고 · 출처: ${I.source}`), "",
+        `<span id="ind-size">${I.year}년 ${jo(I.sales[I.sales.length - 1])} 원</span> <span class="sub">국내 생산업체 ${jo(I.domestic[I.domestic.length - 1])} · 수입·유통업체 ${jo(I.imports[I.imports.length - 1])}</span>`) +
+      card("목재산업 종사자 추이", `${I.years[0]}~${I.years[I.years.length - 1]} · 명`, `<div id="ind-emp"></div>` +
+        rule(`종사자 = 목재생산업 등록업체 종사자(국내 생산업체 + 수입·유통업체) · 출처: ${I.source}`), "",
+        `${I.year}년 ${nf(I.employees[I.employees.length - 1], 0)}명 <span class="sub">${I.years[0]}년 ${nf(I.employees[0], 0)}명</span>`) +
+      card("제품별 매출 구조", `<select id="iySel">${[...yrs].reverse().map((y) => `<option ${y === Y ? "selected" : ""}>${y}</option>`).join("")}</select> 억 원`,
+        `<div class="g-legend" style="margin-bottom:6px"><span><i style="background:${VC_COL.dom}"></i>국내 생산업체</span> <span><i style="background:${VC_COL.imp2}"></i>수입·유통업체</span></div><div class="ind-bars" id="ind-prod"></div>` +
+        rule(`제품별 매출 = 해당 제품 국내 생산업체 매출 + 수입·유통업체 매출 (실태조사 공표값) · 막대 길이 = 매출 · 출처: ${I.source}`), "", `<span id="ind-prod-lead"></span>`) +
+      card("종사자 1인당 매출", `<span id="iy2">${Y}</span>년 · 억 원/명`, `<div class="ind-bars" id="ind-pp"></div>` +
+        rule(`1인당 매출 = 제품별 매출 ÷ 종사자 수 (본 페이지 계산) · 국내 생산업체와 수입·유통업체 합계 기준 · 종사자 미공표 제품 제외 · 출처: ${I.source}`), "", `<span id="ind-pp-lead"></span>`) +
+      card("제품별 생산업체 수", `${(I.firms[0] || { years: [""] }).years[0]}~${I.year} · 개소`, `<div class="dp-chips" id="ind-fchips"></div><div id="ind-firms"></div>` +
+        rule(`생산업체 수 = 실태조사 응답 대상 국내 생산업체 수(공표값) · 이름을 눌러 켜고 끔(제재목은 수백 개소라 기본 해제) · 출처: 산림청·한국임업진흥원 목재이용실태조사`), "span-2", `<span id="ind-firms-lead"></span>`) +
+      `</section>`;
+    // 매출·종사자 추이
+    const yx = I.years.map(String);
+    C.barChart($("#ind-sales"), { x: yx, stacked: true, height: 230, series: [{ name: "국내 생산업체", values: I.domestic, color: VC_COL.dom }, { name: "수입·유통업체", values: I.imports, color: VC_COL.imp2 }],
+      yFmt: (v) => nf(v / 1e4, 1) + "조", tipFmt: (v) => nf(v, 0) + "억 원" });
+    C.barChart($("#ind-emp"), { x: yx, height: 230, series: [{ name: "종사자", values: I.employees, color: C.color(0) }], yFmt: (v) => nf(v, 0), tipFmt: (v) => nf(v, 0) + "명" });
+    // 제품별 매출 구조 + 1인당 매출
+    const drawP = () => {
+      const y = yrs.includes(S.iy) ? S.iy : yrs[yrs.length - 1], P = (I.by_year[y] || []).filter((d) => d.sales > 0);
+      const mx = Math.max(...P.map((d) => d.sales), 1), tot = sum(P.map((d) => d.sales));
+      $("#ind-prod").innerHTML = P.map((d) => `<div class="ib" title="${d.label}: 국내 생산업체 ${nf(d.domestic, 0)}억 · 수입·유통업체 ${nf(d.import, 0)}억"><span class="nm">${short(d.label)}</span>` +
+        `<span class="br" style="width:${d.sales / mx * 100}%"><i style="width:${d.domestic / d.sales * 100}%;background:${VC_COL.dom}"></i><i style="width:${d.import / d.sales * 100}%;background:${VC_COL.imp2}"></i></span>` +
+        `<span class="vl">${nf(d.sales, 0)}억 · ${nf(d.sales / tot * 100, 0)}%</span></div>`).join("");
+      const t3 = P.slice(0, 3);
+      $("#ind-prod-lead").innerHTML = `${y}년 상위 3개 ${t3.map((d) => d.label).join("·")} ${nf(sum(t3.map((d) => d.sales)) / tot * 100, 0)}% <span class="sub">합계 ${nf(tot / 1e4, 1)}조 원 · 국내 생산업체 몫 ${nf(sum(P.map((d) => d.domestic)) / tot * 100, 0)}%</span>`;
+      const Q = P.filter((d) => d.employees > 0).map((d) => ({ ...d, pp: d.sales / d.employees })).sort((a, b) => b.pp - a.pp), mq = Math.max(...Q.map((d) => d.pp), 1);
+      $("#iy2").textContent = y;
+      $("#ind-pp").innerHTML = Q.map((d) => `<div class="ib" title="${d.label}: 매출 ${nf(d.sales, 0)}억 ÷ 종사자 ${nf(d.employees, 0)}명"><span class="nm">${short(d.label)}</span>` +
+        `<span class="br" style="width:${d.pp / mq * 100}%"><i style="width:100%;background:${C.color(0)}"></i></span><span class="vl">${nf(d.pp, 2)}억 · ${nf(d.employees, 0)}명</span></div>`).join("");
+      const all = sum(P.filter((d) => d.employees > 0).map((d) => d.sales)) / sum(P.filter((d) => d.employees > 0).map((d) => d.employees));
+      $("#ind-pp-lead").innerHTML = Q.length ? `${y}년 최고 ${Q[0].label} ${nf(Q[0].pp, 1)}억 · 최저 ${Q[Q.length - 1].label} ${nf(Q[Q.length - 1].pp, 2)}억 <span class="sub">전체 평균 ${nf(all, 2)}억 원/명</span>` : "";
+    };
+    $("#iySel").onchange = (ev) => { S.iy = ev.target.value; drawP(); };
+    drawP();
+    // 제품별 생산업체 수
+    if (!S.ifk) S.ifk = new Set(I.firms.filter((f) => f.key !== "p01").slice(0, 5).map((f) => f.key));   // 제재목은 규모가 커서 기본 해제
+    const drawF = () => {
+      const pal = {}; let ci = 0; I.firms.forEach((f) => { if (S.ifk.has(f.key)) pal[f.key] = C.color(ci++); });
+      $("#ind-fchips").innerHTML = I.firms.map((f) => `<button type="button" class="dp-chip${S.ifk.has(f.key) ? " on" : ""}" data-k="${f.key}"${S.ifk.has(f.key) ? ` style="--c:${pal[f.key]}"` : ""}><i${S.ifk.has(f.key) ? ` style="background:${pal[f.key]}"` : ""}></i>${f.label} <b>${nf(f.values[f.values.length - 1], 0)}</b></button>`).join("");
+      $("#ind-fchips").querySelectorAll("button").forEach((b) => b.onclick = () => { S.ifk.has(b.dataset.k) ? S.ifk.delete(b.dataset.k) : S.ifk.add(b.dataset.k); drawF(); });
+      const on = I.firms.filter((f) => S.ifk.has(f.key)), xs = (I.firms[0] || { years: [] }).years.map(String);
+      if (!on.length) { $("#ind-firms").innerHTML = `<div class="empty" style="height:240px">제품을 켜면 표시</div>`; $("#ind-firms-lead").innerHTML = ""; return; }
+      C.lineChart($("#ind-firms"), { x: xs, series: on.map((f) => ({ name: f.label, values: xs.map((y) => { const i = f.years.indexOf(+y); return i < 0 ? null : f.values[i]; }), color: pal[f.key] })),
+        yFmt: (v) => nf(v, 0), tipFmt: (v) => nf(v, 0) + "개소", height: 250 });
+      const ch = on.map((f) => ({ f, a: f.values[0], b: f.values[f.values.length - 1] })).filter((x) => x.a);
+      $("#ind-firms-lead").innerHTML = ch.map((x) => `${x.f.label} ${nf(x.a, 0)}→${nf(x.b, 0)}`).join(" · ") + ` <span class="sub">${xs[0]}→${xs[xs.length - 1]}년, 개소</span>`;
+    };
+    drawF();
+  }
 
   function renderControls() {
     const years = [...new Set(months().map((m) => m.slice(0, 4)))];
@@ -1352,6 +1426,8 @@
     let w = window.innerWidth;
     window.addEventListener("resize", () => { if (Math.abs(window.innerWidth - w) > 40) { w = window.innerWidth; renderAll(); renderTab(); } });
     matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { renderAll(); renderTab(); });
+    document.querySelectorAll("#sheets button").forEach((b) => b.onclick = () => setSheet(b.dataset.sheet));
+    if (new URLSearchParams(location.search).get("sheet") === "ind") setSheet("ind", true); else document.querySelectorAll("#sheets button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.sheet === "main")));
     const tb = $("#theme-btn"), setTb = () => { const d = document.documentElement.getAttribute("data-theme") !== "light"; tb.textContent = d ? "☀ 밝게" : "☾ 어둡게"; tb.title = d ? "밝은 화면으로 바꾸기" : "어두운 화면으로 바꾸기"; };
     if (tb) { setTb(); tb.onclick = () => { const nx = document.documentElement.getAttribute("data-theme") === "light" ? "dark" : "light";
       document.documentElement.setAttribute("data-theme", nx); try { localStorage.setItem("widi-theme", nx); } catch (e) {} setTb(); renderAll(); renderTab(); }; }
