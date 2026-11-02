@@ -26,6 +26,10 @@ DOCS = ROOT / "docs"
 def main() -> int:
     DOCS.mkdir(exist_ok=True)
     (DOCS / "assets").mkdir(exist_ok=True)
+    # 로컬 빌드(Secret 없음)에서 이미 게시된 Firebase 설정이 지워지지 않도록 기존 값을 기억해 둠
+    prev_wm = DOCS / "assets" / "widi-member.js"
+    m = re.search(r'const CFG_B64 = "([A-Za-z0-9+/=]+)"', prev_wm.read_text(encoding="utf-8")) if prev_wm.exists() else None
+    prev_b64 = m.group(1) if m else ""
     for f in (WEB / "assets").iterdir():
         shutil.copy2(f, DOCS / "assets" / f.name)
 
@@ -48,7 +52,7 @@ def main() -> int:
             keys = ("apiKey", "authDomain", "projectId", "storageBucket", "messagingSenderId", "appId", "measurementId")
             pairs = dict(re.findall(r'(\w+)\s*:\s*["\']([^"\']*)["\']', cfg))
             cfg = json.dumps({k: pairs[k] for k in keys if k in pairs})
-    b64 = base64.b64encode(cfg.encode("utf-8")).decode("ascii") if cfg and cfg != "{}" else ""
+    b64 = base64.b64encode(cfg.encode("utf-8")).decode("ascii") if cfg and cfg != "{}" else prev_b64
     wm = DOCS / "assets" / "widi-member.js"
     if wm.exists():
         wm.write_text(wm.read_text(encoding="utf-8").replace("{{FIREBASE_CONFIG_B64}}", b64), encoding="utf-8")
