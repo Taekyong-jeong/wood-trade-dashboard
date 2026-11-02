@@ -635,33 +635,7 @@
         `<div class="foot">현재 수입 단가: ${now.filter((x) => x.v != null).map((x) => `${x.n} ${x.f(x.v)} ${x.u}`).join(" · ")}</div>` + rule(PU_RULE), "",
         (() => { const y = pser.map((p) => { const i = ms.length - 1; const a = p.raw[i], b = p.raw[i - 12]; return { n: p.name, p: a && b ? (a / b - 1) * 100 : null }; }).filter((x) => x.p != null).sort((a, b) => b.p - a.p);
           return y.length ? `전년 대비 ${y.map((x) => `${x.n} ${x.p > 0 ? "+" : ""}${nf(x.p, 1)}%`).join(" · ")}` : ""; })());
-    const DP = D.judg.domestic_price;
-    if (DP && DP.pairs.length) {
-      const cDom = C.color(1), cImp = C.color(0);
-      const ratioOf = (pr) => (pr.imports.find((x) => x.ratio != null) || {}).ratio;
-      const DPMAX = Math.max(...DP.pairs.filter((pr) => pr.domestic).map((pr) => pr.domestic.max));  // 모든 품목 같은 눈금 → 품목 간 막대 길이 비교 가능
-      const pairHtml = (pr) => {
-        const ok = pr.imports.filter((im) => !im.small && im.usd_m3), small = pr.imports.filter((im) => im.small);
-        const mx = Math.max(DPMAX, ...ok.map((im) => im.usd_m3)) * 1.04, D0 = pr.domestic;
-        const w = (v) => `${(v / mx) * 100}%`, r = ratioOf(pr);
-        const bar = (lab, sub, v, col, val, extra = "") => `<div class="dp-r"><div class="dp-l"><b>${lab}</b>${sub ? `<span>${sub}</span>` : ""}</div>` +
-          `<div class="dp-t"><i style="width:${w(v)};background:${col}"></i>${extra}</div><div class="dp-v">${val}</div></div>`;
-        return `<div class="dp-pair"><div class="dp-h"><b>${pr.label}</b>${r ? `<span class="dp-x">국산이 수입의 <b>${nf(r, 1)}배</b></span>` : `<span class="dp-x sub">${D0 ? "비교할 수입 규모 없음" : "수입 단가만 · 국산 공표가 없음"}</span>`}</div>` +
-          (!D0 ? `<div class="dp-r"><div class="dp-l"><b>국산</b><span>공표 판매가 없음</span></div><div class="dp-t dp-none">${pr.domestic_missing || "국산 공표 판매가 없음"}</div><div class="dp-v">–</div></div>` : bar("국산", pr.domestic.desc || `A급 ${pr.domestic.n}규격 중앙값`, pr.domestic.median, cDom, `<b>${nf(pr.domestic.median, 0)}<small> USD/㎥</small></b><span>${nf(pr.domestic.krw_m3_median / 1e4, 0)}만 원/㎥</span>`,
-            pr.domestic.max > pr.domestic.min ? `<s style="left:${w(pr.domestic.min)};width:${(((pr.domestic.max - pr.domestic.min) / mx) * 100)}%" title="규격별 범위 ${nf(pr.domestic.min, 0)}~${nf(pr.domestic.max, 0)} USD/㎥"></s>` : "")) +
-          ok.map((im) => bar("수입", im.label.replace(/^수입\s*/, ""), im.usd_m3, cImp,
-            `<b>${nf(im.usd_m3, 0)}<small> USD/㎥</small></b><span>≈ ${nf((im.usd_m3 * DP.fx) / 1e4, 0)}만 원/㎥</span><span>${im.basis ? "산림청 발표 ㎥" : im.calibrated ? "산림청 환산 비율" : "밀도 잠정"}</span>`)).join("") +
-          ok.filter((im) => im.supply).map((im) => { const [a, k] = im.supply.split(":"), tp = topSuppliers(a, k, 3);
-            return tp.length ? `<div class="dp-n">수입 주요 공급국 (최근 12개월): ${tp.map((s) => `${cname(s.c)} ${nf(s.share, 0)}%`).join(" · ")} — 관세청 코드에 수종 구분이 없어 수입재 수종은 알 수 없음 · 국산은 낙엽송</div>` : ""; }).join("") +
-          (small.length ? `<div class="dp-n">${small.map((im) => `${im.label}: 최근 12개월 ${usd(im.usd)} — 100만 달러 미만이라 비교 제외`).join(" · ")}</div>` : "") + `</div>`;
-      };
-      const lead = DP.pairs.filter((pr) => ratioOf(pr)).map((pr) => `${pr.label.replace(/\(.+\)/, "")} ${nf(ratioOf(pr), 1)}배${pr.domestic.desc ? `<span class="sub">(${pr.domestic.year} 단가)</span>` : ""}`).join(" · ");
-      $("#a-price").insertAdjacentHTML("beforeend", card("국산·수입 가격 수준", `USD/㎥ · 국산 ${[...new Set(DP.pairs.filter((x) => x.domestic).map((x) => x.domestic.year))].sort().reverse().join("·")} 단가 · 수입 ${ym(DP.period.slice(0, 7))}~${ym(DP.period.slice(8))}`,
-        `<div class="legend"><span><i style="background:${cDom}"></i>국산 (산림조합 판매가, 면세)</span><span><i style="background:${cImp}"></i>수입 (도착 가격 CIF)</span><span class="sub">회색 띠 = 국산 규격별 범위</span></div>` +
-        DP.pairs.map(pairHtml).join("") +
-        rule(`국산 = 산림조합중앙회 목재유통센터 판매단가(A급·면세) ÷ 규격 부피(T×W×L), 원/달러 ${nf(DP.fx, 0)} (${DP.fx_basis.replace(/^.*?\(/, "").replace(/\)$/, "")}) · 수입 = CIF 단가(원화는 같은 환율로 환산한 참고값) — 관세·통관·내륙운송·유통 마진 전이라 같은 단계 가격이 아님. 가격 수준 참고용이며 경쟁력 판정에 쓰지 않음 · ${DP.note.replace(/^.*?쓰지 않음\.\s*/, "")} · ${DP.species_note} · ${DP.survey_note || ""}`), "",
-        lead ? `국산이 수입보다 비쌈: ${lead}` : ""));
-    }
+    // 국산·수입 가격 수준 카드는 2026-11-02 화면에서 내림(국산 단가 연도와 수입 기간 불일치) — judgments.json domestic_price 계산은 유지
     const pi = pser.length ? pser[0].values.findIndex((v) => v != null) : 0;
     C.lineChart($("#pidx"), { x: ms.slice(pi), series: pser.map((p) => ({ name: p.name, values: p.values.slice(pi) })), yFmt: (v) => nf(v, 0), tipFmt: (v) => nf(v, 1), yMin0: false, height: 230, xLabelFmt: xFmt });
     $("#a-price").querySelectorAll("tr[data-axis]").forEach((tr) => tr.onclick = () => openDetail(tr.dataset.axis, tr.dataset.key));
@@ -673,7 +647,7 @@
         .map(([c, r]) => ({ c, share: (r.l12[0] / tot) * 100, price: cv(r.l12[0], r.l12[1]), imp: r.l12[0] }));
       const avg = tot ? cv(tot, sum(Object.values(rows).map((r) => r.l12[1]))) : null;
       // 국산 기준선: 같은 품목의 국산 판매가(산림조합, USD/㎥) — ㎥ 단위일 때만 (톤 단위는 국산 밀도를 몰라 환산 불가)
-      const DOMMAP = { "heading:4407": "낙엽송 제재목", "product:p01": "낙엽송 제재목", "product:p05": "구조용 집성재", "product:p16": "CLT(직교적층재)" };
+      const DOMMAP = {};   // 국산 기준선 철회(2026-11-02, 연도 불일치)
       const dp = (D.judg.domestic_price || {}).pairs || [], dl = DOMMAP[S.pmap];
       const dom = dl && pl === "USD/㎥" ? dp.find((x) => x.label === dl) : null;
       const domNote = dl && !dom ? " · 국산 기준선은 ㎥ 환산 단위에서만 표시" : "";
@@ -1119,7 +1093,7 @@
         <tr><td class="l">국내 공급 여력</td><td class="l" style="white-space:normal">수입 비중 = 수입량 ÷ (국내 생산 + 수입), 물량 기준, 5개년↑ Mann-Kendall · 가동률 = 연 생산량 ÷ 최대 생산가능량 · 대체 여력 = 생산량 × (100 ÷ 가동률 − 1) ÷ 수입량, 100% 선은 정의상 경계 · 등급 없이 수치만 제시</td><td class="l" style="white-space:normal">${[R.kfs_wus, R.oecd_stan].filter(Boolean).join("<br>")}</td></tr>
         <tr><td class="l">부피 환산 밀도</td><td class="l" style="white-space:normal">연도별 관세청 수입 순중량(t) ÷ 산림청 임산물수출입통계 수입 물량(㎥)의 중앙값 = 산림청 환산계수 (2016~2025년 모든 연도에서 같은 값 확인). 수입액이 ±2% 넘게 다른 해는 제외. 원목은 실태조사 수입 원목 이용량 기준값을 검증용으로 병기</td><td class="l" style="white-space:normal">${[R.kfs_trade, R.kfs_wus].filter(Boolean).join("<br>")}</td></tr>
         <tr><td class="l">산림청 공표치 대조</td><td class="l" style="white-space:normal">관세청 수집값의 연간 수입액을 산림청 임산물수출입통계(품목별현황)와 HS 4단위로 대조, ±1% 이내면 일치 · 판정 아님(수집 검증)</td><td class="l" style="white-space:normal">${R.kfs_trade || ""}</td></tr>
-        <tr><td class="l">국산·수입 가격 수준</td><td class="l" style="white-space:normal">국산 ㎥ 가격 = 판매단가 ÷ (두께×폭×길이), 규격별 중앙값, 원/달러 2025년 연평균 · 수입 = 최근 12개월 CIF ㎥ 단가(산림청 환산계수) 및 2025년 산림청 공표 ㎥ 단가 · 수입 100만 달러 미만 비교 제외 · 판정 없음(참고)</td><td class="l" style="white-space:normal">${[R.kfcf2026, R.bok_fx].filter(Boolean).join("<br>")}</td></tr>
+        
         <tr><td class="l">분석 도구</td><td class="l" style="white-space:normal">수집 scripts/fetch.py · 지표 계산 scripts/analyze.py · 판정 scripts/judge.py · 화면 scripts/build.py (Python 3: pandas, NumPy, PyYAML) · 차트 web/assets/charts.js (자체 SVG) · 실행 GitHub Actions(매월 20일 갱신) · 게시 GitHub Pages · 판정 규칙 config/criteria.yaml</td><td class="l" style="white-space:normal">–</td></tr>
         <tr><td class="l">변화 요인</td><td class="l" style="white-space:normal">ΔV = Σ L(V₁,V₀)·ln(Q₁/Q₀) + Σ L(V₁,V₀)·ln(P₁/P₀), HS6 단위. 한 효과 60%↑면 '주도'</td><td class="l" style="white-space:normal">${R.ang2005 || ""}</td></tr>
       </tbody></table></div>`, "span-2");
