@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WIDI 회원 신청</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="assets/widi-logo.svg">
+<link rel="manifest" href="app.webmanifest"><meta name="theme-color" content="#141917">
+<link rel="apple-touch-icon" href="assets/widi-icon-180.png"><meta name="apple-mobile-web-app-title" content="WIDI">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap">
+<script>(function(){var t="dark";try{t=localStorage.getItem("widi-theme")||"dark";}catch(e){}document.documentElement.setAttribute("data-theme",t==="light"?"light":"dark");})();</script>
+<style>
+@font-face{font-family:'S-Core Dream';src:url(fonts/S-CoreDream-4Regular.woff) format('woff');font-weight:400;font-display:swap}
+@font-face{font-family:'S-Core Dream';src:url(fonts/S-CoreDream-5Medium.woff) format('woff');font-weight:500;font-display:swap}
+@font-face{font-family:'S-Core Dream';src:url(fonts/S-CoreDream-6Bold.woff) format('woff');font-weight:700 900;font-display:swap}
+:root{--bg:#F6F4EF;--surface:#fff;--surface-2:#EFEBE2;--ink:#1A211E;--muted:#59605B;--line:#DCD8CE;--amber:#A8661A;--amber-soft:#F4E6CF;--green:#2E6B4F;color-scheme:light}
+:root[data-theme="dark"]{--bg:#141917;--surface:#1C2320;--surface-2:#222A27;--ink:#ECE8DF;--muted:#A7ADA8;--line:#323B37;--amber:#E3A456;--amber-soft:#3A2D1C;--green:#7FC4A0;color-scheme:dark}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'S-Core Dream','Noto Sans KR',system-ui,sans-serif;font-size:15.5px;line-height:1.75;word-break:keep-all}
+a{color:var(--amber)}
+.wrap{max-width:1040px;margin:0 auto;padding:0 20px 56px}
+header.top{position:sticky;top:0;z-index:10;background:var(--bg);border-bottom:1px solid var(--line)}
+.top-inner{max-width:1040px;margin:0 auto;padding:10px 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);margin-right:auto}
+.brand img{width:34px;height:34px}
+.brand b{font-size:18px;letter-spacing:.02em}.brand span{font-size:13px;color:var(--muted)}
+.theme-btn{font:inherit;font-size:12.5px;padding:4px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--muted);cursor:pointer;white-space:nowrap;text-decoration:none}
+.theme-btn:hover{color:var(--ink)}
+nav.sec{display:flex;gap:4px 14px;flex-wrap:wrap;font-size:13px;max-width:1040px;margin:0 auto;padding:0 20px 8px}
+nav.sec a{color:var(--muted);text-decoration:none}nav.sec a:hover{color:var(--ink)}
+section{padding:40px 0 8px;scroll-margin-top:90px}
+.eyebrow{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:12px;letter-spacing:.14em;color:var(--amber);font-weight:600}
+h1{font-size:clamp(30px,6vw,46px);line-height:1.25;margin:10px 0 14px;font-weight:900}
+h2{font-size:clamp(22px,4.2vw,28px);line-height:1.35;margin:6px 0 14px;font-weight:800}
+h3{font-size:17px;margin:0 0 4px}
+p{margin:0 0 10px}
+.lead{font-size:17px;color:var(--ink);max-width:720px}
+.muted{color:var(--muted)}
+.cta{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+.btn{display:inline-flex;align-items:center;gap:6px;font-size:14.5px;font-weight:700;padding:10px 16px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);text-decoration:none}
+.btn.pri{background:var(--amber);border-color:var(--amber);color:#141917}
+.grid{display:grid;gap:12px}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))}.g3{grid-template-columns:repeat(3,minmax(0,1fr))}.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:900px){.g4{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:560px){.g4,.g2{grid-template-columns:minmax(0,1fr)}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px}
+.num{font-family:'IBM Plex Mono',ui-monospace,monospace;color:var(--amber);font-weight:600;font-size:13px}
+.pub .tag{display:inline-block;font-size:12px;font-weight:700;padding:2px 9px;border-radius:999px;background:var(--amber-soft);color:var(--amber);margin-bottom:8px}
+.pub .tag.live{background:color-mix(in srgb,var(--green) 18%,transparent);color:var(--green)}
+.pub dl{display:grid;grid-template-columns:72px minmax(0,1fr);gap:4px 10px;font-size:13px;margin:12px 0 0;padding-top:10px;border-top:1px dashed var(--line)}
+.pub dt{color:var(--muted)}.pub dd{margin:0}
+.pub .go{margin-top:12px}
+ul.plain{list-style:none;margin:0;padding:0}
+ul.plain li{padding:8px 0;border-bottom:1px solid var(--line)}
+ul.plain li:last-child{border-bottom:0}
+ul.plain b{display:block;font-size:14.5px}ul.plain span{font-size:13px;color:var(--muted)}
+.person{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:12px}
+@media(max-width:760px){.person{grid-template-columns:minmax(0,1fr)}}
+footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}
+
+.gate{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:22px 22px 18px;display:flex;flex-direction:column;gap:14px;margin-top:8px}
+.gate h2{font-size:21px;margin:0}
+.gate p{font-size:14.5px;margin:0}
+.gate .muted{font-size:13px}
+.gate .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:640px){.gate .row2{grid-template-columns:1fr}}
+.gate label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
+.gate input[type=text],.gate input[type=email],.gate input[type=password]{font:inherit;font-size:15px;padding:9px 11px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
+.gate .chk{flex-direction:row;align-items:flex-start;gap:8px;color:var(--ink)}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+.gate .btn{font:inherit;font-size:14px;font-weight:700;padding:9px 14px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+.gate .btn.pri{background:var(--amber);border-color:var(--amber);color:#141917}
+.gate .btn:disabled{opacity:.5;cursor:default}
+.bank{background:var(--amber-soft);border-radius:8px;padding:12px 14px;font-size:14px;white-space:pre-line}
+.err{color:#D9534F;font-size:13px;min-height:1em}
+.who{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:13px;color:var(--muted);flex-wrap:wrap}
+.who button{font:inherit;font-size:12.5px;background:none;border:1px solid var(--line);border-radius:6px;padding:3px 9px;color:var(--muted);cursor:pointer}
+.divider{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12px}
+.divider::before,.divider::after{content:"";flex:1;height:1px;background:var(--line)}
+.ins-list{margin:0;padding-left:18px}.ins-list li{margin:4px 0}
+.perks{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:6px 0 4px}
+@media (max-width:640px){.perks{grid-template-columns:1fr}}
+.perks .card{padding:14px}.perks h3{font-size:15px}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-inner">
+    <a class="brand" href="about.html"><img src="assets/widi-logo.svg" alt="" aria-hidden="true"><b>WIDI</b><span>회원 신청</span></a>
+    <button type="button" class="theme-btn" id="theme-btn" aria-label="화면 밝기 바꾸기"></button>
+    <a class="theme-btn" href="about.html">WIDI 소개</a>
+    <a class="theme-btn" href="index.html">지표 대시보드 →</a>
+  </div>
+</header>
+<div class="wrap">
+<section style="padding-top:28px">
+  <div class="eyebrow">MEMBERSHIP</div>
+  <h2>WIDI 회원이 되면</h2>
+  <div class="perks">
+    <div class="card"><h3>변동 원인 해설</h3><p class="muted">대시보드에서 크게 움직인 수입 단가·물량의 원인을 통계로 검정해 풀어 쓴 「WIDI 변동 해설」 전체</p></div>
+    <div class="card"><h3>먼저 보는 신호</h3><p class="muted">다음 가격 급등을 미리 알려 주는 해외 지표의 최신 값과 1년 전 대비</p></div>
+    <div class="card"><h3>연구회 활동</h3><p class="muted">새 해설·월간 웹진 발행 소식, 연구회 모임 안내</p></div>
+  </div>
+  <p class="muted">지표 대시보드와 기본 분석은 회원이 아니어도 모두 무료로 볼 수 있음.</p>
+  <div id="gate" class="gate"><p class="muted">로그인 상태 확인 중…</p></div>
+  <div id="member"></div>
+</section>
+<footer>
+  <p>목재산업데이터연구회(WIDI) · 문의 <a href="mailto:jty2533@naver.com">jty2533@naver.com</a> · <a href="privacy.html">개인정보 처리방침</a></p>
+</footer>
+</div>
+<script>
+(function(){var b=document.getElementById("theme-btn"),r=document.documentElement;
+function s(){var d=r.getAttribute("data-theme")!=="light";b.textContent=d?"☀ 밝게":"☾ 어둡게";}
+b.addEventListener("click",function(){var n=r.getAttribute("data-theme")==="light"?"dark":"light";r.setAttribute("data-theme",n);try{localStorage.setItem("widi-theme",n);}catch(e){}s();});s();})();
+</script>
+<script src="assets/pwa.js?v=202611021514"></script>
+<script type="module">
+import { boot } from "./assets/widi-member.js?v=202611021514";
+boot({ base: "./" });
+</script>
+</body>
+</html>

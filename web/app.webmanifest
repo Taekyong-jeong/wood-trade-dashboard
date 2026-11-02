@@ -47,6 +47,17 @@
       ]
     },
     {
+      "name": "회원 신청",
+      "short_name": "회원 신청",
+      "url": "./join.html",
+      "icons": [
+        {
+          "src": "assets/widi-icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
       "name": "변동 해설 No.0",
       "short_name": "변동 해설",
       "url": "./insight/no0.html",

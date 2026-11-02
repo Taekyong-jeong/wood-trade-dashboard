@@ -32,14 +32,15 @@ const ERR = {
 const msg = (e) => ERR[e?.code] || e?.message || String(e);
 
 // ───────── 회원 전용 해설 페이지 ─────────
-export async function boot({ insightId }) {
+export async function boot({ insightId = null, base = "../" } = {}) {
+  const joinMode = !insightId; // join.html: 회원 신청 전용 화면 (해설 본문 없음)
   const gate = $("#gate"), box = $("#member");
   const F0 = await fb().catch(() => null);
-  if (!F0) { gate.innerHTML = `<h2>회원 전용 해설 준비 중</h2><p class="muted">회원 로그인 기능을 준비하고 있음. 문의: ${ADMIN_EMAIL}</p>`; return; }
+  if (!F0) { gate.innerHTML = `<h2>${joinMode ? "회원 신청" : "회원 전용 해설"} 준비 중</h2><p class="muted">회원 로그인 기능을 준비하고 있음. 문의: ${ADMIN_EMAIL}</p>`; return; }
   const { auth, db, A, F } = F0;
   A.onAuthStateChanged(auth, async (user) => {
     box.innerHTML = "";
-    if (!user) return renderLogin(gate, F0);
+    if (!user) return renderLogin(gate, F0, joinMode);
     const who = `<div class="who"><span>${esc(user.email || "")} 로그인됨</span><button type="button" id="logout">로그아웃</button></div>`;
     const bindOut = () => { const b = $("#logout"); if (b) b.onclick = () => A.signOut(auth); };
     let mem = null;
@@ -47,6 +48,14 @@ export async function boot({ insightId }) {
     const active = mem && mem.status === "active" && mem.expiresAt && mem.expiresAt.toDate() > new Date();
     let isAdmin = false;
     try { isAdmin = (await F.getDoc(F.doc(db, "admins", user.uid))).exists(); } catch (e) {}
+    if ((active || isAdmin) && joinMode) {
+      let list = [];
+      try { list = await (await fetch(base + "assets/insights.json", { cache: "no-store" })).json(); } catch (e) {}
+      gate.innerHTML = who + `<h2>${active ? "WIDI 회원입니다" : "관리자 계정입니다"}</h2>` +
+        (active ? `<p class="muted">회원 기간: ${fmtD(mem.expiresAt)}까지</p>` : `<p class="muted"><a href="${base}admin.html">회원 관리 화면 열기</a></p>`) +
+        `<p>회원 전용 해설</p><ul class="ins-list">` + list.map((d) => `<li><a href="${base}${esc(d.url)}">${esc(d.title)}</a> <span class="muted">${esc(d.period || "")}</span></li>`).join("") + `</ul>`;
+      bindOut(); return;
+    }
     if (active || isAdmin) {
       try {
         const s = await F.getDoc(F.doc(db, "insights", insightId));
@@ -63,7 +72,7 @@ export async function boot({ insightId }) {
     try { const s = await F.getDoc(F.doc(db, "settings", "join")); join = s.exists() ? s.data() : {}; } catch (e) {}
     const bank = join.bankText ? `<div class="bank">${esc(join.bankText)}</div>` : "";
     if (mem && mem.status === "pending") {
-      gate.innerHTML = who + `<h2>회원 신청이 접수됐음</h2><p>연회비 입금이 확인되면 연구회장이 승인함. 승인되면 이 페이지에서 바로 본문이 보임.</p>${bank}<p class="muted">신청일 ${fmtD(mem.appliedAt)} · 입금자명 ${esc(mem.depositor)}</p>`;
+      gate.innerHTML = who + `<h2>회원 신청이 접수됐음</h2><p>연회비 입금이 확인되면 연구회장이 승인함. 승인되면 ${joinMode ? "회원 전용 해설을 모두 볼 수 있음" : "이 페이지에서 바로 본문이 보임"}.</p>${bank}<p class="muted">신청일 ${fmtD(mem.appliedAt)} · 입금자명 ${esc(mem.depositor)}</p>`;
       bindOut(); return;
     }
     const again = mem && (mem.status === "expired" || mem.status === "rejected" || (mem.status === "active" && !active));
@@ -72,7 +81,7 @@ export async function boot({ insightId }) {
       <div class="row2"><label>이름<input type="text" id="f-name" value="${esc(mem?.name || user.displayName || "")}" maxlength="40"></label>
       <label>소속 (선택)<input type="text" id="f-org" value="${esc(mem?.org || "")}" maxlength="60"></label></div>
       <label>입금자명 (통장에 찍히는 이름)<input type="text" id="f-dep" value="${esc(mem?.depositor || "")}" maxlength="40"></label>
-      <label class="chk"><input type="checkbox" id="f-agree"> <span>개인정보(이름·소속·이메일·입금자명) 수집·이용에 동의함 — <a href="../privacy.html" target="_blank" rel="noopener">개인정보 처리방침</a></span></label>
+      <label class="chk"><input type="checkbox" id="f-agree"> <span>개인정보(이름·소속·이메일·입금자명) 수집·이용에 동의함 — <a href="${base}privacy.html" target="_blank" rel="noopener">개인정보 처리방침</a></span></label>
       <div class="btns"><button class="btn pri" id="f-go" type="button">신청하기</button></div><p class="err" id="f-err"></p>`;
     bindOut();
     $("#f-go").onclick = async () => {
@@ -88,9 +97,10 @@ export async function boot({ insightId }) {
   });
 }
 
-function renderLogin(gate, { auth, A }) {
-  gate.innerHTML = `<h2>회원 전용 해설입니다</h2>
-    <p>원인 분석 본문은 WIDI 회원만 볼 수 있음. 로그인하면 회원 신청 방법이 나옴.</p>
+function renderLogin(gate, { auth, A }, joinMode = false) {
+  gate.innerHTML = (joinMode ? `<h2>WIDI 회원 신청</h2>
+    <p>회원이 되면 대시보드 변동의 원인을 풀어 쓴 「WIDI 변동 해설」을 볼 수 있음. 먼저 로그인하면 신청서가 나옴.</p>` : `<h2>회원 전용 해설입니다</h2>
+    <p>원인 분석 본문은 WIDI 회원만 볼 수 있음. 로그인하면 회원 신청 방법이 나옴.</p>`) + `
     <div class="btns"><button class="btn pri" id="g-in" type="button">구글 계정으로 로그인</button></div>
     <div class="divider">또는 이메일</div>
     <div class="row2"><label>이메일<input type="email" id="e-mail" autocomplete="email"></label>
