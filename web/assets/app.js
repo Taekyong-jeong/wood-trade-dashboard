@@ -875,7 +875,9 @@
   // ── 한눈에 보기 (시안: ?v=2) ───────────────────────────────
   const V2 = new URLSearchParams(location.search).get("v") !== "1";   // 한눈에 보기 + 자세히 보기 구조가 기본 (?v=1 = 예전 화면)
   // 한눈에 보기 — 목재산업 실태 한 줄 (목재이용실태조사 시계열, 각 항목에 추세선)
+  const SHOW_IND = /[?&]ind=1/.test(location.search);   // 2026-11-02 첫 화면에서 잠시 가림 → 목재산업 화면으로 옮길 예정 (?ind=1 이면 표시)
   function indStrip() {
+    if (!SHOW_IND) return "";
     const I = (D.judg || {}).industry;
     if (!I || I.years.length < 2) return "";
     const n = I.years.length - 1, y0 = I.years[0], y1 = I.years[n];
@@ -1277,7 +1279,7 @@
   const SR_ITEMS = [
     { label: "수입의존도", sub: "원목·목재제품별 수입의존도 · 추세 · 자급-수입 구조", alias: "수입 의존 의존도 자급률 수입비중 수입침투율", target: "#sec-risk" },
     { label: "가동률", sub: "국내 설비 가동률 · 생산능력과 생산량", alias: "가동 설비 생산능력 캐파 공급여력 국내 공급 여력", target: "#sec-domestic" },
-    { label: "목재산업 규모", sub: "매출액 · 종사자 (목재이용실태조사)", alias: "산업규모 매출 종사자 고용 산업", target: "#sec-dist" },
+    // (2026-11-02 목재산업 화면 준비 중 — 잠시 뺌) { label: "목재산업 규모", sub: "매출액 · 종사자 (목재이용실태조사)", alias: "산업규모 매출 종사자 고용 산업", target: "#sec-dist" },
     { label: "품목별 정보", sub: "상세 탐색 — 목재제품 탭 (제품별 수입·공급국·단가)", alias: "품목 제품 목재제품 합판 제재목 CLT 집성재 펠릿", tab: "product" },
     { label: "수종별 정보", sub: "상세 탐색 — 수종 탭 (원목·제재목 세부 수종)", alias: "수종 나무 원목 제재목 소나무 라디에타 낙엽송 삼나무", tab: "species" },
   ];
