@@ -115,6 +115,16 @@ function renderLogin(gate, { auth, A }, joinMode = false) {
   $("#e-reset").onclick = () => { if (!em()) return err("이메일을 먼저 적어 주세요"); A.sendPasswordResetEmail(auth, em()).then(() => err("비밀번호 재설정 메일을 보냈음")).catch((e) => err(msg(e))); };
 }
 
+// ───────── 관리자 여부 (대시보드 준비 중 화면 미리보기용) ─────────
+export async function checkAdmin() {
+  const F0 = await fb().catch(() => null);
+  if (!F0) return false;
+  const { auth, db, A, F } = F0;
+  const user = await new Promise((res) => { const off = A.onAuthStateChanged(auth, (u) => { off(); res(u); }); });
+  if (!user) return false;
+  try { return (await F.getDoc(F.doc(db, "admins", user.uid))).exists(); } catch (e) { return false; }
+}
+
 // ───────── 관리자 화면 ─────────
 export async function adminBoot() {
   const root = $("#admin");

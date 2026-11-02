@@ -981,7 +981,29 @@
     C.hbars($("#g-cty"), tops.map((x) => ({ label: cname(x.c), value: x.imp, text: `${nf(x.share, 0)}% · ${x.imp >= 1e7 ? nf(x.imp / 1e8, 2) + "억" : nf(x.imp / 1e6, 1) + "백만"} 달러`,
       onClick: () => { if (g[0] === "total") { S.country = x.c; go("country"); } else openDetail(g[0], g[1]); } })));
   }
-  function renderAll() { if (S.sheet === "ind") { renderInd(); return; } if (S.sheet === "res") { renderRes(); return; } renderGlance(); renderIntro(); renderVerdicts(); renderBasic(); renderRisk(); renderDomestic(); renderDist(); renderPrice(); }
+  // 준비 중 시트(목재자원·목재산업): 관리자(Firebase admins)만 내용 표시, 그 밖에는 '준비 중'
+  const LOCKED = { res: "목재자원", ind: "목재산업" };
+  let ADMIN = null;   // null = 아직 확인 안 함
+  try { if (sessionStorage.getItem("widi-admin") === "1") ADMIN = true; } catch (e) {}
+  function ensureAdmin() {
+    if (ADMIN !== null) return;
+    ADMIN = false;
+    import(`./widi-member.js?v=${window.BUILD_ID || ""}`).then((m) => m.checkAdmin()).then((ok) => {
+      ADMIN = !!ok; try { sessionStorage.setItem("widi-admin", ok ? "1" : "0"); } catch (e) {}
+      if (ok && LOCKED[S.sheet]) renderAll();
+    }).catch(() => {});
+  }
+  function renderLocked(s) {
+    const host = $(s === "ind" ? "#ind-sheet" : "#res-sheet"); if (!host) return;
+    host.innerHTML = `<div class="sec-title" style="margin-top:14px"><h2>${LOCKED[s]}</h2><span class="hint">준비 중</span></div>` +
+      `<section class="grid g-2" style="margin-top:0">` + card(`「${LOCKED[s]}」 화면 준비 중`, "",
+        `<div class="note">${s === "ind" ? "목재산업 규모·제품별 구조·제조업 경기(생산·출하·가동률)·지역·품목 지표" : "산림자원·국산 원목 공급 지표"}를 준비 중. 지금은 「목재수급·유통」 화면 이용.</div>` +
+        `<div style="margin-top:10px"><button type="button" class="theme-btn" id="go-main">목재수급·유통 화면으로</button></div>`, "span-2") + `</section>`;
+    const b = $("#go-main"); if (b) b.onclick = () => setSheet("main");
+  }
+  function renderAll() {
+    if (LOCKED[S.sheet] && ADMIN !== true) { renderLocked(S.sheet); ensureAdmin(); return; }
+    if (S.sheet === "ind") { renderInd(); return; } if (S.sheet === "res") { renderRes(); return; } renderGlance(); renderIntro(); renderVerdicts(); renderBasic(); renderRisk(); renderDomestic(); renderDist(); renderPrice(); }
 
   // ── 화면(시트) 전환 ─────────────────────────────────────
   function setSheet(s, noScroll) {
