@@ -7,7 +7,8 @@
   const st = document.createElement("style"); st.textContent = css; document.head.appendChild(st);
   const lock = `<svg width="11" height="11" viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="7" width="10" height="7" rx="1.5" fill="currentColor"/><path d="M5 7V5a3 3 0 0 1 6 0v2" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>`;
   let LIST = [];
-  const btn = (it) => `<a class="ins-btn" href="${it.url}" title="${it.title} (회원 전용)" data-ins="${it.id}">${lock}${it.short}</a>`;
+  const CIRC = "①②③④⑤⑥⑦⑧⑨⑩", num = (it) => CIRC[LIST.indexOf(it)] || "";
+  const btn = (it) => `<a class="ins-btn" href="${it.url}" title="${it.title} (회원 전용)" data-ins="${it.id}">${lock}${num(it)} ${it.short}</a>`;
   function apply() {
     LIST.forEach((it) => {
       // 가격 이상 판정 표는 선택한 기준월이 해설 기간(period, 예 "2021~2022") 안일 때만 버튼 표시
@@ -26,7 +27,7 @@
       const pidx = document.querySelector("#pidx");
       const card = pidx && pidx.closest(".card");
       if (card && !card.querySelector(`.ins-foot[data-ins="${it.id}"]`)) {
-        card.insertAdjacentHTML("beforeend", `<div class="ins-foot" data-ins="${it.id}">제재목 ${it.period} 변동 원인 ${btn(it)}</div>`);
+        card.insertAdjacentHTML("beforeend", `<div class="ins-foot" data-ins="${it.id}"><b>${num(it)}</b> ${it.period} — ${it.title} ${btn(it)} <span style="color:var(--muted);font-size:12px">그래프의 ${num(it)} 띠 = 해설 대상 기간 (회원 전용)</span></div>`);
       }
     });
   }

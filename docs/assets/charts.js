@@ -123,6 +123,17 @@
         el("text", { x: X(i), y: H - 6, "text-anchor": "middle" }, g).textContent = xfmt(opts.x[i]);
       }
     }
+    // 특정 기간 띠 (예: 변동 해설 대상 기간 ① 2021~2022) — x가 "YYYY-MM"일 때
+    (opts.xSpans || []).forEach((sp) => {
+      let i0 = opts.x.findIndex((s) => s >= sp.from), i1 = -1;
+      opts.x.forEach((s, i) => { if (s <= sp.to) i1 = i; });
+      if (i0 < 0 || i1 < i0) return;
+      const xa = X(i0), xb = X(i1), col = sp.color || css("--warn");
+      el("rect", { x: xa, y: pad.t, width: Math.max(xb - xa, 2), height: ih, fill: col, "fill-opacity": 0.09 }, g);
+      el("line", { x1: xa, x2: xa, y1: pad.t, y2: pad.t + ih, stroke: col, "stroke-opacity": 0.5, "stroke-dasharray": "3 3" }, g);
+      el("line", { x1: xb, x2: xb, y1: pad.t, y2: pad.t + ih, stroke: col, "stroke-opacity": 0.5, "stroke-dasharray": "3 3" }, g);
+      el("text", { x: xa + 5, y: pad.t + 14, "text-anchor": "start", style: `fill:${col};font-size:12px;font-weight:700` }, g).textContent = sp.label;
+    });
     // HS 개정 등 마커
     (opts.markers || []).forEach((m) => {
       const i = opts.x.indexOf(m.x);

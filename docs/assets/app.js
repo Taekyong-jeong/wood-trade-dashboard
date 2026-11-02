@@ -685,7 +685,9 @@
       }
     }
     const pi = pser.length ? pser[0].values.findIndex((v) => v != null) : 0;
-    C.lineChart($("#pidx"), { x: ms.slice(pi), series: pser.map((p) => ({ name: p.name, values: p.values.slice(pi) })), yFmt: (v) => nf(v, 0), tipFmt: (v) => nf(v, 1), yMin0: false, height: 230, xLabelFmt: xFmt });
+    const CIRC = "①②③④⑤⑥⑦⑧⑨⑩";
+    const xSpans = (D.ins || []).map((it, n) => { const m = String(it.period || "").match(/(\d{4})(?:\s*~\s*(\d{4}))?/); return m ? { from: `${m[1]}-01`, to: `${m[2] || m[1]}-12`, label: `${CIRC[n] || n + 1} ${m[1]}${m[2] ? "~" + m[2].slice(2) : ""}` } : null; }).filter(Boolean);
+    C.lineChart($("#pidx"), { x: ms.slice(pi), series: pser.map((p) => ({ name: p.name, values: p.values.slice(pi) })), yFmt: (v) => nf(v, 0), tipFmt: (v) => nf(v, 1), yMin0: false, height: 230, xLabelFmt: xFmt, xSpans });
     $("#a-price").querySelectorAll("tr[data-axis]").forEach((tr) => tr.onclick = () => openDetail(tr.dataset.axis, tr.dataset.key));
     const drawMap = () => {
       const [a, k] = S.pmap.split(":"); const rows0 = (D.countries[a] || {})[k] || {};
@@ -1334,6 +1336,8 @@
       return;
     }
     Object.assign(D, { series, countries, insights, supply, judg });
+    // 변동 해설 목록 (회원 전용 해설과 연결되는 기간 표시용)
+    D.ins = await fetch(`assets/insights.json?v=${window.BUILD_ID || ""}`).then((r) => (r.ok ? r.json() : [])).catch(() => []);
     const years = [...new Set(series.months.map((m) => m.slice(0, 4)))];
     S.start = years[0];
     readHash();
