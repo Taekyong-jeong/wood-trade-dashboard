@@ -144,7 +144,7 @@
   // 자료 구분: 원자료(공표 통계 수치 그대로·합계) / 분석(본 페이지가 계산한 비율·지수·환산·판정)
   const KIND_ANA = /^(제품별 자급률|국내 공급 여력|품목별 수입 위험|수입 집중|품목별 판정|품목별 국내 공급 구조|원목 수입의존도|자급-수입 구조|목재제품별 수입의존도|가격 이상 판정|공급국 가격대 지도|수입 단가 지수|단가 지수|국산·수입 가격 수준|수입액 변화 분해|공급국별 수입 단가|공급국 집중도|공급국 쏠림 정도|목재제품별 수입과 점유율|품목군 구성|산림청 공표치 대조)/;
   const KIND_MIX = /^(한 해 쓰는 목재|가치사슬|국내 설비 가동률 추이|국내 생산능력과 생산량)/;
-  const KIND_RAW = /^(목재류 수입·수출 추이|품목별 수입액|제품별 원자재 출처|제품별 매출 구조|최대 수입국|최대 수입 품목|수입·수출 추이|주요 공급국|대분류별 원목|세부 수종|.+산 목재류 수입|목재산업 매출|목재제품별 매출|목재는 어디서 와서 무엇이 되나|어디서 사오나)/;
+  const KIND_RAW = /^(국산 원목 시장가격|수입 원목 가격|목재류 수입·수출 추이|품목별 수입액|제품별 원자재 출처|제품별 매출 구조|최대 수입국|최대 수입 품목|수입·수출 추이|주요 공급국|대분류별 원목|세부 수종|.+산 목재류 수입|목재산업 매출|목재제품별 매출|목재는 어디서 와서 무엇이 되나|어디서 사오나)/;
   function kindOf(title, hint) {
     const t = title.replace(/<[^>]+>/g, "").trim();
     if (/^수입·수출 추이/.test(t) && /단가/.test(hint || "")) return "ana";
@@ -630,12 +630,52 @@
         ready.length ? `판정 ${ready.length}개 품목 중 비정상 ${ready.filter((d) => /비정상/.test(d.band)).length}개 · 다소 높음·낮음 ${ready.filter((d) => /다소/.test(d.band)).length}개 · 정상 ${ready.filter((d) => d.band === "정상").length}개` : `판정 보류 <span class="sub">과거 데이터 수집 후 자동 판정</span>`) +
       card(`공급국 가격대 지도 ${q("price")}`, `${periodL12()}`,
         `<div class="inline-sel"><span class="ctl-label">품목</span><select id="pmapSel">${opts.map(([a, k, n]) => `<option value="${a}:${k}" ${`${a}:${k}` === S.pmap ? "selected" : ""}>${n}</option>`).join("")}</select></div>` +
-        `<div id="pmap"></div>` + rule(`점 = 공급국 (최근 12개월 점유율 1% 이상) · 가로 = 점유율, 세로 = 단가 · 빨간 점선 = 수입 평균 · <b>주황 실선·띠 = 같은 품목 국산 판매가</b>(산림조합 A급 중앙값·규격별 범위, 면세 — 수입 CIF와 유통 단계가 달라 수준 참고용 · 제재목은 2026 단가표, 구조용 집성재·CLT는 2026 단가 공란이라 2024 중부목재유통센터 낙엽송 단가 · 그 밖의 품목은 국산 공표가 없어 기준선 없음) · ${PU_RULE}`), "", `<span id="pmap-lead"></span>`) +
+        `<div id="pmap"></div>` + rule(`점 = 공급국 (최근 12개월 점유율 1% 이상) · 가로 = 점유율, 세로 = 단가 · 빨간 점선 = 수입 평균 · ${PU_RULE}`), "", `<span id="pmap-lead"></span>`) +
       card(`수입 단가 지수 ${q("idx")}`, "12개월 평균 CIF 단가, 시작 = 100", `<div id="pidx"></div>` +
-        `<div class="foot">현재 수입 단가: ${now.filter((x) => x.v != null).map((x) => `${x.n} ${x.f(x.v)} ${x.u}`).join(" · ")}</div>` + rule(PU_RULE), "",
+        `<div class="foot">현재 수입 단가: ${now.filter((x) => x.v != null).map((x) => `${x.n} ${x.f(x.v)} ${x.u}`).join(" · ")}</div>` + rule(PU_RULE),  "span-2",
         (() => { const y = pser.map((p) => { const i = ms.length - 1; const a = p.raw[i], b = p.raw[i - 12]; return { n: p.name, p: a && b ? (a / b - 1) * 100 : null }; }).filter((x) => x.p != null).sort((a, b) => b.p - a.p);
           return y.length ? `전년 대비 ${y.map((x) => `${x.n} ${x.p > 0 ? "+" : ""}${nf(x.p, 1)}%`).join(" · ")}` : ""; })());
     // 국산·수입 가격 수준 카드는 2026-11-02 화면에서 내림(국산 단가 연도와 수입 기간 불일치) — judgments.json domestic_price 계산은 유지
+    // 원목 가격 (한국임업진흥원 원목시장가격조사, 공표값 그대로)
+    const RW = D.judg.roundwood_price;
+    if (RW && RW["국산_시장"]) {
+      const DM = RW["국산_시장"], IM = RW["수입_CNF"];
+      const dSp = [...new Set(DM.series.map((s) => s.species))];
+      const iGrp = IM ? [...new Set(IM.series.map((s) => s.unit))] : [];
+      $("#a-price").insertAdjacentHTML("beforeend",
+        card("국산 원목 시장가격", `${DM.months[0].replace("-", ".")}~${DM.months[DM.months.length - 1].replace("-", ".")} · 전국 월별 · 만 원/㎥`,
+          `<div class="g-chips" id="rwd-chips">${dSp.map((s) => `<button type="button" data-k="${s}">${s}</button>`).join("")}</div><div id="rwd"></div>` +
+          rule(`한국임업진흥원 「원목시장가격조사」 통계 요약표의 전국 월별 시장가격(등급별) 그대로 · 원료재급(톤) 행은 단위가 달라 제외 · 그래프의 한 달을 누르면 해마다 같은 달 고정 · 출처: ${DM.source}`), "", `<span id="rwd-lead"></span>`) +
+        (IM ? card("수입 원목 가격", `${IM.months[0].replace("-", ".")}~${IM.months[IM.months.length - 1].replace("-", ".")} · CNF 인천 · 월별`,
+          `<div class="g-chips" id="rwi-chips">${iGrp.map((u) => `<button type="button" data-k="${u}">${u === "US$/MBF" ? "북미재 (US$/MBF)" : "뉴질랜드·남양재 (US$/㎥)"}</button>`).join("")}</div><div id="rwi"></div>` +
+          rule(`원목시장가격조사 부록 수입원목가격 통계표 그대로 · CNF 인천 = 인천항 도착 운임 포함 가격(보험료 제외) · 범위로 공표된 값(예 133~134)은 가운데 값 · MBF = 1,000 보드피트(약 2.36㎥) · 관세청 CIF 단가와는 조사 방식이 달라 직접 비교하지 않음 · 출처: ${IM.source}`), "", `<span id="rwi-lead"></span>`) : ""));
+      const yoy = (v, i) => (i >= 12 && v[i] != null && v[i - 12] ? (v[i] / v[i - 12] - 1) * 100 : null);
+      const pct = (x) => (x == null ? "" : ` <span class="sub">전년 같은 달 대비 ${x > 0 ? "▲" : x < 0 ? "▼" : ""}${nf(Math.abs(x), 1)}%</span>`);
+      const drawD = () => {
+        const sp = dSp.includes(S.rwd) ? S.rwd : (dSp.includes("낙엽송") ? "낙엽송" : dSp[0]);
+        $("#rwd-chips").querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.k === sp)));
+        const ss = DM.series.filter((s) => s.species === sp && s.unit === "원/㎥");
+        C.lineChart($("#rwd"), { x: DM.months, series: ss.map((s) => ({ name: s.grade, values: s.values.map((v) => (v == null ? null : v / 1e4)) })),
+          yFmt: (v) => nf(v, 0), tipFmt: (v) => nf(v, 1) + "만 원", yMin0: false, height: 250, xLabelFmt: xFmt, pinMonth: true });
+        const k = ss.find((s) => s.grade === "1등급") || ss[0], i = DM.months.length - 1 - [...k.values].reverse().findIndex((v) => v != null);
+        $("#rwd-lead").innerHTML = `${sp} ${k.grade} ${DM.months[i].replace("-", ".")} ${nf(k.values[i] / 1e4, 1)}만 원/㎥${pct(yoy(k.values, i))}`;
+      };
+      $("#rwd-chips").querySelectorAll("button").forEach((b) => b.onclick = () => { S.rwd = b.dataset.k; drawD(); });
+      drawD();
+      if (IM) {
+        const drawI = () => {
+          const u = iGrp.includes(S.rwi) ? S.rwi : (iGrp.includes("US$/㎥") ? "US$/㎥" : iGrp[0]);
+          $("#rwi-chips").querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.k === u)));
+          const ss = IM.series.filter((s) => s.unit === u);
+          C.lineChart($("#rwi"), { x: IM.months, series: ss.map((s) => ({ name: `${s.species}${s.grade && s.grade !== "-" ? " " + s.grade : ""} (${s.origin})`, values: s.values })),
+            yFmt: (v) => nf(v, 0), tipFmt: (v) => nf(v, 0) + " " + u, yMin0: false, height: 250, xLabelFmt: xFmt, pinMonth: true });
+          const k = ss.find((s) => s.species === "라디에타파인" && s.grade === "KS") || ss[0], i = IM.months.length - 1 - [...k.values].reverse().findIndex((v) => v != null);
+          $("#rwi-lead").innerHTML = `${k.species} ${k.grade !== "-" ? k.grade : ""} ${IM.months[i].replace("-", ".")} ${nf(k.values[i], 0)} ${u}${pct(yoy(k.values, i))}`;
+        };
+        $("#rwi-chips").querySelectorAll("button").forEach((b) => b.onclick = () => { S.rwi = b.dataset.k; drawI(); });
+        drawI();
+      }
+    }
     const pi = pser.length ? pser[0].values.findIndex((v) => v != null) : 0;
     C.lineChart($("#pidx"), { x: ms.slice(pi), series: pser.map((p) => ({ name: p.name, values: p.values.slice(pi) })), yFmt: (v) => nf(v, 0), tipFmt: (v) => nf(v, 1), yMin0: false, height: 230, xLabelFmt: xFmt });
     $("#a-price").querySelectorAll("tr[data-axis]").forEach((tr) => tr.onclick = () => openDetail(tr.dataset.axis, tr.dataset.key));

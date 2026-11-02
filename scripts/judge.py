@@ -952,3 +952,24 @@ def value_chain(raw_json: Path, wus_csv: Path | None = None, survey_csv: Path | 
             res[key] = {"label": lab, "kind": "3", "years": ys}
     return {"products": res, "order": ["p01", "p06", "p08", "p07", "p12", "p11", "p05", "p02", "pallet", "sawdust", "p15", "p14"],
             "source": "산림청·한국임업진흥원 목재이용실태조사 (KOSIS 제품별 원자재·공급지·조달 경로·용도별 생산량 표), 응답업체 기준"}
+
+
+# ── ⑩ 원목 가격 (한국임업진흥원 원목시장가격조사, 원자료) ─────────
+def roundwood_price(csv_path: Path) -> dict | None:
+    """국산 원목 시장가격(전국 월별, 수종×등급, 원/㎥)과 수입 원목 가격(CNF 인천, 수종·등급·원산지, US$) — 공표값 그대로"""
+    if not csv_path.exists():
+        return None
+    d = pd.read_csv(csv_path)
+    out = {}
+    for kind, g in d.groupby("kind"):
+        months = sorted(g["ym"].unique())
+        idx = {m: i for i, m in enumerate(months)}
+        series = []
+        for (sp, gr, org, un), s in g.groupby(["species", "grade", "origin", "unit"], sort=False):
+            v = [None] * len(months)
+            for _, r in s.iterrows():
+                v[idx[r["ym"]]] = float(r["value"])
+            rng = {r["ym"]: [r["lo"], r["hi"]] for _, r in s.iterrows() if pd.notna(r["lo"])}
+            series.append({"species": sp, "grade": gr, "origin": org, "unit": un, "values": v, **({"ranges": rng} if rng else {})})
+        out[kind] = {"months": months, "series": series, "source": g["source"].iloc[0]}
+    return out
