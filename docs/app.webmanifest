@@ -1,0 +1,16 @@
+{
+  "name": "WIDI 목재 진단",
+  "short_name": "WIDI",
+  "description": "WIDI 목재산업데이터연구회 — 대한민국 목재 자원·산업·유통 진단 대시보드와 변동 해설",
+  "lang": "ko",
+  "id": "./index.html",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#141917",
+  "theme_color": "#141917",
+  "icons": [
+    {"src": "assets/widi-icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "assets/widi-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"}
+  ]
+}

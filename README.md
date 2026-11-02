@@ -127,6 +127,7 @@ docs/                   GitHub Pages 게시 폴더
 
 | 날짜 | 내용 |
 |---|---|
+| 2026-11-02 | 전체 사이트 앱 설치(PWA): app.webmanifest(범위 ./, 시작 index.html)·sw.js(캐시 없음, 항상 최신)·assets/pwa.js(머리말 「⬇ 앱 설치」 버튼, 아이폰은 홈 화면 추가 안내). index.html·insight/*.html 머리에 매니페스트·아이콘 연결 |
 | 2026-11-02 | 관리자 화면(admin.html) 앱 설치: admin.webmanifest·admin-sw.js(캐시 없음)·아이콘 PNG(assets/widi-icon-*.png), 「앱으로 설치」 버튼(안드로이드·PC 크롬/엣지), 아이폰은 홈 화면에 추가 안내 |
 | 2026-11-02 | 회원 해설 로그인 전 안내에서 연회비 금액 제거(로그인 후 신청 화면에서만 표시) |
 | 2026-11-02 | build.py: FIREBASE_CONFIG 없이 로컬에서 빌드해도 이미 게시된 회원 로그인 설정(docs/assets/widi-member.js의 CFG_B64)을 유지 — 다른 작업 커밋이 설정을 지워 로그인 화면이 '준비 중'으로 돌아간 문제 수정 |
