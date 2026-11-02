@@ -127,6 +127,7 @@ docs/                   GitHub Pages 게시 폴더
 
 | 날짜 | 내용 |
 |---|---|
+| 2026-11-02 | 원목가격 API 탐색 결과: 키(DATA_GO_KR_KEY_ROUND_WOOD) 정상 인증, 국내 /domesticRoundwoodPrice는 연·월·규격(1990년·13월 등 잘못된 값 포함)과 무관하게 항상 resultvalue 128,625, 수입 /importedRoundwoodPrice는 항상 0 → 요청변수가 반영되지 않아 **사용 불가**로 판단(2026-11-02 기준). 원목가격은 파일 원천(원목가격동향조사·국가원목시장가격조사)으로 진행. 탐색 결과 data/external/forest_econ_probe.json |
 | 2026-11-02 | 원목가격 원천 탐색: 국립산림과학원 「임업경제동향」 OpenAPI(공공데이터포털 15083696, 국내 원목 가격 /domesticRoundwoodPrice, 수입 원목 가격 작업 이름 확인 중) 탐색 스크립트 `scripts/external/forest_econ_probe.py` + 워크플로 「원목가격 API 탐색」(키: DATA_GO_KR_KEY_ROUND_WOOD 등 → 없으면 DATA_GO_KR_KEY), 결과 data/external/forest_econ_probe.json(키 미저장) |
 | 2026-11-02 | 상세 '수입·수출 추이': 같은 달 고정 — 한 달을 누르면 해마다 같은 달이 함께 고정(점선·점), 아래 표에 연도별 값과 전년 같은 달 대비 %(월별·12개월 누적 보기에서, `lineChart` opts.pinMonth) |
 | 2026-11-02 | 가격 구역: '국산·수입 가격 수준' 카드와 공급국 가격대 지도의 국산 기준선 화면에서 내림(국산 판매단가 연도와 수입 기간 불일치, 사용자 판단, domestic_price 계산은 유지). 가격 요인분석(환율 몫·국제 시세·국내 물가 전가·구성 보정 단가지수·해상운임)은 회원전용 씨드로 기록, 원목가격(국내·수입)은 공개 화면에 추가 예정 |
