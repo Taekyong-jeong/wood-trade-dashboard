@@ -1,0 +1,36 @@
+/* WIDI 휴대폰 화면 보정 — style.css를 고치지 않고 덧씌움 (≤640px).
+   넓은 표는 mobile.js가 table.m-cards를 붙이면 '품목 + 판정' 한 줄 + 나머지 값 2칸 카드로 바뀜 */
+@media (max-width: 640px) {
+  .inline-sel { flex-wrap: wrap; max-width: 100%; }
+  .inline-sel select { max-width: 100%; }
+
+  .tbl-wrap:has(> table.m-cards), .tbl-wrap.m-cards-wrap { overflow-x: visible; }
+  table.m-cards, table.m-cards tbody { display: block; width: 100%; }
+  table.m-cards thead { display: none; }
+  table.m-cards tr {
+    display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 4px 12px;
+    padding: 10px 2px; border-bottom: 1px solid var(--grid, rgba(128,128,128,.25));
+  }
+  table.m-cards tr:last-child { border-bottom: 0; }
+  table.m-cards td {
+    display: flex; flex-direction: column; gap: 1px; padding: 0 !important; border: 0 !important;
+    text-align: left !important; white-space: normal !important; min-width: 0;
+    position: static !important; background: none !important; font-size: 13.5px;
+  }
+  table.m-cards td::before {
+    content: attr(data-label); font-size: 11px; font-weight: 400; color: var(--muted, #888);
+    letter-spacing: -0.02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  table.m-cards td.m-name { grid-column: 1; grid-row: 1; display: block; font-size: 15px; font-weight: 700; align-self: center; }
+  table.m-cards td.m-name > * { display: inline; margin-left: 4px; }
+  table.m-cards td.m-name::before, table.m-cards td.m-badge::before { display: none; }
+  table.m-cards td.m-badge { grid-column: 2; grid-row: 1; align-items: flex-end; justify-content: center; }
+  table.m-cards td.m-empty { display: none; }
+  table.m-cards td .ins-btn { align-self: flex-start; margin-top: 4px; }
+  table.m-cards tr.click { cursor: pointer; }
+  .m-sort { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; font-size: 12px; color: var(--muted, #888); margin: 4px 0 2px; }
+  .m-sort select { font: inherit; font-size: 12.5px; padding: 3px 6px; border-radius: 6px; border: 1px solid var(--border, rgba(128,128,128,.3)); background: var(--surface, transparent); color: var(--ink, inherit); max-width: 70%; }
+
+  .vc-scroll { position: relative; }
+  .m-swipe { font-size: 11.5px; color: var(--muted, #888); margin: 2px 0 4px; }
+}
