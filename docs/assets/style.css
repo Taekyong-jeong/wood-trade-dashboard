@@ -643,3 +643,12 @@ table.pm-t td em { display: block; font-size: 10.5px; margin: 0; }
 }
 .swipe-hint { display: none; font-size: 11.5px; color: var(--muted); margin: 0 0 4px; }
 .vc-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+/* 화면 밝기 전환 · 모바일 안내 (2026-11-02) */
+.theme-btn { flex: none; align-self: center; font: inherit; font-size: 12px; padding: 3px 10px; border-radius: 999px; cursor: pointer;
+  border: 1px solid var(--border); background: var(--surface); color: var(--ink-2); white-space: nowrap; }
+.theme-btn:hover { color: var(--ink); border-color: var(--axis); }
+.m-note { display: none; margin: 10px 0 0; padding: 8px 12px; border-radius: 8px; font-size: 12.5px; line-height: 1.45;
+  background: var(--accent-soft); color: var(--ink-2); border: 1px solid var(--border); }
+.m-note b { color: var(--ink); }
+@media (max-width: 640px) { .m-note { display: block; } .theme-btn { align-self: flex-start; } }

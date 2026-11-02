@@ -1322,6 +1322,9 @@
     let w = window.innerWidth;
     window.addEventListener("resize", () => { if (Math.abs(window.innerWidth - w) > 40) { w = window.innerWidth; renderAll(); renderTab(); } });
     matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { renderAll(); renderTab(); });
+    const tb = $("#theme-btn"), setTb = () => { const d = document.documentElement.getAttribute("data-theme") !== "light"; tb.textContent = d ? "☀ 밝게" : "☾ 어둡게"; tb.title = d ? "밝은 화면으로 바꾸기" : "어두운 화면으로 바꾸기"; };
+    if (tb) { setTb(); tb.onclick = () => { const nx = document.documentElement.getAttribute("data-theme") === "light" ? "dark" : "light";
+      document.documentElement.setAttribute("data-theme", nx); try { localStorage.setItem("widi-theme", nx); } catch (e) {} setTb(); renderAll(); renderTab(); }; }
     $("#explore").addEventListener("toggle", () => { if ($("#explore").open) renderTab(); });
     // 상세 탐색은 처음엔 접어 둠 — 특정 품목·국가를 가리키는 링크(#…&k=…)로 들어왔을 때만 펼침
     if (/[#&]k=/.test(location.hash)) { $("#explore").open = true; setTimeout(() => goSec("explore"), 300); }

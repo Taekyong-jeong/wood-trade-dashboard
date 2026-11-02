@@ -165,6 +165,7 @@ docs/                   GitHub Pages 게시 폴더
 | 2026-11-02 | `insight/no0_woodshock/` 추가 — WIDI 변동 해설 No.0(샘플) 분석 재현용 코드·가공 자료. 화면 미반영 |
 | 2026-11-02 | 모바일 보기 정리 — 화면 폭(390px) 넘침 제거(머리말·구역 제목 줄바꿈, 모바일에서 머리말 고정 해제), 표 첫 열 고정(좌우 스크롤 시 품목명 유지), 목재제품별 수입의존도 그래프 폭 맞춤, 생산능력 소형 그래프 2열, 가치사슬은 좌우로 밀어 보기, 첫 화면 흐름도 이름표 줄임. PC 화면 변화 없음 |
 | 2026-11-02 | WIDI 회원 로그인·변동 해설 페이지 추가 — Firebase(Auth+Firestore). `web/insight/no0.html`(공개 맛보기 + 로그인 게이트, 본문은 Firestore `insights/no0`에서 승인 회원에게만), `web/admin.html`(회원 승인·연장·해지, 가입 안내, 해설 올리기), `web/privacy.html`, `firestore.rules`(보안 규칙), `web/assets/widi-member.js`. build.py가 Secret FIREBASE_CONFIG를 widi-member.js에 넣음(update.yml 페이지 생성 단계 env 추가). 대시보드 연결: `web/assets/insight-links.js` + `insights.json` — 가격 이상 판정 표 해당 품목 행과 수입 단가 지수 카드에 「변동 해설」 버튼(app.js 무수정) |
+| 2026-11-02 | 화면 밝기 — 기본을 어두운 화면으로 고정(이전: 기기 설정 따라 밝음/어두움), 머리말에 ☀ 밝게 / ☾ 어둡게 전환 버튼(선택은 보는 사람 브라우저에 기억). 휴대폰 폭(640px 이하)에서만 "가급적 데스크톱(PC)에서 보기 권장" 안내 표시 |
 | 2026-11-01 | WIDI 해설 외부 지표에 제조업 생산지수·수출물량지수(KOSIS, 월) 추가 — 포장·팔레트 수요 대리지표. 화면 미반영 |
 | 2026-11-01 | WIDI 변동 해설용 외부 지표 수집 추가 — `scripts/external/widi_insight_fetch.py`, 워크플로 「WIDI 해설 외부 지표 수집」: Eurostat 제재업 생산자물가(월), 캐나다 통계청 제재목 생산·출하·재고(월), KOSIS 제재목 용도별 판매량·건설기성액. 화면 미반영 |
 | 2026-11-01 | 수입 위험 시계열 추가: ① 품목별 수입 위험 표에 HHI 추이(2016~2025 연간, 0~10,000 고정 축, 점선 = 2,500) 열 ② 「공급망 판정 이력」 히트맵(행 = 품목, 열 = 2016~2025 연간 + 최근 12개월) — 연도별로 supply_risk와 같은 규칙을 그 해 1~12월 수입액에 적용 (`judge.supply_hist`, judgments.json `supply_hist`, 1~12월이 모두 있는 해만) |
