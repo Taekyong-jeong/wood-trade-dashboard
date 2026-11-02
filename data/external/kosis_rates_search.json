@@ -1014,5 +1014,107 @@
    "END_PRD_DE": "1993",
    "PRD_SE": null
   }
- ]
+ ],
+ "원/달러 환율": [
+  {
+   "ORG_ID": "101",
+   "ORG_NM": "국가데이터처",
+   "TBL_ID": "DT_XNS0166",
+   "TBL_NM": "세계 관광 수입 및 관광 지출 - 남부·동남아시아",
+   "STRT_PRD_DE": "1999",
+   "END_PRD_DE": "2024",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "113",
+   "ORG_NM": "문화체육관광부",
+   "TBL_ID": "DT_113_STBL_1017919",
+   "TBL_NM": "광고산업 : 매체별 수출입액 현황",
+   "STRT_PRD_DE": "2004",
+   "END_PRD_DE": "2012",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "145",
+   "ORG_NM": "식품의약품안전처",
+   "TBL_ID": "TX_14503_A045",
+   "TBL_NM": "농림부 허가품목-전체",
+   "STRT_PRD_DE": "1999",
+   "END_PRD_DE": "2009",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "",
+   "TBL_ID": "DT_036Y001_REC",
+   "TBL_NM": "주요국통화의 대원화 환율",
+   "STRT_PRD_DE": "1964",
+   "END_PRD_DE": "2014",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_036Y006",
+   "TBL_NM": "원화의 대미달러, 대엔 환율 통계자료",
+   "STRT_PRD_DE": "1990",
+   "END_PRD_DE": "2014",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_036Y004",
+   "TBL_NM": "주요국통화의 대원화 환율 통계자료",
+   "STRT_PRD_DE": "1964",
+   "END_PRD_DE": "2014",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_036Y003",
+   "TBL_NM": "원화의 대미달러, 대엔 환율",
+   "STRT_PRD_DE": "1990",
+   "END_PRD_DE": "2014",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "376",
+   "ORG_NM": "금융감독원",
+   "TBL_ID": "DT_376_100_SDMZ022V_1",
+   "TBL_NM": "[주요경제지표] 2. 국내 주요경제지표(Ⅱ)",
+   "STRT_PRD_DE": "2001",
+   "END_PRD_DE": "2016",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_036Y002",
+   "TBL_NM": "주요국통화의 대미달러 환율",
+   "STRT_PRD_DE": "1964",
+   "END_PRD_DE": "2014",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "301",
+   "ORG_NM": "한국은행",
+   "TBL_ID": "DT_036Y005",
+   "TBL_NM": "주요국통화의 대미달러 환율 통계자료",
+   "STRT_PRD_DE": "1964",
+   "END_PRD_DE": "2014",
+   "PRD_SE": null
+  },
+  {
+   "ORG_ID": "376",
+   "ORG_NM": "금융감독원",
+   "TBL_ID": "DT_376_100_SDMZ025V_1",
+   "TBL_NM": "[주요경제지표] 5. 해외 주요경제지표(Ⅱ)",
+   "STRT_PRD_DE": "2000",
+   "END_PRD_DE": "2016",
+   "PRD_SE": null
+  }
+ ],
+ "주요국 통화의 대원화환율": []
 }
