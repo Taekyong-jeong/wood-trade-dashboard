@@ -1,0 +1,38 @@
+name: 원목가격 API 탐색
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ["scripts/external/forest_econ_probe.py", ".github/workflows/forest_econ_probe.yml"]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: 임업경제동향 API 호출
+        env:
+          # 사용자 등록 이름 후보(GitHub 이름 규칙상 하이픈 불가) → 없으면 기존 공공데이터포털 키
+          FOREST_KEY: ${{ secrets.DATA_GO_KR_KEY_ROUND_WOOD || secrets.DATA_GO_KR_KEY_ROUNDWOOD || secrets.DATA_GO_KR_KEY_ROUND || secrets.DATA_GO_KR_KEY }}
+          KEY_SOURCE: ${{ secrets.DATA_GO_KR_KEY_ROUND_WOOD != '' && 'DATA_GO_KR_KEY_ROUND_WOOD' || secrets.DATA_GO_KR_KEY_ROUNDWOOD != '' && 'DATA_GO_KR_KEY_ROUNDWOOD' || secrets.DATA_GO_KR_KEY_ROUND != '' && 'DATA_GO_KR_KEY_ROUND' || 'DATA_GO_KR_KEY' }}
+        run: python scripts/external/forest_econ_probe.py
+      - name: 결과 커밋
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git pull --rebase -q || true
+          git add data/external/forest_econ_probe.json
+          git diff --cached --quiet || git commit -m "원목가격 API 탐색 결과"
+          git push
