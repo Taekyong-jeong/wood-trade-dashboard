@@ -127,6 +127,7 @@ docs/                   GitHub Pages 게시 폴더
 
 | 날짜 | 내용 |
 |---|---|
+| 2026-11-02 | 월별 그래프 가로축 연도 표시: 1월 자료가 없는 계열(수입 원목 가격은 매년 1월 열 없이 2월부터 공표)도 그 해 첫 달에 연도 표시 (`lineChart`) |
 | 2026-11-02 | 원목 가격 추가(가격 구역, 원자료): 한국임업진흥원 「원목시장가격조사」 2026년 1분기 검수표(누적, 사용자 제공 → data/external/raw_roundwood/) 전사 `scripts/external/transcribe_roundwood_price.py` → data/external/roundwood_price.csv(3,726행). ① 국산 원목 시장가격: 전국 월별 2020.01~2026.03, 7개 수종 × 등급(원/㎥, 원료재급(톤) 별도) ② 수입 원목 가격: CNF 인천 2019.04~2026.03, 수종·등급·원산지 12개 계열(US$/MBF·US$/㎥, 범위값은 가운데 값). 카드 2장(수종·지역 선택, 같은 달 고정). 수입 단가 지수 카드 전체 폭으로, 공급국 가격대 지도 설명에서 국산 판매가 문구 삭제 |
 | 2026-11-02 | 원목가격 API 탐색 결과: 키(DATA_GO_KR_KEY_ROUND_WOOD) 정상 인증, 국내 /domesticRoundwoodPrice는 연·월·규격(1990년·13월 등 잘못된 값 포함)과 무관하게 항상 resultvalue 128,625, 수입 /importedRoundwoodPrice는 항상 0 → 요청변수가 반영되지 않아 **사용 불가**로 판단(2026-11-02 기준). 원목가격은 파일 원천(원목가격동향조사·국가원목시장가격조사)으로 진행. 탐색 결과 data/external/forest_econ_probe.json |
 | 2026-11-02 | 원목가격 원천 탐색: 국립산림과학원 「임업경제동향」 OpenAPI(공공데이터포털 15083696, 국내 원목 가격 /domesticRoundwoodPrice, 수입 원목 가격 작업 이름 확인 중) 탐색 스크립트 `scripts/external/forest_econ_probe.py` + 워크플로 「원목가격 API 탐색」(키: DATA_GO_KR_KEY_ROUND_WOOD 등 → 없으면 DATA_GO_KR_KEY), 결과 data/external/forest_econ_probe.json(키 미저장) |

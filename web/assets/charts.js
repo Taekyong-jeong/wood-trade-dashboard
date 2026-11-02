@@ -109,7 +109,9 @@
     const maxLabels = Math.max(3, Math.floor(iw / 56));
     const monthly = n > 0 && /^\d{4}-\d{2}$/.test(opts.x[0]);
     if (monthly && n > 18) {
-      const jan = opts.x.map((s, i) => (s.endsWith("-01") ? i : -1)).filter((i) => i >= 0);
+      // 해마다 첫 달(보통 1월, 1월 자료가 없는 해는 그 해 첫 달)에 연도 표시
+      const jan = opts.x.map((s, i) => (i > 0 && s.slice(0, 4) !== opts.x[i - 1].slice(0, 4) ? i : -1)).filter((i) => i >= 0);
+      if (opts.x[0].endsWith("-01")) jan.unshift(0);
       const yStep = Math.max(1, Math.ceil(jan.length / maxLabels));
       jan.forEach((i, j) => {
         if (j % yStep) return;
