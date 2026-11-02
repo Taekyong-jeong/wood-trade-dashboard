@@ -1,0 +1,169 @@
+{
+ "key_source": "DATA_GO_KR_KEY_ROUND_WOOD",
+ "key_present": true,
+ "domestic": [
+  {
+   "standard": 1,
+   "status": 200,
+   "body": "{\"response\":{\"header\":{\"resultCode\":\"00\",\"resultMsg\":\"NORMAL SERVICE.\"},\"body\":{\"item\":{\"resultvalue\":128625}}}}"
+  },
+  {
+   "standard": 2,
+   "status": 200,
+   "body": "{\"response\":{\"header\":{\"resultCode\":\"00\",\"resultMsg\":\"NORMAL SERVICE.\"},\"body\":{\"item\":{\"resultvalue\":128625}}}}"
+  },
+  {
+   "standard": 3,
+   "status": 200,
+   "body": "{\"response\":{\"header\":{\"resultCode\":\"00\",\"resultMsg\":\"NORMAL SERVICE.\"},\"body\":{\"item\":{\"resultvalue\":128625}}}}"
+  },
+  {
+   "standard": 4,
+   "status": 200,
+   "body": "{\"response\":{\"header\":{\"resultCode\":\"00\",\"resultMsg\":\"NORMAL SERVICE.\"},\"body\":{\"item\":{\"resultvalue\":128625}}}}"
+  },
+  {
+   "standard": 5,
+   "status": 200,
+   "body": "{\"response\":{\"header\":{\"resultCode\":\"00\",\"resultMsg\":\"NORMAL SERVICE.\"},\"body\":{\"item\":{\"resultvalue\":128625}}}}"
+  },
+  {
+   "standard": 6,
+   "status": 200,
+   "body": "{\"response\":{\"header\":{\"resultCode\":\"00\",\"resultMsg\":\"NORMAL SERVICE.\"},\"body\":{\"item\":{\"resultvalue\":128625}}}}"
+  },
+  {
+   "standard": 7,
+   "status": 200,
+   "body": "{\"response\":{\"header\":{\"resultCode\":\"00\",\"resultMsg\":\"NORMAL SERVICE.\"},\"body\":{\"item\":{\"resultvalue\":128625}}}}"
+  },
+  {
+   "standard": 8,
+   "status": 200,
+   "body": "{\"response\":{\"header\":{\"resultCode\":\"00\",\"resultMsg\":\"NORMAL SERVICE.\"},\"body\":{\"item\":{\"resultvalue\":128625}}}}"
+  },
+  {
+   "standard": 9,
+   "status": 200,
+   "body": "{\"response\":{\"header\":{\"resultCode\":\"00\",\"resultMsg\":\"NORMAL SERVICE.\"},\"body\":{\"item\":{\"resultvalue\":128625}}}}"
+  },
+  {
+   "standard": 10,
+   "status": null,
+   "body": "URLError: <urlopen error _ssl.c:993: The handshake operation timed out>"
+  },
+  {
+   "standard": 11,
+   "status": 200,
+   "body": "{\"response\":{\"header\":{\"resultCode\":\"00\",\"resultMsg\":\"NORMAL SERVICE.\"},\"body\":{\"item\":{\"resultvalue\":128625}}}}"
+  },
+  {
+   "standard": 12,
+   "status": 200,
+   "body": "{\"response\":{\"header\":{\"resultCode\":\"00\",\"resultMsg\":\"NORMAL SERVICE.\"},\"body\":{\"item\":{\"resultvalue\":128625}}}}"
+  },
+  {
+   "standard": 13,
+   "status": 200,
+   "body": "{\"response\":{\"header\":{\"resultCode\":\"00\",\"resultMsg\":\"NORMAL SERVICE.\"},\"body\":{\"item\":{\"resultvalue\":128625}}}}"
+  },
+  {
+   "standard": 14,
+   "status": 200,
+   "body": "{\"response\":{\"header\":{\"resultCode\":\"00\",\"resultMsg\":\"NORMAL SERVICE.\"},\"body\":{\"item\":{\"resultvalue\":128625}}}}"
+  },
+  {
+   "standard": 15,
+   "status": 200,
+   "body": "{\"response\":{\"header\":{\"resultCode\":\"00\",\"resultMsg\":\"NORMAL SERVICE.\"},\"body\":{\"item\":{\"resultvalue\":128625}}}}"
+  },
+  {
+   "standard": 16,
+   "status": 200,
+   "body": "{\"response\":{\"header\":{\"resultCode\":\"00\",\"resultMsg\":\"NORMAL SERVICE.\"},\"body\":{\"item\":{\"resultvalue\":128625}}}}"
+  },
+  {
+   "standard": 17,
+   "status": 200,
+   "body": "{\"response\":{\"header\":{\"resultCode\":\"00\",\"resultMsg\":\"NORMAL SERVICE.\"},\"body\":{\"item\":{\"resultvalue\":128625}}}}"
+  },
+  {
+   "standard": 18,
+   "status": 200,
+   "body": "{\"response\":{\"header\":{\"resultCode\":\"00\",\"resultMsg\":\"NORMAL SERVICE.\"},\"body\":{\"item\":{\"resultvalue\":128625}}}}"
+  },
+  {
+   "standard": 19,
+   "status": 200,
+   "body": "{\"response\":{\"header\":{\"resultCode\":\"00\",\"resultMsg\":\"NORMAL SERVICE.\"},\"body\":{\"item\":{\"resultvalue\":128625}}}}"
+  },
+  {
+   "standard": 20,
+   "status": 200,
+   "body": "{\"response\":{\"header\":{\"resultCode\":\"00\",\"resultMsg\":\"NORMAL SERVICE.\"},\"body\":{\"item\":{\"resultvalue\":128625}}}}"
+  },
+  {
+   "year": 2003,
+   "month": 1,
+   "standard": 1,
+   "status": 200,
+   "body": "{\"response\":{\"header\":{\"resultCode\":\"00\",\"resultMsg\":\"NORMAL SERVICE.\"},\"body\":{\"item\":{\"resultvalue\":128625}}}}"
+  },
+  {
+   "year": 2015,
+   "month": 6,
+   "standard": 1,
+   "status": 200,
+   "body": "{\"response\":{\"header\":{\"resultCode\":\"00\",\"resultMsg\":\"NORMAL SERVICE.\"},\"body\":{\"item\":{\"resultvalue\":128625}}}}"
+  },
+  {
+   "year": 2026,
+   "month": 8,
+   "standard": 1,
+   "status": 200,
+   "body": "{\"response\":{\"header\":{\"resultCode\":\"00\",\"resultMsg\":\"NORMAL SERVICE.\"},\"body\":{\"item\":{\"resultvalue\":128625}}}}"
+  }
+ ],
+ "import_candidates": [
+  {
+   "op": "importedRoundwoodPrice",
+   "status": 200,
+   "body": "{\"response\":{\"header\":{\"resultCode\":\"00\",\"resultMsg\":\"NORMAL SERVICE.\"},\"body\":{\"item\":{\"resultvalue\":0}}}}"
+  },
+  {
+   "op": "importRoundwoodPrice",
+   "status": 400,
+   "body": "{\n  \"OpenAPI_ServiceResponse\": {\n    \"cmmMsgHeader\": {\n      \"errMsg\": \"NO_OPENAPI_SERVICE_ERROR\",\n      \"returnAuthMsg\": \"해당 오픈API 서비스가 없거나 폐기됨\",\n      \"returnReasonCode\": \"12\"\n    }\n  }\n}\n"
+  },
+  {
+   "op": "importRoundwoodPriceList",
+   "status": 400,
+   "body": "{\n  \"OpenAPI_ServiceResponse\": {\n    \"cmmMsgHeader\": {\n      \"errMsg\": \"NO_OPENAPI_SERVICE_ERROR\",\n      \"returnAuthMsg\": \"해당 오픈API 서비스가 없거나 폐기됨\",\n      \"returnReasonCode\": \"12\"\n    }\n  }\n}\n"
+  },
+  {
+   "op": "importedLogPrice",
+   "status": 400,
+   "body": "{\n  \"OpenAPI_ServiceResponse\": {\n    \"cmmMsgHeader\": {\n      \"errMsg\": \"NO_OPENAPI_SERVICE_ERROR\",\n      \"returnAuthMsg\": \"해당 오픈API 서비스가 없거나 폐기됨\",\n      \"returnReasonCode\": \"12\"\n    }\n  }\n}\n"
+  },
+  {
+   "op": "foreignRoundwoodPrice",
+   "status": 400,
+   "body": "{\n  \"OpenAPI_ServiceResponse\": {\n    \"cmmMsgHeader\": {\n      \"errMsg\": \"NO_OPENAPI_SERVICE_ERROR\",\n      \"returnAuthMsg\": \"해당 오픈API 서비스가 없거나 폐기됨\",\n      \"returnReasonCode\": \"12\"\n    }\n  }\n}\n"
+  },
+  {
+   "op": "overseasRoundwoodPrice",
+   "status": 400,
+   "body": "{\n  \"OpenAPI_ServiceResponse\": {\n    \"cmmMsgHeader\": {\n      \"errMsg\": \"NO_OPENAPI_SERVICE_ERROR\",\n      \"returnAuthMsg\": \"해당 오픈API 서비스가 없거나 폐기됨\",\n      \"returnReasonCode\": \"12\"\n    }\n  }\n}\n"
+  },
+  {
+   "op": "importedRoundWoodPrice",
+   "status": 400,
+   "body": "{\n  \"OpenAPI_ServiceResponse\": {\n    \"cmmMsgHeader\": {\n      \"errMsg\": \"NO_OPENAPI_SERVICE_ERROR\",\n      \"returnAuthMsg\": \"해당 오픈API 서비스가 없거나 폐기됨\",\n      \"returnReasonCode\": \"12\"\n    }\n  }\n}\n"
+  },
+  {
+   "op": "incomeRoundwoodPrice",
+   "status": 400,
+   "body": "{\n  \"OpenAPI_ServiceResponse\": {\n    \"cmmMsgHeader\": {\n      \"errMsg\": \"NO_OPENAPI_SERVICE_ERROR\",\n      \"returnAuthMsg\": \"해당 오픈API 서비스가 없거나 폐기됨\",\n      \"returnReasonCode\": \"12\"\n    }\n  }\n}\n"
+  }
+ ]
+}
