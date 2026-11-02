@@ -608,3 +608,12 @@ svg.vc .vc-t.b { font-weight: 700; font-size: 13px; }
 svg.vc .vc-s { fill: var(--muted); font-size: 11px; }
 svg.vc .vc-l:hover { stroke-opacity: .7; }
 .vc-chips { margin: 2px 0 8px; }
+
+.pm-box { display: block; }
+.pm-wrap { overflow-x: auto; }
+table.pm-t { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+table.pm-t th, table.pm-t td { padding: 3px 6px; text-align: right; white-space: nowrap; border-bottom: 1px solid var(--border); }
+table.pm-t th.l, table.pm-t td.l { text-align: left; }
+table.pm-t td.l i { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 4px; }
+table.pm-t td em { display: block; font-size: 10.5px; margin: 0; }
+.pm-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }

@@ -208,8 +208,43 @@
     hit.addEventListener("touchmove", move, { passive: true });
     hit.addEventListener("mouseleave", leave);
     hit.addEventListener("touchend", leave);
+    // 같은 달 고정 (opts.pinMonth, x = "YYYY-MM"): 한 달을 누르면 해마다 같은 달이 함께 고정되고 연도별 값·전년 대비 표시
+    const monthMode = opts.pinMonth && opts.x.length && /^\d{4}-\d{2}$/.test(opts.x[0]);
+    if (monthMode) {
+      const layer = el("g", {}, svg); svg.appendChild(hit);
+      const box = document.createElement("div"); box.className = "pin-box pm-box"; container.appendChild(box);
+      let mm = null;
+      const draw = () => {
+        layer.innerHTML = "";
+        box.style.display = mm ? "" : "none";
+        if (!mm) { box.innerHTML = ""; return; }
+        const idx = opts.x.map((x, i) => (x.slice(5) === mm ? i : -1)).filter((i) => i >= 0);
+        idx.forEach((i) => {
+          el("line", { x1: X(i), x2: X(i), y1: pad.t, y2: pad.t + ih, stroke: css("--ink"), "stroke-width": 1, "stroke-dasharray": "3 3", opacity: 0.55 }, layer);
+          series.forEach((s) => { const v = s.values[i]; if (v != null) el("circle", { cx: X(i), cy: Y(v), r: 4, fill: s.color, stroke: css("--surface"), "stroke-width": 2 }, layer); });
+          const tx = el("text", { x: X(i), y: pad.t + 11, "text-anchor": "middle", style: `fill:${css("--ink")};font-size:10.5px;font-weight:700` }, layer);
+          tx.textContent = "’" + opts.x[i].slice(2, 4);
+        });
+        const head = `<tr><th class="l">${+mm}월</th>${idx.map((i) => `<th>${opts.x[i].slice(0, 4)}</th>`).join("")}</tr>`;
+        const rows = series.map((s) => `<tr><td class="l"><i style="background:${s.color}"></i>${s.name}</td>` + idx.map((i, k) => {
+          const v = s.values[i], pv = k ? s.values[idx[k - 1]] : null, pc = v != null && pv ? (v / pv - 1) * 100 : null;
+          return `<td><b>${v == null ? "–" : tfmt(v)}</b>${pc == null ? "" : `<em class="${pc < 0 ? "dn" : "up"}">${pc > 0 ? "▲" : "▼"}${Math.abs(pc).toFixed(0)}%</em>`}</td>`; }).join("") + `</tr>`).join("");
+        box.innerHTML = `<div class="pm-wrap"><table class="pm-t">${head}${rows}</table></div><div class="pm-foot"><span class="sub">▲▼ = 전년 같은 달 대비 · 다른 달을 누르면 바뀜</span><button type="button" class="pin-clear">고정 해제</button></div>`;
+        box.querySelector(".pin-clear").onclick = () => { mm = null; draw(); };
+      };
+      svg.addEventListener("click", (ev) => {
+        const rect = svg.getBoundingClientRect();
+        const px = (ev.clientX - rect.left) * (W / rect.width);
+        const i = Math.max(0, Math.min(n - 1, Math.round(((px - pad.l) / iw) * (n - 1))));
+        const m2 = opts.x[i].slice(5); mm = mm === m2 ? null : m2; draw();
+      });
+      svg.style.cursor = "pointer";
+      let lg = container.querySelector(".legend"); if (!lg) { lg = document.createElement("div"); lg.className = "legend"; container.insertBefore(lg, container.firstChild); }
+      lg.insertAdjacentHTML("beforeend", `<span class="pin-note">👆 한 달을 누르면 해마다 같은 달이 함께 고정</span>`);
+      draw();
+    }
     // 누르면 고정 (opts.pin): 한 번 = 그 달 고정, 다른 달 = 두 달 고정하고 증감 표시, 고정된 달 다시 누르면 해제
-    if (opts.pin) {
+    if (opts.pin && !monthMode) {
       const pins = [], layer = el("g", {}, svg);
       svg.appendChild(hit);   // 클릭 영역을 맨 위로
       const box = document.createElement("div"); box.className = "pin-box"; container.appendChild(box);

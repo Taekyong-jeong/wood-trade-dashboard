@@ -959,7 +959,7 @@
 
     const a = seriesOf(e, "imp", S.measure, S.agg, since, [axis, key]), b = seriesOf(e, "exp", S.measure, S.agg, since, [axis, key]);
     C.lineChart($("#d-trend"), { x: a.x, series: [{ name: "수입", values: a.v }, { name: "수출", values: b.v }],
-      yFmt: S.measure === "price" ? pf : yFmt(S.measure), markers: (S.agg === "year" ? [] : revMarkers(a.x)).concat(a.x.includes(S.agg === "year" ? Y : `${Y}-12`) ? [{ x: S.agg === "year" ? Y : `${Y}-12`, label: `기준 ${Y}년` }] : []), xLabelFmt: xFmt, height: 260 });
+      yFmt: S.measure === "price" ? pf : yFmt(S.measure), markers: (S.agg === "year" ? [] : revMarkers(a.x)).concat(a.x.includes(S.agg === "year" ? Y : `${Y}-12`) ? [{ x: S.agg === "year" ? Y : `${Y}-12`, label: `기준 ${Y}년` }] : []), xLabelFmt: xFmt, height: 260, pinMonth: S.agg !== "year" });
     const drawSup = () => {
       const ts = Y ? topSuppliersYear(axis, key, Y, 10, MK) : [], fmtV = MK === "kg" ? ton : usd;
       $("#sup-m").querySelectorAll("button").forEach((b) => b.classList.toggle("on", b.dataset.m === (MK === "kg" ? "imp_kg" : "imp_usd")));
