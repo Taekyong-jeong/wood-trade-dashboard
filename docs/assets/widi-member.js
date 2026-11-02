@@ -1,6 +1,6 @@
 // WIDI 회원 로그인·회원 전용 해설 (Firebase Authentication + Firestore)
 // 설정값은 build.py가 GitHub Secret FIREBASE_CONFIG로 채움. 비어 있으면 '준비 중' 표시.
-const CFG_B64 = "";
+const CFG_B64 = "eyJhcGlLZXkiOiAiQUl6YVN5QnR5Zkd5WjRFVW04YV9aZzR1eVZ0WGtuaEZvbTlTb3dFIiwgImF1dGhEb21haW4iOiAid2lkaS1tZW1iZXIuZmlyZWJhc2VhcHAuY29tIiwgInByb2plY3RJZCI6ICJ3aWRpLW1lbWJlciIsICJzdG9yYWdlQnVja2V0IjogIndpZGktbWVtYmVyLmZpcmViYXNlc3RvcmFnZS5hcHAiLCAibWVzc2FnaW5nU2VuZGVySWQiOiAiOTQ0NDQwMDcwNDA2IiwgImFwcElkIjogIjE6OTQ0NDQwMDcwNDA2OndlYjoxMGZiMmZhYjRlMzRhYTZlOGQ0ZTg3In0=";
 const V = "10.12.2";
 const ADMIN_EMAIL = "jty2533@naver.com";
 
