@@ -946,10 +946,10 @@
       <div class="g-main">
         <div class="card g-flow"><div class="card-head"><h3 class="one-line">목재는 어디서 와서 무엇이 되나</h3><span class="hint">${G.year}년 · 띠 굵기 = 물량(㎥)</span></div>
           <div id="g-sankey"></div>
-          <div class="foot">왼쪽 = 원자재 출처, 오른쪽 = 만들어지거나 쓰이는 제품. 띠에 마우스를 올리면 물량 표시 · ${G.note} · 출처: ${G.source}</div></div>
+          <div class="foot">왼쪽 = 원자재 출처, 오른쪽 = 만들어지거나 쓰이는 제품(누르면 가치사슬로 이동). 띠에 마우스를 올리면 물량 표시 · ${G.note} · 출처: ${G.source}</div></div>
         <div class="card g-cty"><div class="card-head"><h3 class="one-line">어디서 사오나</h3><span class="hint">수입액 · 최근 12개월</span></div>
           <div class="g-chips" id="g-chips">${GCTY.map((g, i) => `<button type="button" data-i="${i}"${i === (S.gc || 0) ? ' aria-pressed="true"' : ""}>${g[2]}</button>`).join("")}</div>
-          <div id="g-cty-lead"></div><div id="g-cty"></div><div class="foot">${per} · 출처: 관세청 수출입실적 · 품목 버튼이나 흐름도 오른쪽 제품 이름을 누르면 바뀜 · 국가를 누르면 상세</div></div>
+          <div id="g-cty-lead"></div><div id="g-cty"></div><div class="foot">${per} · 출처: 관세청 수출입실적 · 품목 버튼을 누르면 바뀜 · 국가를 누르면 상세</div></div>
       </div>
       <div class="g-sigs-h"><b>지금 주의할 점</b><span>누르면 자세히 보기의 해당 부분으로 이동</span></div>
       <div class="g-sigs">${sigs}</div>
@@ -966,9 +966,15 @@
     });
     drawGCty();
     $("#g-chips").querySelectorAll("button").forEach((b) => b.onclick = () => { S.gc = +b.dataset.i; drawGCty(); });
-    // 흐름도 오른쪽 제품 → 해당 품목 수입국으로 전환
-    const G2C = { sawn: 2, panel: 3, pellet: 6, chip: 7 };
-    $("#g-sankey").querySelectorAll("[data-tkey]").forEach((n) => { if (G2C[n.dataset.tkey] != null) { n.style.cursor = "pointer"; n.onclick = () => { S.gc = G2C[n.dataset.tkey]; drawGCty(); }; } });
+    // 흐름도 오른쪽 제품 → 자세히 보기 · 국내 유통 라인 · 가치사슬의 해당 제품으로 이동 (펄프는 가치사슬이 없어 제품별 원자재 출처로)
+    const G2C = { sawn: 2, panel: 3, pellet: 6, chip: 7 }, G2V = { sawn: "p01", panel: "p06", pellet: "p11", chip: "p12", other: "p15" };
+    $("#g-sankey").querySelectorAll("[data-tkey]").forEach((n) => {
+      const k = n.dataset.tkey; n.style.cursor = "pointer";
+      n.insertAdjacentHTML("beforeend", `<title>${G2V[k] ? "누르면 가치사슬로 이동" : "누르면 제품별 원자재 출처로 이동"}</title>`);
+      n.onclick = () => { if (G2C[k] != null) { S.gc = G2C[k]; drawGCty(); }
+        if (G2V[k]) { S.vcp = G2V[k]; S.vcy = String(G.year); goSec("vc-chips");
+          setTimeout(() => { const bt = document.querySelector(`#vc-chips button[data-k="${G2V[k]}"]`); if (bt && bt.getAttribute("aria-pressed") !== "true") bt.click(); }, 60); } else goSec("ds-src"); };
+    });
   }
   // 어디서 사오나: 품목별 (축, 키, 이름)
   const GCTY = [["total", "all", "목재류 전체"], ["heading", "4403", "원목"], ["product", "p01", "제재목"], ["product", "p06", "합판"],
