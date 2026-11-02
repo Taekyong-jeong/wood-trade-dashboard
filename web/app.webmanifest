@@ -10,7 +10,52 @@
   "background_color": "#141917",
   "theme_color": "#141917",
   "icons": [
-    {"src": "assets/widi-icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
-    {"src": "assets/widi-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"}
+    {
+      "src": "assets/widi-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/widi-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "지표 대시보드",
+      "short_name": "대시보드",
+      "url": "./index.html",
+      "icons": [
+        {
+          "src": "assets/widi-icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "WIDI 소개",
+      "short_name": "소개",
+      "url": "./about.html",
+      "icons": [
+        {
+          "src": "assets/widi-icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "변동 해설 No.0",
+      "short_name": "변동 해설",
+      "url": "./insight/no0.html",
+      "icons": [
+        {
+          "src": "assets/widi-icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
   ]
 }

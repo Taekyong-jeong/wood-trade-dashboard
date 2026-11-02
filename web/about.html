@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WIDI 목재산업데이터연구회 소개</title>
+<meta name="description" content="목재산업데이터연구회(WIDI)는 국내외 목재산업의 무역·시장·탄소 데이터를 모아 분석하고 출처·분석 도구·방법론과 함께 공개하는 비영리 연구 모임입니다.">
+<meta property="og:title" content="WIDI 목재산업데이터연구회">
+<meta property="og:description" content="목재산업을 데이터로 읽습니다 — 지표 대시보드·변동 해설·월간 웹진">
+<link rel="icon" href="assets/widi-logo.svg">
+<link rel="manifest" href="app.webmanifest"><meta name="theme-color" content="#141917">
+<link rel="apple-touch-icon" href="assets/widi-icon-180.png"><meta name="apple-mobile-web-app-title" content="WIDI">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap">
+<script>(function(){var t="dark";try{t=localStorage.getItem("widi-theme")||"dark";}catch(e){}document.documentElement.setAttribute("data-theme",t==="light"?"light":"dark");})();</script>
+<style>
+@font-face{font-family:'S-Core Dream';src:url(fonts/S-CoreDream-4Regular.woff) format('woff');font-weight:400;font-display:swap}
+@font-face{font-family:'S-Core Dream';src:url(fonts/S-CoreDream-5Medium.woff) format('woff');font-weight:500;font-display:swap}
+@font-face{font-family:'S-Core Dream';src:url(fonts/S-CoreDream-6Bold.woff) format('woff');font-weight:700 900;font-display:swap}
+:root{--bg:#F6F4EF;--surface:#fff;--surface-2:#EFEBE2;--ink:#1A211E;--muted:#59605B;--line:#DCD8CE;--amber:#A8661A;--amber-soft:#F4E6CF;--green:#2E6B4F;color-scheme:light}
+:root[data-theme="dark"]{--bg:#141917;--surface:#1C2320;--surface-2:#222A27;--ink:#ECE8DF;--muted:#A7ADA8;--line:#323B37;--amber:#E3A456;--amber-soft:#3A2D1C;--green:#7FC4A0;color-scheme:dark}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'S-Core Dream','Noto Sans KR',system-ui,sans-serif;font-size:15.5px;line-height:1.75;word-break:keep-all}
+a{color:var(--amber)}
+.wrap{max-width:1040px;margin:0 auto;padding:0 20px 56px}
+header.top{position:sticky;top:0;z-index:10;background:var(--bg);border-bottom:1px solid var(--line)}
+.top-inner{max-width:1040px;margin:0 auto;padding:10px 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);margin-right:auto}
+.brand img{width:34px;height:34px}
+.brand b{font-size:18px;letter-spacing:.02em}.brand span{font-size:13px;color:var(--muted)}
+.theme-btn{font:inherit;font-size:12.5px;padding:4px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--muted);cursor:pointer;white-space:nowrap;text-decoration:none}
+.theme-btn:hover{color:var(--ink)}
+nav.sec{display:flex;gap:4px 14px;flex-wrap:wrap;font-size:13px;max-width:1040px;margin:0 auto;padding:0 20px 8px}
+nav.sec a{color:var(--muted);text-decoration:none}nav.sec a:hover{color:var(--ink)}
+section{padding:40px 0 8px;scroll-margin-top:90px}
+.eyebrow{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:12px;letter-spacing:.14em;color:var(--amber);font-weight:600}
+h1{font-size:clamp(30px,6vw,46px);line-height:1.25;margin:10px 0 14px;font-weight:900}
+h2{font-size:clamp(22px,4.2vw,28px);line-height:1.35;margin:6px 0 14px;font-weight:800}
+h3{font-size:17px;margin:0 0 4px}
+p{margin:0 0 10px}
+.lead{font-size:17px;color:var(--ink);max-width:720px}
+.muted{color:var(--muted)}
+.cta{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+.btn{display:inline-flex;align-items:center;gap:6px;font-size:14.5px;font-weight:700;padding:10px 16px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);text-decoration:none}
+.btn.pri{background:var(--amber);border-color:var(--amber);color:#141917}
+.grid{display:grid;gap:12px}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))}.g3{grid-template-columns:repeat(3,minmax(0,1fr))}.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:900px){.g4{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:560px){.g4,.g2{grid-template-columns:minmax(0,1fr)}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px}
+.num{font-family:'IBM Plex Mono',ui-monospace,monospace;color:var(--amber);font-weight:600;font-size:13px}
+.pub .tag{display:inline-block;font-size:12px;font-weight:700;padding:2px 9px;border-radius:999px;background:var(--amber-soft);color:var(--amber);margin-bottom:8px}
+.pub .tag.live{background:color-mix(in srgb,var(--green) 18%,transparent);color:var(--green)}
+.pub dl{display:grid;grid-template-columns:72px minmax(0,1fr);gap:4px 10px;font-size:13px;margin:12px 0 0;padding-top:10px;border-top:1px dashed var(--line)}
+.pub dt{color:var(--muted)}.pub dd{margin:0}
+.pub .go{margin-top:12px}
+ul.plain{list-style:none;margin:0;padding:0}
+ul.plain li{padding:8px 0;border-bottom:1px solid var(--line)}
+ul.plain li:last-child{border-bottom:0}
+ul.plain b{display:block;font-size:14.5px}ul.plain span{font-size:13px;color:var(--muted)}
+.person{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:12px}
+@media(max-width:760px){.person{grid-template-columns:minmax(0,1fr)}}
+footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-inner">
+    <a class="brand" href="about.html"><img src="assets/widi-logo.svg" alt="" aria-hidden="true"><b>WIDI</b><span>목재산업데이터연구회</span></a>
+    <button type="button" class="theme-btn" id="theme-btn" aria-label="화면 밝기 바꾸기"></button>
+    <a class="theme-btn" href="index.html">지표 대시보드 →</a>
+  </div>
+  <nav class="sec" aria-label="소개 페이지 목차"><a href="#about">소개</a><a href="#areas">연구 분야</a><a href="#pubs">발행물</a><a href="#data">데이터·방법</a><a href="#principles">운영 원칙</a><a href="#contact">문의</a></nav>
+</header>
+
+<div class="wrap">
+<section id="hero">
+  <div class="eyebrow">WOOD INDUSTRY DATA INITIATIVE</div>
+  <h1>목재산업을<br>데이터로 읽습니다</h1>
+  <p class="lead">국내외 목재산업의 무역, 시장, 탄소 데이터를 모아 분석하고, 출처·분석 도구·방법론과 함께 누구나 확인할 수 있도록 공개합니다.</p>
+  <div class="cta">
+    <a class="btn pri" href="index.html">지표 대시보드 열기</a>
+    <a class="btn" href="#pubs">발행물 보기</a>
+    <a class="btn" href="#data">데이터·방법 보기</a>
+  </div>
+</section>
+
+<section id="about">
+  <div class="eyebrow">ABOUT</div>
+  <h2>흩어진 데이터를 한곳에서 읽히게</h2>
+  <div class="grid g2">
+    <p>목재산업의 데이터는 관세청, 산림청, 통계청, 국제기구 등 여러 곳에 나뉘어 있고, 형식도 제각각입니다. 연구자와 정책 담당자가 필요한 숫자를 찾는 데만 많은 시간을 씁니다.</p>
+    <p>WIDI는 이 데이터를 정리·분석해 리포트와 대시보드로 공개합니다. 모든 결과물에는 데이터 출처, 분석 도구, 참고한 방법론을 함께 밝혀 누구나 같은 결과를 다시 확인할 수 있게 합니다.</p>
+  </div>
+</section>
+
+<section id="areas">
+  <div class="eyebrow">RESEARCH AREAS</div>
+  <h2>연구 분야</h2>
+  <div class="grid g4">
+    <div class="card"><div class="num">01</div><h3>목재 무역통계</h3><p class="muted">원목·제재목·보드류 등 목재 품목의 수출입 흐름과 수입의존도를 품목·국가별로 분석합니다.</p></div>
+    <div class="card"><div class="num">02</div><h3>목재 시장·가격 동향</h3><p class="muted">국내외 목재 가격, 생산·소비 추이를 정리해 시장의 방향을 읽습니다.</p></div>
+    <div class="card"><div class="num">03</div><h3>탄소·경제성 분석</h3><p class="muted">목재 이용에 따른 탄소저장량과 경제적 효과를 국제 지침에 따라 산정합니다.</p></div>
+    <div class="card"><div class="num">04</div><h3>목재 정책·제도 동향</h3><p class="muted">국내외 목재 이용 정책과 제도 변화를 요약하고 산업에 미칠 영향을 살핍니다.</p></div>
+  </div>
+</section>
+
+<section id="pubs">
+  <div class="eyebrow">PUBLICATIONS</div>
+  <h2>발행물</h2>
+  <p class="muted">모든 발행물은 데이터 출처·분석 도구·방법론을 함께 표기합니다.</p>
+  <div class="grid g3">
+    <div class="card pub"><span class="tag live">운영 중 · 매월 갱신</span><h3>WIDI Indicators<br>대한민국 목재 자원·산업·유통 진단</h3>
+      <p class="muted">목재제품별 수입 위험, 국내 공급 여력, 가치사슬, 가격 이상을 연도·품목별로 살펴보는 상시 지표 대시보드</p>
+      <dl><dt>출처</dt><dd>관세청 품목별 국가별 수출입실적, 산림청 목재이용실태조사·목재수급통계, 한국임업진흥원 원목시장가격조사</dd><dt>분석 도구</dt><dd>Python(pandas), 웹 시각화, 월별 자동 수집·갱신</dd><dt>방법·기준</dt><dd>HS 제44류 월별, 산업부 공급망 기준(2023)·HHI, OECD 수입침투율</dd></dl>
+      <div class="go"><a class="btn pri" href="index.html">대시보드 열기</a></div></div>
+    <div class="card pub"><span class="tag live">회원 전용 · No.0 공개</span><h3>WIDI 변동 해설</h3>
+      <p class="muted">대시보드에서 크게 움직인 수치의 원인을 통계로 검정해 풀어 쓰는 해설. 무료 요약을 먼저 보여 주고, 원인 분석 본문은 회원에게 공개</p>
+      <dl><dt>출처</dt><dd>관세청 수출입실적 + 국내외 가격·물가·건설 지표</dd><dt>분석 도구</dt><dd>Python(pandas, statsmodels)</dd><dt>방법·기준</dt><dd>시차 회귀(Newey-West), 그레인저 검정, LMDI 분해</dd></dl>
+      <div class="go"><a class="btn" href="insight/no0.html">No.0 「2021 우드쇼크」 보기</a></div></div>
+    <div class="card pub"><span class="tag">준비 중</span><h3>WIDI Insight<br>목재산업 정보 월간 웹진</h3>
+      <p class="muted">매달 주제 하나와 이달의 지표, 정책·해외 시장 동향을 정리하는 월간 웹진</p>
+      <dl><dt>출처</dt><dd>WIDI Indicators 데이터, 기관 발표자료·통계, 기사 원문 링크</dd><dt>분석 도구</dt><dd>Python, 검증 체크리스트</dd><dt>방법·기준</dt><dd>원문 재게재 없이 요약 + 출처 링크</dd></dl></div>
+  </div>
+</section>
+
+<section id="data">
+  <div class="eyebrow">DATA &amp; METHODS</div>
+  <h2>데이터 출처 · 분석 도구 · 레퍼런스</h2>
+  <p class="muted">WIDI가 사용하는 주요 데이터와 도구, 따르는 기준입니다. 개별 발행물에는 사용한 항목을 따로 표기합니다.</p>
+  <div class="grid g3">
+    <div class="card"><h3>데이터 출처</h3><ul class="plain">
+      <li><b>관세청 수출입무역통계</b><span>품목·국가별 수출입 금액·물량</span></li>
+      <li><b>산림청 임업통계</b><span>목재 수급, 국산재 생산, 임업통계연보</span></li>
+      <li><b>산림청 목재이용실태조사</b><span>목재제품 생산업체의 원목 구매·이용, 제품별 생산 현황</span></li>
+      <li><b>산림청 목재문화지수</b><span>국민의 목재 이용 경험·인식·문화 수용 수준(매년)</span></li>
+      <li><b>통계청 KOSIS</b><span>산업·물가 등 국가승인통계</span></li>
+      <li><b>FAO FAOSTAT (Forestry)</b><span>국가별 목재 생산·교역 통계</span></li>
+      <li><b>UN Comtrade</b><span>국제 교역 상대국 비교</span></li>
+      <li><b>ITTO</b><span>열대목재 시장 보고서</span></li></ul></div>
+    <div class="card"><h3>분석 도구</h3><ul class="plain">
+      <li><b>Python</b><span>pandas(정리·집계), statsmodels(통계 검정), 시각화</span></li>
+      <li><b>R</b><span>통계 분석, 시계열 추세 분석</span></li>
+      <li><b>Excel</b><span>원자료 보관, 검산용 시트</span></li>
+      <li><b>AI 보조 (Claude)</b><span>자료 수집·초안 작성 보조. 모든 수치는 원 출처와 대조해 검증</span></li></ul></div>
+    <div class="card"><h3>분석 기준·레퍼런스</h3><ul class="plain">
+      <li><b>HS 품목분류 (관세법령정보포털)</b><span>제44류 목재 및 그 제품 기준으로 품목 정의</span></li>
+      <li><b>IPCC 국가 온실가스 인벤토리 지침</b><span>수확목재제품(HWP) 탄소저장량 산정 방법</span></li>
+      <li><b>수입의존도 산식</b><span>수입량 ÷ (국내생산 + 수입 − 수출)</span></li>
+      <li><b>검증 절차</b><span>출처 확인 → 수치 검산 → 재현성 점검 → 인용 확인</span></li></ul></div>
+  </div>
+</section>
+
+<section id="principles">
+  <div class="eyebrow">PRINCIPLES</div>
+  <h2>운영 원칙</h2>
+  <div class="grid g4">
+    <div class="card"><h3>공개 데이터 기반</h3><p class="muted">누구나 접근할 수 있는 공식 통계와 공개 자료만 사용합니다.</p></div>
+    <div class="card"><h3>출처·도구 명시</h3><p class="muted">모든 수치에 원 출처와 분석 도구, 참고 방법론을 함께 밝힙니다.</p></div>
+    <div class="card"><h3>재현 가능</h3><p class="muted">같은 데이터와 방법으로 누구나 결과를 다시 확인할 수 있게 합니다.</p></div>
+    <div class="card"><h3>독립성</h3><p class="muted">특정 기관이나 기업의 입장을 대변하지 않습니다.</p></div>
+  </div>
+</section>
+
+<section id="contact">
+  <div class="eyebrow">CONTACT</div>
+  <h2>연구회장 및 문의</h2>
+  <div class="person">
+    <div class="card"><div class="muted" style="font-size:13px">연구회장</div><h3 style="font-size:19px;margin-bottom:8px">정택용 <span class="muted" style="font-size:14px;font-weight:500">Taekyong Jeong, Ph.D.</span></h3>
+      <p>목재 분야 박사. 산불피해 소나무를 활용한 하이브리드 구조용 집성재로 학위를 받았고, CLT·집성재 등 목질 구조재의 성능 평가와 목재산업 정책을 연구하고 있습니다. 대학에서 국제임산정책학을 강의하며, 현장 연구에서 느낀 "필요한 데이터를 찾기 어렵다"는 문제를 풀기 위해 목재산업데이터연구회를 만들었습니다.</p></div>
+    <div class="card"><div class="muted" style="font-size:13px">이메일</div><h3 style="font-size:19px"><a href="mailto:jty2533@naver.com">jty2533@naver.com</a></h3>
+      <p class="muted">새 리포트 발행 소식을 받고 싶으시면 메일로 알려주세요.</p>
+      <div class="cta" style="margin-top:8px"><a class="btn" href="index.html">지표 대시보드</a><a class="btn" href="insight/no0.html">변동 해설</a></div></div>
+  </div>
+</section>
+
+<footer>
+  <p>목재산업데이터연구회(WIDI)는 목재산업 데이터를 연구하고 공개하는 비영리 연구 모임입니다. 지표 대시보드와 기본 분석은 무료로 공개하며, 심층 원인 해설은 회원에게 제공합니다.</p>
+  <p>© 2026 WIDI · <a href="privacy.html">개인정보 처리방침</a></p>
+</footer>
+</div>
+
+<script>
+(function(){var b=document.getElementById("theme-btn"),r=document.documentElement;
+function s(){var d=r.getAttribute("data-theme")!=="light";b.textContent=d?"☀ 밝게":"☾ 어둡게";}
+b.addEventListener("click",function(){var n=r.getAttribute("data-theme")==="light"?"dark":"light";r.setAttribute("data-theme",n);try{localStorage.setItem("widi-theme",n);}catch(e){}s();});s();})();
+</script>
+<script src="assets/pwa.js?v={{BUILD}}"></script>
+</body>
+</html>

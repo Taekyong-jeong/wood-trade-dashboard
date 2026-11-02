@@ -34,3 +34,10 @@
   .vc-scroll { position: relative; }
   .m-swipe { font-size: 11.5px; color: var(--muted, #888); margin: 2px 0 4px; }
 }
+
+/* 머리말 버튼(WIDI 소개·앱 설치·밝게)을 한 줄에 나란히 */
+@media (max-width: 720px) {
+  header.top .top-inner { flex-direction: row !important; flex-wrap: wrap; align-items: center; justify-content: flex-start !important; gap: 8px !important; }
+  header.top .top-inner > .brand, header.top .top-inner > .meta-chips { flex: 1 1 100%; }
+  header.top .top-inner > .theme-btn, header.top .top-inner > #install-btn { flex: none; align-self: center !important; }
+}
