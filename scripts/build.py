@@ -14,6 +14,7 @@ import datetime as dt
 import base64
 import json
 import os
+import re
 import shutil
 from pathlib import Path
 
@@ -40,7 +41,14 @@ def main() -> int:
 
     # WIDI 회원 로그인·변동 해설 페이지
     cfg = os.environ.get("FIREBASE_CONFIG", "").strip()
-    b64 = base64.b64encode(cfg.encode("utf-8")).decode("ascii") if cfg else ""
+    if cfg:  # JSON이 아니면 콘솔의 'const firebaseConfig = {...}' 코드에서 키·값만 뽑음
+        try:
+            json.loads(cfg)
+        except ValueError:
+            keys = ("apiKey", "authDomain", "projectId", "storageBucket", "messagingSenderId", "appId", "measurementId")
+            pairs = dict(re.findall(r'(\w+)\s*:\s*["\']([^"\']*)["\']', cfg))
+            cfg = json.dumps({k: pairs[k] for k in keys if k in pairs})
+    b64 = base64.b64encode(cfg.encode("utf-8")).decode("ascii") if cfg and cfg != "{}" else ""
     wm = DOCS / "assets" / "widi-member.js"
     if wm.exists():
         wm.write_text(wm.read_text(encoding="utf-8").replace("{{FIREBASE_CONFIG_B64}}", b64), encoding="utf-8")
