@@ -10,7 +10,12 @@
   const btn = (it) => `<a class="ins-btn" href="${it.url}" title="${it.title} (회원 전용)" data-ins="${it.id}">${lock}${it.short}</a>`;
   function apply() {
     LIST.forEach((it) => {
-      it.keys.forEach((k) => {
+      // 가격 이상 판정 표는 선택한 기준월이 해설 기간(period, 예 "2021~2022") 안일 때만 버튼 표시
+      const ph = document.querySelector("#pa-hint"), sy = ph ? +((ph.textContent.match(/(\d{4})/) || [])[1]) : NaN;
+      const pr = String(it.period || "").match(/(\d{4})(?:\s*~\s*(\d{4}))?/), y0 = pr ? +pr[1] : NaN, y1 = pr ? +(pr[2] || pr[1]) : NaN;
+      const inP = !isNaN(sy) && !isNaN(y0) && sy >= y0 && sy <= y1;
+      if (!inP) document.querySelectorAll(`#a-price td.l [data-ins="${it.id}"]`).forEach((a) => a.remove());
+      else it.keys.forEach((k) => {
         // 1) 가격 이상 판정 표의 해당 품목 행
         document.querySelectorAll(`#a-price tr[data-key="${k}"] td.l`).forEach((td) => {
           if (td.querySelector(`[data-ins="${it.id}"]`)) return;
