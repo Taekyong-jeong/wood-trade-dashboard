@@ -1,6 +1,8 @@
 <!doctype html>
 <html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>WIDI 회원 관리</title><meta name="robots" content="noindex"><link rel="icon" href="assets/widi-logo.svg">
+<link rel="manifest" href="admin.webmanifest"><meta name="theme-color" content="#141917">
+<link rel="apple-touch-icon" href="assets/widi-icon-180.png"><meta name="apple-mobile-web-app-title" content="WIDI 관리"><meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap">
 <style>
 @font-face{font-family:'S-Core Dream';src:url(fonts/S-CoreDream-4Regular.woff) format('woff');font-weight:400}
@@ -21,9 +23,23 @@ input[type=text],input[type=email],input[type=password]{font:inherit;font-size:1
 .who{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:13px;color:var(--muted)}.who button{font:inherit;font-size:12.5px;background:none;border:1px solid var(--line);border-radius:6px;padding:3px 9px;color:var(--muted);cursor:pointer}
 .divider{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12px}.divider::before,.divider::after{content:"";flex:1;height:1px;background:var(--line)}
 #admin{display:flex;flex-direction:column;gap:12px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+#install{display:none}.ihint{display:none;background:var(--amber-soft);border-radius:8px;padding:10px 12px;font-size:13.5px}
 </style></head><body><div class="wrap">
-<h1>WIDI 회원 관리</h1>
+<div class="top"><h1>WIDI 회원 관리</h1><button id="install" class="btn pri">⬇ 앱으로 설치</button></div>
+<p id="ihint" class="ihint">아이폰: Safari 아래 <b>공유(□↑)</b> → <b>홈 화면에 추가</b>를 누르면 앱처럼 설치됨.</p>
 <div id="admin"><p class="muted">불러오는 중…</p></div>
 </div>
-<script type="module">import { adminBoot } from "./assets/widi-member.js?v=202611021315"; adminBoot();</script>
+<script>
+(function(){
+  var standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone;
+  if ("serviceWorker" in navigator) navigator.serviceWorker.register("admin-sw.js", {scope: "./admin.html"}).catch(function(){});
+  var btn = document.getElementById("install"), dp = null;
+  addEventListener("beforeinstallprompt", function(e){ e.preventDefault(); dp = e; if (!standalone) btn.style.display = "inline-block"; });
+  btn.addEventListener("click", function(){ if (!dp) return; dp.prompt(); dp.userChoice.finally(function(){ dp = null; btn.style.display = "none"; }); });
+  addEventListener("appinstalled", function(){ btn.style.display = "none"; });
+  if (!standalone && /iphone|ipad|ipod/i.test(navigator.userAgent)) document.getElementById("ihint").style.display = "block";
+})();
+</script>
+<script type="module">import { adminBoot } from "./assets/widi-member.js?v=202611021317"; adminBoot();</script>
 </body></html>

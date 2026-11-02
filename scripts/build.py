@@ -58,6 +58,9 @@ def main() -> int:
         wm.write_text(wm.read_text(encoding="utf-8").replace("{{FIREBASE_CONFIG_B64}}", b64), encoding="utf-8")
     pages = [(p, DOCS / "insight" / p.name) for p in (WEB / "insight").glob("*.html")] if (WEB / "insight").exists() else []
     pages += [(WEB / n, DOCS / n) for n in ("admin.html", "privacy.html") if (WEB / n).exists()]
+    for n in ("admin.webmanifest", "admin-sw.js"):  # 관리자 화면 앱 설치(PWA)
+        if (WEB / n).exists():
+            shutil.copy2(WEB / n, DOCS / n)
     for src, dst in pages:
         dst.parent.mkdir(exist_ok=True)
         t = src.read_text(encoding="utf-8").replace("{{BUILD}}", build).replace("{{PRIVACY_DATE}}", "2026년 11월 2일")
