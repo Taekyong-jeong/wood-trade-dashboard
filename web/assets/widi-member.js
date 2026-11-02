@@ -90,7 +90,7 @@ export async function boot({ insightId }) {
 
 function renderLogin(gate, { auth, A }) {
   gate.innerHTML = `<h2>회원 전용 해설입니다</h2>
-    <p>원인 분석 본문은 WIDI 회원(연회비 1만원)만 볼 수 있음. 로그인 후 이 페이지에서 바로 신청할 수 있음.</p>
+    <p>원인 분석 본문은 WIDI 회원만 볼 수 있음. 로그인하면 회원 신청 방법이 나옴.</p>
     <div class="btns"><button class="btn pri" id="g-in" type="button">구글 계정으로 로그인</button></div>
     <div class="divider">또는 이메일</div>
     <div class="row2"><label>이메일<input type="email" id="e-mail" autocomplete="email"></label>
