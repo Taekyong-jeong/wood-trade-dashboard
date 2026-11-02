@@ -143,8 +143,8 @@
   // ── 공통 렌더 ───────────────────────────────────────────
   // 자료 구분: 원자료(공표 통계 수치 그대로·합계) / 분석(본 페이지가 계산한 비율·지수·환산·판정)
   const KIND_ANA = /^(종사자 1인당 매출|제품별 자급률|국내 공급 여력|품목별 수입 위험|수입 집중|품목별 판정|품목별 국내 공급 구조|원목 수입의존도|자급-수입 구조|목재제품별 수입의존도|가격 이상 판정|공급국 가격대 지도|수입 단가 지수|단가 지수|국산·수입 가격 수준|수입액 변화 분해|공급국별 수입 단가|공급국 집중도|공급국 쏠림 정도|목재제품별 수입과 점유율|품목군 구성|산림청 공표치 대조)/;
-  const KIND_MIX = /^(한 해 쓰는 목재|가치사슬|국내 설비 가동률 추이|국내 생산능력과 생산량)/;
-  const KIND_RAW = /^(목재산업 종사자|제품별 생산업체 수|품목별 수입량|국산 원목 시장가격|수입 원목 가격|목재류 수입·수출 추이|품목별 수입액|제품별 원자재 출처|제품별 매출 구조|최대 수입국|최대 수입 품목|수입·수출 추이|주요 공급국|대분류별 원목|세부 수종|.+산 목재류 수입|목재산업 매출|목재제품별 매출|목재는 어디서 와서 무엇이 되나|어디서 사오나)/;
+  const KIND_MIX = /^(목재 제조업 주요지표|한 해 쓰는 목재|가치사슬|국내 설비 가동률 추이|국내 생산능력과 생산량)/;
+  const KIND_RAW = /^(생산·출하·재고 지수|생산능력·가동률 지수|업종별 출하액|지역별 목재 제조업|품목별 생산액|목재산업 종사자|제품별 생산업체 수|품목별 수입량|국산 원목 시장가격|수입 원목 가격|목재류 수입·수출 추이|품목별 수입액|제품별 원자재 출처|제품별 매출 구조|최대 수입국|최대 수입 품목|수입·수출 추이|주요 공급국|대분류별 원목|세부 수종|.+산 목재류 수입|목재산업 매출|목재제품별 매출|목재는 어디서 와서 무엇이 되나|어디서 사오나)/;
   function kindOf(title, hint) {
     const t = title.replace(/<[^>]+>/g, "").trim();
     if (/^수입·수출 추이/.test(t) && /단가/.test(hint || "")) return "ana";
@@ -1017,7 +1017,7 @@
         rule(`1인당 매출 = 제품별 매출 ÷ 종사자 수 (본 페이지 계산) · 국내 생산업체와 수입·유통업체 합계 기준 · 종사자 미공표 제품 제외 · 출처: ${I.source}`), "", `<span id="ind-pp-lead"></span>`) +
       card("제품별 생산업체 수", `${(I.firms[0] || { years: [""] }).years[0]}~${I.year} · 개소`, `<div class="dp-chips" id="ind-fchips"></div><div id="ind-firms"></div>` +
         rule(`생산업체 수 = 실태조사 응답 대상 국내 생산업체 수(공표값) · 이름을 눌러 켜고 끔(제재목은 수백 개소라 기본 해제) · 출처: 산림청·한국임업진흥원 목재이용실태조사`), "span-2", `<span id="ind-firms-lead"></span>`) +
-      `</section>`;
+      `</section>` + indKosisHtml();
     // 매출·종사자 추이
     const yx = I.years.map(String);
     C.barChart($("#ind-sales"), { x: yx, stacked: true, height: 230, series: [{ name: "국내 생산업체", values: I.domestic, color: VC_COL.dom }, { name: "수입·유통업체", values: I.imports, color: VC_COL.imp2 }],
@@ -1055,6 +1055,81 @@
       $("#ind-firms-lead").innerHTML = ch.map((x) => `${x.f.label} ${nf(x.a, 0)}→${nf(x.b, 0)}`).join(" · ") + ` <span class="sub">${xs[0]}→${xs[xs.length - 1]}년, 개소</span>`;
     };
     drawF();
+    drawIndKosis();
+  }
+
+  // ── 목재산업: 통계청 산업 통계 (목재 및 나무제품 제조업 C16) ─────────
+  const KSUB = { C16: "목재·나무제품 제조업 전체 (C16)", C161: "제재·목재 가공업 (C161)", C162: "나무제품 제조업 (C162)" };
+  function indKosisHtml() {
+    const K = (D.judg || {}).industry_kosis; if (!K || !K.c16) return "";
+    const c = K.c16, n = c.years.length - 1, y = c.years[n], jo = (v) => nf(v / 1e6, 2) + "조";
+    const chg = (a, b) => (a && b ? `${b >= a ? "+" : ""}${nf((b / a - 1) * 100, 1)}%` : "");
+    const kp = (lab, val, vals, sub) => `<div class="gi"><span class="gi-l">${lab}</span><span class="gi-v">${val}</span><span class="gi-sp">${C.sparkline(vals, 90, 26)}</span><span class="gi-s">${sub}</span></div>`;
+    const vr = c.value_added.map((v, i) => (v && c.shipments[i] ? v / c.shipments[i] * 100 : null));
+    const M = K.monthly, P = K.products, R = K.region;
+    return `<div class="sec-title"><h2>목재 및 나무제품 제조업</h2><span class="hint">통계청 광업제조업조사·광업제조업동향조사 · 한국표준산업분류 C16(가구 제외) · 종사자 10인 이상 사업체</span></div>` +
+      `<section class="grid g-2" style="margin-top:0">` +
+      card("목재 제조업 주요지표", `${c.years[0]}~${y} · 연`, `<div class="gi-row" style="margin:4px 0 2px">` +
+        kp("사업체", `${nf(c.firms[n], 0)}개`, c.firms, `${c.years[0]}년 ${nf(c.firms[0], 0)}개 · ${chg(c.firms[0], c.firms[n])}`) +
+        kp("종사자", `${nf(c.employees[n], 0)}명`, c.employees, `${c.years[0]}년 ${nf(c.employees[0], 0)}명 · ${chg(c.employees[0], c.employees[n])}`) +
+        kp("출하액", `${jo(c.shipments[n])} 원`, c.shipments, `전년 ${jo(c.shipments[n - 1])} · ${chg(c.shipments[n - 1], c.shipments[n])}`) +
+        kp("부가가치", `${jo(c.value_added[n])} 원`, c.value_added, `부가가치율 ${nf(vr[n], 1)}% <span class="sub">(분석)</span> · 1인당 ${nf(c.value_added[n] / c.employees[n], 0)}백만 원`) +
+        `</div>` + rule(`공표값: 사업체수·종사자수·출하액·부가가치 (종사자 10인 이상 사업체) · 부가가치율 = 부가가치 ÷ 출하액, 1인당 부가가치 = 부가가치 ÷ 종사자 (본 페이지 계산) · 목재이용실태조사(목재생산업 등록업체, 수입·유통 포함)와 조사 대상이 달라 수치가 다름 · 출처: ${K.source.c16}`), "span-2",
+        `${y}년 출하액 ${jo(c.shipments[n])} 원 · 부가가치 ${jo(c.value_added[n])} 원 <span class="sub">사업체 ${nf(c.firms[n], 0)}개 · 종사자 ${nf(c.employees[n], 0)}명</span>`) +
+      (M ? card("생산·출하·재고 지수", `월 · 2020=100 · 계절조정`, `<div class="seg" id="km-seg" style="margin-bottom:6px">${Object.entries(KSUB).map(([k, l]) => `<button type="button" data-k="${k}">${l}</button>`).join("")}</div><div id="km-pi"></div>` +
+          rule(`생산·출하·재고 지수 = 2020년 평균 = 100, 계절조정 · 그래프의 한 달을 누르면 해마다 같은 달 고정 · 출처: ${K.source.monthly}`), "span-2", `<span id="km-lead"></span>`) +
+        card("생산능력·가동률 지수", `월 · 2020=100`, `<div id="km-cap"></div>` + rule(`생산능력지수 = 정상 조업 시 생산 가능량 지수, 가동률지수(계절조정) = 생산량 ÷ 생산능력 지수화 · 위 업종 선택을 따라감 · 출처: ${K.source.monthly}`), "span-2", `<span id="km-cap-lead"></span>`) : "") +
+      (R ? card("지역별 목재 제조업", `${R.year}년 · 출하액`, `<div class="ind-bars" id="kr-bars"></div>` + rule(`시도별 C16 출하액(막대)·사업체·종사자 공표값 · 종사자 10인 이상 사업체 · 출처: ${K.source.c16}`), "", `<span id="kr-lead"></span>`) : "") +
+      card("업종별 출하액", `${y}년 · C16 세부 업종`, `<div class="ind-bars" id="ks-bars"></div>` + rule(`한국표준산업분류(10차) C16 세부 업종 출하액 공표값 · '–' = 비공개(사업체 수가 적어 공표 안 함) · 출처: ${K.source.c16}`), "", `<span id="ks-lead"></span>`) +
+      (P ? card("품목별 생산액", `${P.years[0]}~${P.years[P.years.length - 1]} · 억 원 · 연`, `<div class="dp-chips" id="kp-chips"></div><div id="kp-line"></div>` +
+          rule(`광업제조업조사 품목편 품목별 생산액 공표값(종사자 10인 이상) · 2020년 표 없음(빈칸) · 이름을 눌러 켜고 끔 · 출처: ${K.source.products}`), "span-2", `<span id="kp-lead"></span>`) : "") +
+      `</section>`;
+  }
+  function drawIndKosis() {
+    const K = (D.judg || {}).industry_kosis; if (!K || !K.c16 || !$("#ks-bars")) return;
+    const ok = (v) => v != null && isFinite(v);
+    // 업종별
+    const subs = K.c16_sub.map((s) => ({ ...s, v: s.shipments ? s.shipments[s.shipments.length - 1] : null })), ms = Math.max(...subs.filter((s) => ok(s.v)).map((s) => s.v), 1);
+    const ord = [...subs].sort((a, b) => (b.v || -1) - (a.v || -1)), tot = K.c16.shipments[K.c16.shipments.length - 1];
+    $("#ks-bars").innerHTML = ord.map((s) => `<div class="ib" title="${s.label}: 사업체 ${ok(s.firms[s.firms.length - 1]) ? nf(s.firms[s.firms.length - 1], 0) : "–"}개 · 종사자 ${ok(s.employees[s.employees.length - 1]) ? nf(s.employees[s.employees.length - 1], 0) : "–"}명"><span class="nm">${s.label}</span>` +
+      `<span class="br" style="width:${ok(s.v) ? s.v / ms * 100 : 0}%"><i style="width:100%;background:${C.color(0)}"></i></span><span class="vl">${ok(s.v) ? (s.v >= 1e6 ? nf(s.v / 1e6, 2) + "조" : nf(s.v / 100, 0) + "억") + " · " + nf(s.v / tot * 100, 0) + "%" : "–"}</span></div>`).join("");
+    const t2 = ord.filter((s) => ok(s.v)).slice(0, 2);
+    $("#ks-lead").innerHTML = `${t2.map((s) => `${s.label} ${nf(s.v / tot * 100, 0)}%`).join(" · ")} <span class="sub">C16 출하액 대비</span>`;
+    // 지역별
+    if (K.region && $("#kr-bars")) {
+      const R = K.region.rows, mr = Math.max(...R.map((r) => r.shipments || 0), 1), rt = sum(R.map((r) => r.shipments || 0));
+      $("#kr-bars").innerHTML = R.map((r) => `<div class="ib" title="${r.label}: 사업체 ${nf(r.firms || 0, 0)}개 · 종사자 ${nf(r.employees || 0, 0)}명 · 부가가치 ${nf((r.value_added || 0) / 1e5, 0)}백억 원"><span class="nm">${r.label}</span>` +
+        `<span class="br" style="width:${(r.shipments || 0) / mr * 100}%"><i style="width:100%;background:${C.color(2)}"></i></span><span class="vl">${nf((r.shipments || 0) / rt * 100, 0)}% · ${nf(r.firms || 0, 0)}개 · ${nf(r.employees || 0, 0)}명</span></div>`).join("");
+      $("#kr-lead").innerHTML = `${R.slice(0, 2).map((r) => `${r.label} ${nf(r.shipments / rt * 100, 0)}%`).join(" · ")} <span class="sub">출하액 기준, 2곳 합 ${nf((R[0].shipments + R[1].shipments) / rt * 100, 0)}%</span>`;
+    }
+    // 월별 지수
+    if (K.monthly && $("#km-pi")) {
+      const M = K.monthly, code = M.series[S.kmc] ? S.kmc : "C16", s = M.series[code];
+      $("#km-seg").querySelectorAll("button").forEach((b) => { b.setAttribute("aria-pressed", String(b.dataset.k === code)); b.onclick = () => { S.kmc = b.dataset.k; drawIndKosis(); }; });
+      C.lineChart($("#km-pi"), { x: M.months, series: [{ name: "생산", values: s.prod }, { name: "출하", values: s.ship }, { name: "재고", values: s.inv }], yFmt: (v) => nf(v, 0), tipFmt: (v) => nf(v, 1), yMin0: false, height: 240, xLabelFmt: xFmt, pinMonth: true });
+      const li = s.prod.length - 1 - [...s.prod].reverse().findIndex(ok), yo = li >= 12 && ok(s.prod[li - 12]) ? (s.prod[li] / s.prod[li - 12] - 1) * 100 : null;
+      const pk = Math.max(...s.prod.filter(ok)), pkm = M.months[s.prod.indexOf(pk)];
+      $("#km-lead").innerHTML = `${M.months[li].replace("-", ".")} 생산지수 ${nf(s.prod[li], 1)} <span class="sub">${yo != null ? `1년 전보다 ${yo > 0 ? "+" : ""}${nf(yo, 1)}% · ` : ""}출하 ${nf(s.ship[li], 1)} · 재고 ${nf(s.inv[li], 1)} · 최고 ${pkm.replace("-", ".")} ${nf(pk, 1)} · ${KSUB[code]}</span>`;
+      C.lineChart($("#km-cap"), { x: M.months, series: [{ name: "생산능력", values: s.cap, color: C.color(7) }, { name: "가동률(계절조정)", values: s.util, color: C.color(0) }], yFmt: (v) => nf(v, 0), tipFmt: (v) => nf(v, 1), yMin0: false, height: 240, xLabelFmt: xFmt });
+      const ci = s.cap.length - 1 - [...s.cap].reverse().findIndex(ok);
+      $("#km-cap-lead").innerHTML = `${M.months[ci].replace("-", ".")} 생산능력 ${nf(s.cap[ci], 1)} · 가동률 ${nf(s.util[ci], 1)} <span class="sub">2020=100 · ${M.months[0].slice(0, 4)}년 생산능력 ${nf(s.cap.find(ok), 1)}</span>`;
+    }
+    // 품목별 생산액
+    if (K.products && $("#kp-line")) {
+      const P = K.products, rows = P.rows.filter((r) => r.label !== "C16 전체" && ok(r.prod[r.prod.length - 1]));
+      if (!S.kpk) S.kpk = new Set(rows.slice(0, 6).map((r) => r.label));
+      const pal = {}; let ci = 0; rows.forEach((r) => { if (S.kpk.has(r.label)) pal[r.label] = C.color(ci++); });
+      $("#kp-chips").innerHTML = rows.map((r) => `<button type="button" class="dp-chip${S.kpk.has(r.label) ? " on" : ""}" data-k="${r.label}"${S.kpk.has(r.label) ? ` style="--c:${pal[r.label]}"` : ""}><i${S.kpk.has(r.label) ? ` style="background:${pal[r.label]}"` : ""}></i>${r.label} <b>${nf(r.prod[r.prod.length - 1] / 100, 0)}</b></button>`).join("");
+      $("#kp-chips").querySelectorAll("button").forEach((b) => b.onclick = () => { S.kpk.has(b.dataset.k) ? S.kpk.delete(b.dataset.k) : S.kpk.add(b.dataset.k); drawIndKosis(); });
+      // 2020년 칸을 끼워 넣어 빈칸으로 (연도 간격 유지)
+      const ys = []; for (let yy = P.years[0]; yy <= P.years[P.years.length - 1]; yy++) ys.push(yy);
+      const on = rows.filter((r) => S.kpk.has(r.label));
+      if (on.length) C.lineChart($("#kp-line"), { x: ys.map(String), series: on.map((r) => ({ name: r.label, color: pal[r.label], values: ys.map((yy) => { const i = P.years.indexOf(yy); return i < 0 || !ok(r.prod[i]) ? null : r.prod[i] / 100; }) })),
+        yFmt: (v) => nf(v, 0), tipFmt: (v) => nf(v, 0) + "억 원", height: 250 });
+      else $("#kp-line").innerHTML = `<div class="empty" style="height:250px">품목을 켜면 표시</div>`;
+      const n = P.years.length - 1, tot = (P.rows.find((r) => r.label === "C16 전체") || {}).prod;
+      $("#kp-lead").innerHTML = `${P.years[n]}년 상위 ${rows.slice(0, 3).map((r) => `${r.label} ${nf(r.prod[n] / 100, 0)}억`).join(" · ")}${tot && ok(tot[n]) ? ` <span class="sub">C16 품목 합계 ${nf(tot[n] / 1e6, 2)}조 원</span>` : ""}`;
+    }
   }
 
   function renderControls() {

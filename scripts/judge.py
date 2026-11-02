@@ -634,6 +634,80 @@ def industry(survey_csv: Path, labels: dict) -> dict | None:
             "scope": "목재생산업 등록업체(21개 목재제품의 국내 생산업체 + 수입·유통업체) 매출. 가구·건축·종이 제외. 수입·유통업체 값은 가중치 추정"}
 
 
+def industry_kosis(path: Path) -> dict | None:
+    """통계청 산업 통계 (목재 및 나무제품 제조업 C16): 광업제조업조사 주요지표(연)·시도별, 하위 업종 구성,
+    광공업 생산·출하·재고지수와 생산능력·가동률지수(월), 광업제조업조사 품목편 품목별 생산액(연). 공표값 그대로 + 일부 비율(분석)."""
+    if not path.exists():
+        return None
+    j = json.loads(path.read_text(encoding="utf-8"))
+    num = lambda s: None if s in (None, "", "-", "X", "x") else float(str(s).replace(",", ""))
+    out = {"source": {}}
+    # 1) 주요지표 (연)
+    fs = (j.get("DT_1FS1101") or {}).get("rows", [])
+    if fs:
+        items = {"T01": "firms", "T02": "employees", "T03": "wages", "T04": "shipments", "T05": "costs", "T06": "value_added", "T07": "assets"}
+        yrs = sorted({r["PRD_DE"] for r in fs})
+        def ser(code, region="전국"):
+            d = {k: [None] * len(yrs) for k in items.values()}
+            for r in fs:
+                if r["C2"] == code and r["C1_NM"] == region and r["ITM_ID"] in items:
+                    d[items[r["ITM_ID"]]][yrs.index(r["PRD_DE"])] = num(r["DT"])
+            return d
+        out["c16"] = {"years": [int(y) for y in yrs], **ser("C16")}
+        # 하위 업종 (최신 연도)
+        subs = [("C16101", "일반 제재"), ("C16102", "표면가공 제재목"), ("C16103", "방부·도장 처리"), ("C16211", "박판·합판·적층판"),
+                ("C16212", "PB·MDF·강화마루"), ("C1622", "건축용 나무제품"), ("C1623", "목재 상자·팔레트"), ("C1629", "기타 나무제품"), ("C163", "코르크·조물")]
+        out["c16_sub"] = [{"code": c, "label": n, **{k: v for k, v in ser(c).items() if k in ("firms", "employees", "shipments", "value_added")}} for c, n in subs]
+        # 시도별 (C16)
+        SIDO = ("서울특별시", "부산광역시", "대구광역시", "인천광역시", "광주광역시", "대전광역시", "울산광역시", "세종특별자치시", "경기도", "강원도", "강원특별자치도",
+                "충청북도", "충청남도", "전라북도", "전북특별자치도", "전라남도", "경상북도", "경상남도", "제주특별자치도")
+        reg = {}
+        for r in fs:
+            if r["C2"] == "C16" and r["C1_NM"] in SIDO and r["PRD_DE"] == yrs[-1] and r["ITM_ID"] in ("T01", "T02", "T04", "T06"):
+                nm = r["C1_NM"].replace("특별자치도", "").replace("특별자치시", "").replace("특별시", "").replace("광역시", "")
+                nm = {"경기도": "경기", "충청북도": "충북", "충청남도": "충남", "전라북도": "전북", "전라남도": "전남", "경상북도": "경북", "경상남도": "경남", "강원도": "강원"}.get(nm, nm)
+                reg.setdefault(nm, {})[items[r["ITM_ID"]]] = num(r["DT"])
+        out["region"] = {"year": int(yrs[-1]), "rows": sorted([{"label": k, **v} for k, v in reg.items()], key=lambda d: -(d.get("shipments") or 0))}
+        out["source"]["c16"] = "통계청 광업제조업조사 주요지표(종사자 10인 이상 사업체), KOSIS DT_1FS1101"
+    # 2) 월별 지수
+    pi = (j.get("DT_1F02001") or {}).get("rows", [])
+    ca = (j.get("DT_1F32001") or {}).get("rows", [])
+    if pi:
+        ms = sorted({r["PRD_DE"] for r in pi})
+        def mser(rows, code_key, code, itm):
+            m = {r["PRD_DE"]: num(r["DT"]) for r in rows if r.get(code_key) == code and r["ITM_ID"] == itm}
+            return [m.get(x) for x in ms]
+        out["monthly"] = {"months": [f"{x[:4]}-{x[4:]}" for x in ms], "series": {}}
+        for code in ("C16", "C161", "C162"):
+            out["monthly"]["series"][code] = {
+                "prod": mser(pi, "C2", code, "T20"), "ship": mser(pi, "C2", code, "T21"), "inv": mser(pi, "C2", code, "T22"),
+                "prod_raw": mser(pi, "C2", code, "T10"),
+                "cap": mser(ca, "C1", code, "T10"), "util": mser(ca, "C1", code, "T30")}
+        out["source"]["monthly"] = "통계청 광업제조업동향조사 시도/산업별 광공업생산지수(DT_1F02001), 제조업 생산능력 및 가동률지수(DT_1F32001), 2020=100, 계절조정"
+    # 3) 품목편 품목별 생산액 (연, 표가 해마다 따로 — 품목명으로 이어 붙임)
+    prods = {}
+    for k, v in j.items():
+        if not str(v.get("name", "")).startswith("품목분류별"):
+            continue
+        for r in v.get("rows", []):
+            if r["ITM_NM"] not in ("생산액", "출하액", "사업체수") or r["C1_NM"] != "전국":
+                continue
+            nm = (r.get("C2_NM") or "").strip()
+            key = {"생산액": "prod", "출하액": "ship", "사업체수": "firms"}[r["ITM_NM"]]
+            prods.setdefault(nm, {}).setdefault(r["PRD_DE"], {})[key] = num(r["DT"])
+    if prods:
+        pys = sorted({y for d in prods.values() for y in d})
+        rows = []
+        for nm, d in prods.items():
+            if nm.startswith("목재 및 나무제품"):
+                nm = "C16 전체"
+            rows.append({"label": nm, "prod": [d.get(y, {}).get("prod") for y in pys], "ship": [d.get(y, {}).get("ship") for y in pys], "firms": [d.get(y, {}).get("firms") for y in pys]})
+        rows.sort(key=lambda r: -((r["prod"][-1] or 0) if r["label"] != "C16 전체" else 1e18))
+        out["products"] = {"years": [int(y) for y in pys], "rows": rows}
+        out["source"]["products"] = "통계청 광업제조업조사 품목편(종사자 10인 이상), 품목분류별 사업체수·생산액·출하액 — 연도별 표를 품목명으로 이음"
+    return out
+
+
 def _prod_dep_text(ds) -> str:
     """목재제품별 수입의존도 요약 (실태조사 최신 연도): 수입액 기준 상위 품목 + 유의한 추세."""
     if not ds or not ds.get("rows"):

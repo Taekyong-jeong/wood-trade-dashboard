@@ -424,7 +424,7 @@ def main() -> int:
     write_json("judgments.json", {
         "month": months[-1], "cards": judge.summary_cards(sr, pen, pa, dec, ds),
         "supply_risk": sr, "supply_hist": sh, "value_chain": vc, "roundwood_price": rwp, "penetration": pen, "price_anomaly": pa, "decomposition": dec, "structure": st,
-        "domestic_supply": ds, "domestic_price": dp, "industry": ind, "kfs_check": kc, "glance": gl, "self_suff": ssf,
+        "domestic_supply": ds, "domestic_price": dp, "industry": ind, "industry_kosis": judge.industry_kosis(ROOT / "data" / "external" / "kosis_industry.json"), "kfs_check": kc, "glance": gl, "self_suff": ssf,
         "criteria": judge.CRIT,
     })
     # 그림 원자료 (논문·보고서용)
