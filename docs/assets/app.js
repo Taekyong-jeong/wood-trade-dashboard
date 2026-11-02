@@ -622,16 +622,13 @@
     const pser = pitems.map(([a, k, n]) => { const v = r12p(entry(a, k)); const b = v.find((x) => x != null); return { name: n, raw: v, values: v.map((x) => (x == null || !b ? null : (x / b) * 100)), a, k }; });
     const now = pser.map((p) => { const i = ms.length - 1; return { n: p.name, v: p.raw[i] != null ? pconv(p.a, p.k)(p.raw[i], 1) : null, u: plabel(p.a, p.k), f: pfmt(p.a, p.k) }; });
     $("#a-price").innerHTML =
-      card(`가격 이상 판정 ${q("price")}`, `${ym(ms[ms.length - 1])} 기준`,
-        `<div class="tbl-wrap"><table><thead><tr><th class="l">품목</th><th>판정</th><th>단가 1년 전 대비</th><th>비교 기준</th></tr></thead><tbody>` +
-        PA.map((d) => `<tr class="click" data-axis="${d.axis}" data-key="${d.key}" title="이상 점수 ${d.ifpa != null ? (d.ifpa > 0 ? "+" : "") + nf(d.ifpa, 2) + "σ" : "–"} (±0.5 안이면 정상)"><td class="l">${d.label}</td><td>${badge(d.band)}</td>` +
-          `<td>${d.yoy_pct != null ? (d.yoy_pct > 0 ? "+" : "") + nf(d.yoy_pct, 1) + "%" : "–"}</td>` +
-          `<td class="sub">${d.past_obs >= d.need_obs ? `지난 ${d.past_obs}년 같은 달` : `${d.past_obs}년치뿐 (${d.need_obs}년 필요)`}</td></tr>`).join("") + `</tbody></table></div>` +
-        rule(`판정 = 이번 달 단가 오름폭이 지난 몇 년 같은 달의 보통 오름폭에서 얼마나 벗어났는지 · 비교 기준 = 그 비교에 쓴 과거 연수(3년 이상이어야 판정, LVL은 2022년 코드 신설로 3년치) · 행에 마우스를 올리면 이상 점수(σ) 표시 · FAO 식품가격 이상 지표(IFPA, SDG 2.c.1) 방법: 분기·연간 단가 상승률을 과거 같은 달의 평균·표준편차로 표준화, 분기 가중 0.4 · ±0.5σ 정상, 0.5~1σ 다소 높음, 1σ 이상 비정상 (하락은 대칭 적용) · 과거 같은 달 3년 이상 필요`), "",
-        ready.length ? `판정 ${ready.length}개 품목 중 비정상 ${ready.filter((d) => /비정상/.test(d.band)).length}개 · 다소 높음·낮음 ${ready.filter((d) => /다소/.test(d.band)).length}개 · 정상 ${ready.filter((d) => d.band === "정상").length}개` : `판정 보류 <span class="sub">과거 데이터 수집 후 자동 판정</span>`) +
-      card(`공급국 가격대 지도 ${q("price")}`, `${periodL12()}`,
-        `<div class="inline-sel"><span class="ctl-label">품목</span><select id="pmapSel">${opts.map(([a, k, n]) => `<option value="${a}:${k}" ${`${a}:${k}` === S.pmap ? "selected" : ""}>${n}</option>`).join("")}</select></div>` +
-        `<div id="pmap"></div>` + rule(`점 = 공급국 (최근 12개월 점유율 1% 이상) · 가로 = 점유율, 세로 = 단가 · 빨간 점선 = 수입 평균 · ${PU_RULE}`), "", `<span id="pmap-lead"></span>`) +
+      card(`가격 이상 판정 ${q("price")}`, `<span id="pa-hint">${ym(ms[ms.length - 1])} 기준</span>`,
+        `<div class="inline-sel"><span class="ctl-label">기준월</span><select id="paY"></select><select id="paM"></select></div><div class="tbl-wrap" id="pa-tbl"></div>` +
+        rule(`판정 = 이번 달 단가 오름폭이 지난 몇 년 같은 달의 보통 오름폭에서 얼마나 벗어났는지 · 비교 기준 = 그 비교에 쓴 과거 연수(3년 이상이어야 판정, LVL은 2022년 코드 신설로 3년치) · 행에 마우스를 올리면 이상 점수(σ) 표시 · FAO 식품가격 이상 지표(IFPA, SDG 2.c.1) 방법: 분기·연간 단가 상승률을 과거 같은 달의 평균·표준편차로 표준화, 분기 가중 0.4 · ±0.5σ 정상, 0.5~1σ 다소 높음, 1σ 이상 비정상 (하락은 대칭 적용) · 과거 같은 달 3년 이상 필요`), "", `<span id="pa-lead"></span>`) +
+      card(`공급국 가격대 지도 ${q("price")}`, `<span id="pmap-hint">${periodL12()}</span>`,
+        `<div class="inline-sel"><span class="ctl-label">품목</span><select id="pmapSel">${opts.map(([a, k, n]) => `<option value="${a}:${k}" ${`${a}:${k}` === S.pmap ? "selected" : ""}>${n}</option>`).join("")}</select>` +
+        `<span class="ctl-label">기간</span><select id="pmapPer"><option value="l12">최근 12개월</option>${[...fullYears()].reverse().map((y) => `<option value="${y}">${y}년</option>`).join("")}</select></div>` +
+        `<div id="pmap"></div>` + rule(`점 = 공급국 (선택 기간 점유율 1% 이상) · 기간 = 최근 12개월 또는 연간(1~12월) · 가로 = 점유율, 세로 = 단가 · 빨간 점선 = 수입 평균 · ${PU_RULE}`), "", `<span id="pmap-lead"></span>`) +
       card(`수입 단가 지수 ${q("idx")}`, "12개월 평균 CIF 단가, 시작 = 100", `<div id="pidx"></div>` +
         `<div class="foot">현재 수입 단가: ${now.filter((x) => x.v != null).map((x) => `${x.n} ${x.f(x.v)} ${x.u}`).join(" · ")}</div>` + rule(PU_RULE),  "span-2",
         (() => { const y = pser.map((p) => { const i = ms.length - 1; const a = p.raw[i], b = p.raw[i - 12]; return { n: p.name, p: a && b ? (a / b - 1) * 100 : null }; }).filter((x) => x.p != null).sort((a, b) => b.p - a.p);
@@ -691,7 +688,10 @@
     C.lineChart($("#pidx"), { x: ms.slice(pi), series: pser.map((p) => ({ name: p.name, values: p.values.slice(pi) })), yFmt: (v) => nf(v, 0), tipFmt: (v) => nf(v, 1), yMin0: false, height: 230, xLabelFmt: xFmt });
     $("#a-price").querySelectorAll("tr[data-axis]").forEach((tr) => tr.onclick = () => openDetail(tr.dataset.axis, tr.dataset.key));
     const drawMap = () => {
-      const [a, k] = S.pmap.split(":"); const rows = (D.countries[a] || {})[k] || {};
+      const [a, k] = S.pmap.split(":"); const rows0 = (D.countries[a] || {})[k] || {};
+      const per = S.pmy && S.pmy !== "l12" && fullYears().includes(S.pmy) ? S.pmy : "l12";
+      $("#pmapPer").value = per; $("#pmap-hint").textContent = per === "l12" ? periodL12() : `${per}.01~${per}.12`;
+      const rows = Object.fromEntries(Object.entries(rows0).map(([c, r]) => [c, { l12: per === "l12" ? r.l12 : ((r.y || {})[per] || [0, 0]) }]));
       const tot = sum(Object.values(rows).map((r) => r.l12[0]));
       const cv = pconv(a, k), pf = pfmt(a, k), pl = plabel(a, k);
       const pts = Object.entries(rows).filter(([, r]) => r.l12[0] > 0 && r.l12[1] > 0 && tot && r.l12[0] / tot >= 0.01)
@@ -712,6 +712,30 @@
     };
     drawMap();
     $("#pmapSel").onchange = (ev) => { S.pmap = ev.target.value; drawMap(); };
+    $("#pmapPer").onchange = (ev) => { S.pmy = ev.target.value; drawMap(); };
+    // 가격 이상 판정 — 기준월 선택 (기본 = 최신 월)
+    const paIdx = (d, m) => { const h = d.hist; if (!h) return -1; const i0 = ms.indexOf(h.m0), i = ms.indexOf(m); return i0 < 0 || i < 0 ? -1 : i - i0; };
+    const paMonths = ms.filter((m) => PA.some((d) => { const i = paIdx(d, m); return i >= 0 && d.hist.band[i] !== "판정 보류"; }));
+    const drawPA = () => {
+      const m = paMonths.includes(S.pam) ? S.pam : ms[ms.length - 1], yy = m.slice(0, 4);
+      const yrs = [...new Set(paMonths.map((x) => x.slice(0, 4)))].reverse();
+      $("#paY").innerHTML = yrs.map((y) => `<option value="${y}" ${y === yy ? "selected" : ""}>${y}년</option>`).join("");
+      $("#paM").innerHTML = paMonths.filter((x) => x.startsWith(yy)).map((x) => `<option value="${x}" ${x === m ? "selected" : ""}>${+x.slice(5)}월</option>`).join("");
+      $("#pa-hint").textContent = `${ym(m)} 기준`;
+      const rows = PA.map((d) => { const i = paIdx(d, m), h = d.hist || {};
+        return i < 0 ? { ...d, band: "판정 보류", ifpa: null, yoy_pct: null, past_obs: 0 } : { ...d, band: h.band[i], ifpa: h.ifpa[i], yoy_pct: h.yoy[i], past_obs: h.past[i] }; });
+      $("#pa-tbl").innerHTML = `<table><thead><tr><th class="l">품목</th><th>판정</th><th>단가 1년 전 대비</th><th>비교 기준</th></tr></thead><tbody>` +
+        rows.map((d) => `<tr class="click" data-axis="${d.axis}" data-key="${d.key}" title="이상 점수 ${d.ifpa != null ? (d.ifpa > 0 ? "+" : "") + nf(d.ifpa, 2) + "σ" : "–"} (±0.5 안이면 정상)"><td class="l">${d.label}</td><td>${badge(d.band)}</td>` +
+          `<td>${d.yoy_pct != null ? (d.yoy_pct > 0 ? "+" : "") + nf(d.yoy_pct, 1) + "%" : "–"}</td>` +
+          `<td class="sub">${d.past_obs >= d.need_obs ? `지난 ${d.past_obs}년 같은 달` : `${d.past_obs}년치뿐 (${d.need_obs}년 필요)`}</td></tr>`).join("") + `</tbody></table>`;
+      const rd = rows.filter((d) => d.band !== "판정 보류");
+      $("#pa-lead").innerHTML = rd.length ? `판정 ${rd.length}개 품목 중 비정상 ${rd.filter((d) => /비정상/.test(d.band)).length}개 · 다소 높음·낮음 ${rd.filter((d) => /다소/.test(d.band)).length}개 · 정상 ${rd.filter((d) => d.band === "정상").length}개` : "판정 보류";
+      $("#pa-tbl").querySelectorAll("tr[data-axis]").forEach((tr) => tr.onclick = (ev) => { if (ev.target.closest("a,button")) return; openDetail(tr.dataset.axis, tr.dataset.key); });
+    };
+    $("#paY").onchange = (ev) => { const y = ev.target.value, c = paMonths.filter((x) => x.startsWith(y)); const cur = S.pam || ms[ms.length - 1];
+      S.pam = c.find((x) => x.slice(5) === cur.slice(5)) || c[c.length - 1]; drawPA(); };
+    $("#paM").onchange = (ev) => { S.pam = ev.target.value; drawPA(); };
+    drawPA();
   }
 
   // ── 변화 요인 ──────────────────────────────────────────

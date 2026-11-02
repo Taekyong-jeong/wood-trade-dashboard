@@ -197,7 +197,10 @@ def price_anomaly(series: dict, months: list[str], label_of) -> list[dict]:
         yoy = (p[-1] / p[-13] - 1) * 100 if n > 12 and p[-1] and p[-13] else None
         out.append({"axis": axis, "key": key, "label": label_of(axis, key), "ifpa": _r(latest, 2), "band": band(latest),
                     "past_obs": npast[-1], "need_obs": c["min_past_years"], "yoy_pct": _r(yoy),
-                    "ifpa_series": [_r(v, 2) for v in ifpa[-24:]], "months": months[-24:]})
+                    "ifpa_series": [_r(v, 2) for v in ifpa[-24:]], "months": months[-24:],
+                    # 기준월 선택용 전체 시계열 (2026-11-02)
+                    "hist": {"m0": months[0], "ifpa": [_r(v, 2) for v in ifpa], "band": [band(v) for v in ifpa], "past": npast,
+                             "yoy": [_r((p[t] / p[t - 12] - 1) * 100) if t >= 12 and p[t] and p[t - 12] else None for t in range(n)]}})
     return out
 
 
