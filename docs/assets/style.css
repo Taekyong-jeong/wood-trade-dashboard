@@ -658,8 +658,8 @@ table.pm-t td em { display: block; font-size: 10.5px; margin: 0; }
 .sheets button { font: inherit; font-size: 14px; font-weight: 700; letter-spacing: -0.02em; padding: 6px 14px; border: 0; border-radius: 7px; background: transparent; color: var(--ink-2); cursor: pointer; white-space: nowrap; }
 .sheets button:hover { color: var(--ink); }
 .sheets button[aria-pressed="true"] { background: var(--accent); color: #fff; }
-body.sheet-ind #main > :not(#ind-sheet) { display: none !important; }
-body:not(.sheet-ind) #ind-sheet { display: none; }
+body.sheet-ind #main > :not(#ind-sheet), body.sheet-res #main > :not(#res-sheet) { display: none !important; }
+body:not(.sheet-ind) #ind-sheet, body:not(.sheet-res) #res-sheet { display: none; }
 .ind-sheet .g-ind { margin-top: 0; }
 .ind-bars { display: flex; flex-direction: column; gap: 5px; }
 .ib { display: grid; grid-template-columns: 128px minmax(0, 1fr) 150px; gap: 8px; align-items: center; font-size: 12.5px; }

@@ -255,7 +255,7 @@
 
   function goSec(id) {
     let tg = document.getElementById(id); if (!tg) return;
-    const inInd = !!tg.closest("#ind-sheet"); if ((S.sheet === "ind") !== inInd) setSheet(inInd ? "ind" : "main", true);
+    const tsh = tg.closest("#ind-sheet") ? "ind" : tg.closest("#res-sheet") ? "res" : "main"; if ((S.sheet || "main") !== tsh) setSheet(tsh, true);
     let d = tg; while (d) { if (d.tagName === "DETAILS") d.open = true; d = d.parentElement; }
     setTimeout(() => {
       tg = document.getElementById(id); if (!tg) return;          // 펼칠 때 다시 그려지므로 새로 찾음
@@ -981,16 +981,23 @@
     C.hbars($("#g-cty"), tops.map((x) => ({ label: cname(x.c), value: x.imp, text: `${nf(x.share, 0)}% · ${x.imp >= 1e7 ? nf(x.imp / 1e8, 2) + "억" : nf(x.imp / 1e6, 1) + "백만"} 달러`,
       onClick: () => { if (g[0] === "total") { S.country = x.c; go("country"); } else openDetail(g[0], g[1]); } })));
   }
-  function renderAll() { if (S.sheet === "ind") { renderInd(); return; } renderGlance(); renderIntro(); renderVerdicts(); renderBasic(); renderRisk(); renderDomestic(); renderDist(); renderPrice(); }
+  function renderAll() { if (S.sheet === "ind") { renderInd(); return; } if (S.sheet === "res") { renderRes(); return; } renderGlance(); renderIntro(); renderVerdicts(); renderBasic(); renderRisk(); renderDomestic(); renderDist(); renderPrice(); }
 
   // ── 화면(시트) 전환 ─────────────────────────────────────
   function setSheet(s, noScroll) {
-    S.sheet = s === "ind" ? "ind" : "main";
-    document.body.classList.toggle("sheet-ind", S.sheet === "ind");
+    S.sheet = s === "ind" || s === "res" ? s : "main";
+    document.body.classList.toggle("sheet-ind", S.sheet === "ind"); document.body.classList.toggle("sheet-res", S.sheet === "res");
     document.querySelectorAll("#sheets button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.sheet === S.sheet)));
-    try { const u = new URL(location.href); if (S.sheet === "ind") u.searchParams.set("sheet", "ind"); else u.searchParams.delete("sheet"); history.replaceState(null, "", u); } catch (e) {}
+    try { const u = new URL(location.href); if (S.sheet !== "main") u.searchParams.set("sheet", S.sheet); else u.searchParams.delete("sheet"); history.replaceState(null, "", u); } catch (e) {}
     renderAll(); if (S.sheet === "main") renderTab();
     if (!noScroll) window.scrollTo({ top: 0 });
+  }
+
+  // ── 목재자원 화면 (준비 중) ─────────────────────────────
+  function renderRes() {
+    const host = $("#res-sheet"); if (!host) return;
+    host.innerHTML = `<div class="sec-title" style="margin-top:14px"><h2>목재자원</h2><span class="hint">산림자원 · 국산 원목 공급 — 준비 중</span></div>` +
+      `<section class="grid g-2" style="margin-top:0">` + card("목재자원 화면 준비 중", "", `<div class="note">산림 면적·임목축적, 벌채·원목 생산량, 국산재 공급량, 원목 산지·시장가격 등 국내 목재자원 지표를 준비 중. 지금은 「목재산업」, 「목재수급·유통」 화면 이용.</div>`, "span-2") + `</section>`;
   }
 
   // ── 목재산업 화면 ───────────────────────────────────────
@@ -1503,7 +1510,8 @@
     window.addEventListener("resize", () => { if (Math.abs(window.innerWidth - w) > 40) { w = window.innerWidth; renderAll(); renderTab(); } });
     matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { renderAll(); renderTab(); });
     document.querySelectorAll("#sheets button").forEach((b) => b.onclick = () => setSheet(b.dataset.sheet));
-    if (new URLSearchParams(location.search).get("sheet") === "ind") setSheet("ind", true); else document.querySelectorAll("#sheets button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.sheet === "main")));
+    const sh0 = new URLSearchParams(location.search).get("sheet");
+    if (sh0 === "ind" || sh0 === "res") setSheet(sh0, true); else document.querySelectorAll("#sheets button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.sheet === "main")));
     const tb = $("#theme-btn"), setTb = () => { const d = document.documentElement.getAttribute("data-theme") !== "light"; tb.textContent = d ? "☀ 밝게" : "☾ 어둡게"; tb.title = d ? "밝은 화면으로 바꾸기" : "어두운 화면으로 바꾸기"; };
     if (tb) { setTb(); tb.onclick = () => { const nx = document.documentElement.getAttribute("data-theme") === "light" ? "dark" : "light";
       document.documentElement.setAttribute("data-theme", nx); try { localStorage.setItem("widi-theme", nx); } catch (e) {} setTb(); renderAll(); renderTab(); }; }
