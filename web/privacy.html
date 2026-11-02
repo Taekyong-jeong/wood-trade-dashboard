@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WIDI 개인정보 처리방침</title><link rel="icon" href="assets/widi-logo.svg">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap">
+<style>
+@font-face{font-family:'S-Core Dream';src:url(fonts/S-CoreDream-4Regular.woff) format('woff');font-weight:400}
+@font-face{font-family:'S-Core Dream';src:url(fonts/S-CoreDream-6Bold.woff) format('woff');font-weight:700 900}
+:root{--bg:#F6F4EF;--surface:#fff;--ink:#1A211E;--muted:#59605B;--line:#DCD8CE;--amber:#B8741F;--amber-soft:#F4E6CF}
+@media (prefers-color-scheme:dark){:root{--bg:#141917;--surface:#1C2320;--ink:#ECE8DF;--muted:#A7ADA8;--line:#323B37;--amber:#E3A456;--amber-soft:#3A2D1C;color-scheme:dark}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:'S-Core Dream','Noto Sans KR',system-ui,sans-serif;line-height:1.7;word-break:keep-all;padding:0 16px}
+.wrap{max-width:900px;margin:0 auto;padding:28px 0 64px;display:flex;flex-direction:column;gap:16px}
+h1{font-size:24px;margin:0}h2{font-size:18px;margin:14px 0 0}p{margin:0}a{color:var(--amber)}
+.muted{color:var(--muted);font-size:13px}.err{color:#B3261E;font-size:13px;min-height:1em}
+.tbl{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;font-size:13.5px}th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}th{color:var(--muted);font-size:12px}
+.btns{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.btn{font:inherit;font-size:13px;font-weight:700;padding:7px 12px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}.btn.pri{background:var(--amber);border-color:var(--amber);color:#fff}
+label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
+input[type=text],input[type=email],input[type=password]{font:inherit;font-size:15px;padding:9px 11px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}@media(max-width:640px){.row2{grid-template-columns:1fr}}
+.who{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:13px;color:var(--muted)}.who button{font:inherit;font-size:12.5px;background:none;border:1px solid var(--line);border-radius:6px;padding:3px 9px;color:var(--muted);cursor:pointer}
+.divider{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12px}.divider::before,.divider::after{content:"";flex:1;height:1px;background:var(--line)}
+#admin{display:flex;flex-direction:column;gap:12px}
+</style></head><body><div class="wrap">
+<h1>개인정보 처리방침</h1>
+<p class="muted">WIDI 목재산업데이터연구회(이하 “연구회”) · 시행일 {{PRIVACY_DATE}}</p>
+<p>연구회는 「개인정보 보호법」에 따라 회원의 개인정보를 보호하고 관련 고충을 원활하게 처리하기 위해 다음과 같이 처리방침을 둡니다.</p>
+<h2>1. 수집하는 개인정보와 목적</h2>
+<div class="tbl"><table><thead><tr><th>항목</th><th>목적</th><th>보유 기간</th></tr></thead><tbody>
+<tr><td>이메일(로그인 계정)</td><td>회원 식별, 로그인</td><td rowspan="2" style="white-space:normal">회원 기간 종료 후 1년이 지나거나 탈퇴를 요청하면 지체 없이 파기</td></tr>
+<tr><td>이름, 소속(선택), 입금자명</td><td>회원 신청 확인, 연회비 입금 확인</td></tr>
+</tbody></table></div>
+<p>구글 계정으로 로그인하면 구글이 제공하는 이메일·이름이 함께 전달됩니다. 결제 정보(카드·계좌번호)는 수집하지 않으며, 연회비는 계좌이체로만 받습니다.</p>
+<h2>2. 처리 위탁과 국외 이전</h2>
+<p>회원 로그인과 정보 보관을 위해 Google LLC의 Firebase(Authentication, Cloud Firestore)를 이용하며, 정보는 Google의 서버(국외 포함)에 저장될 수 있습니다. 이전 항목: 위 1의 항목 · 이전 시점: 회원 신청 시 · 보유 기간: 위와 같음. 국외 이전을 원하지 않으면 회원 신청을 하지 않을 수 있으며, 이 경우 회원 전용 해설은 볼 수 없습니다.</p>
+<h2>3. 제3자 제공</h2>
+<p>연구회는 회원의 개인정보를 제3자에게 제공하지 않습니다. 다만 법령에 따른 요청이 있는 경우는 예외로 합니다.</p>
+<h2>4. 회원의 권리</h2>
+<p>회원은 언제든 자신의 개인정보 열람·정정·삭제·처리 정지를 요청할 수 있으며, 아래 연락처로 요청하면 지체 없이 처리합니다.</p>
+<h2>5. 안전성 확보 조치</h2>
+<p>회원 정보는 연구회장(관리자)만 볼 수 있도록 접근 권한을 제한하고, 데이터베이스 보안 규칙으로 회원 본인과 관리자 외의 열람을 막습니다.</p>
+<h2>6. 개인정보 보호책임자</h2>
+<p>연구회장 정택용 · <a href="mailto:jty2533@naver.com">jty2533@naver.com</a></p>
+<h2>7. 변경</h2>
+<p>이 처리방침이 바뀌면 시행 7일 전에 이 페이지에 알립니다.</p>
+<p class="muted"><a href="index.html">← WIDI Indicators 대시보드</a></p>
+</div></body></html>

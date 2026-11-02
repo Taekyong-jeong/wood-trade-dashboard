@@ -1,0 +1,47 @@
+rules_version = '2';
+// WIDI 회원·해설 Firestore 보안 규칙 — Firebase 콘솔 → Firestore Database → 규칙 탭에 그대로 붙여넣고 '게시'
+service cloud.firestore {
+  match /databases/{db}/documents {
+    function signedIn() { return request.auth != null; }
+    function isAdmin() { return signedIn() && exists(/databases/$(db)/documents/admins/$(request.auth.uid)); }
+    function memberDoc() { return /databases/$(db)/documents/members/$(request.auth.uid); }
+    function isMember() {
+      return signedIn() && exists(memberDoc())
+        && get(memberDoc()).data.status == 'active'
+        && get(memberDoc()).data.expiresAt > request.time;
+    }
+    function applyFields() { return ['name', 'org', 'email', 'depositor', 'status', 'agree', 'appliedAt']; }
+
+    // 회원 신청: 본인은 'pending'으로만 만들거나 다시 신청할 수 있음. 승인·연장·해지는 관리자만.
+    match /members/{uid} {
+      allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
+      allow create: if signedIn() && request.auth.uid == uid
+        && request.resource.data.status == 'pending'
+        && request.resource.data.agree == true
+        && request.resource.data.keys().hasOnly(applyFields());
+      allow update: if isAdmin() || (
+        signedIn() && request.auth.uid == uid
+        && request.resource.data.status == 'pending'
+        && (resource.data.status in ['pending', 'expired', 'rejected']
+            || (resource.data.status == 'active' && resource.data.expiresAt <= request.time))
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(applyFields())
+      );
+      allow delete: if isAdmin();
+    }
+    // 관리자 명단: 콘솔에서만 추가 (본인 확인용 읽기만 허용)
+    match /admins/{uid} {
+      allow read: if signedIn() && request.auth.uid == uid;
+      allow write: if false;
+    }
+    // 가입 안내(계좌 등): 로그인한 사람만 읽기
+    match /settings/{doc} {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
+    // 회원 전용 해설 본문: 유효 회원·관리자만
+    match /insights/{id} {
+      allow read: if isAdmin() || isMember();
+      allow write: if isAdmin();
+    }
+  }
+}

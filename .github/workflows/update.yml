@@ -73,6 +73,8 @@ jobs:
 
       - name: 페이지 생성
         if: always() && steps.mode.outputs.mode != 'probe'
+        env:
+          FIREBASE_CONFIG: ${{ secrets.FIREBASE_CONFIG }}
         run: python scripts/build.py
 
       - name: 결과 커밋

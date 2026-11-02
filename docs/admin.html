@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WIDI 회원 관리</title><meta name="robots" content="noindex"><link rel="icon" href="assets/widi-logo.svg">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap">
+<style>
+@font-face{font-family:'S-Core Dream';src:url(fonts/S-CoreDream-4Regular.woff) format('woff');font-weight:400}
+@font-face{font-family:'S-Core Dream';src:url(fonts/S-CoreDream-6Bold.woff) format('woff');font-weight:700 900}
+:root{--bg:#F6F4EF;--surface:#fff;--ink:#1A211E;--muted:#59605B;--line:#DCD8CE;--amber:#B8741F;--amber-soft:#F4E6CF}
+@media (prefers-color-scheme:dark){:root{--bg:#141917;--surface:#1C2320;--ink:#ECE8DF;--muted:#A7ADA8;--line:#323B37;--amber:#E3A456;--amber-soft:#3A2D1C;color-scheme:dark}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:'S-Core Dream','Noto Sans KR',system-ui,sans-serif;line-height:1.7;word-break:keep-all;padding:0 16px}
+.wrap{max-width:900px;margin:0 auto;padding:28px 0 64px;display:flex;flex-direction:column;gap:16px}
+h1{font-size:24px;margin:0}h2{font-size:18px;margin:14px 0 0}p{margin:0}a{color:var(--amber)}
+.muted{color:var(--muted);font-size:13px}.err{color:#B3261E;font-size:13px;min-height:1em}
+.tbl{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;font-size:13.5px}th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}th{color:var(--muted);font-size:12px}
+.btns{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.btn{font:inherit;font-size:13px;font-weight:700;padding:7px 12px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}.btn.pri{background:var(--amber);border-color:var(--amber);color:#fff}
+label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
+input[type=text],input[type=email],input[type=password]{font:inherit;font-size:15px;padding:9px 11px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}@media(max-width:640px){.row2{grid-template-columns:1fr}}
+.who{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:13px;color:var(--muted)}.who button{font:inherit;font-size:12.5px;background:none;border:1px solid var(--line);border-radius:6px;padding:3px 9px;color:var(--muted);cursor:pointer}
+.divider{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12px}.divider::before,.divider::after{content:"";flex:1;height:1px;background:var(--line)}
+#admin{display:flex;flex-direction:column;gap:12px}
+</style></head><body><div class="wrap">
+<h1>WIDI 회원 관리</h1>
+<div id="admin"><p class="muted">불러오는 중…</p></div>
+</div>
+<script type="module">import { adminBoot } from "./assets/widi-member.js?v=202611021217"; adminBoot();</script>
+</body></html>
