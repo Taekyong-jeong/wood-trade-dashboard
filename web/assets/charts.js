@@ -71,7 +71,7 @@
     if (!opts.noLegend) legend(container, series, "line");
     if (opts.pin) { let lg = container.querySelector(".legend"); if (!lg) { lg = document.createElement("div"); lg.className = "legend"; container.appendChild(lg); }
       lg.insertAdjacentHTML("beforeend", `<span class="pin-note">👆 그래프를 누르면 그 달 고정 · 두 달을 누르면 기간 증감(%) 비교</span>`); }
-    const W = Math.max(container.clientWidth, 280);
+    const W = Math.max(container.clientWidth, 150);
     const H = opts.height || 240;
     const pad = { l: 52, r: 12, t: 10, b: 26 };
     const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, height: H, role: "img", "aria-label": opts.title || "line chart" }, container);
@@ -541,7 +541,7 @@
       if (!narrow) { const v = el("tspan", { "font-weight": 400, fill: ink2, "font-size": fs - 1 }, t1); v.textContent = vtxt; }
       const t2 = el("text", { x: x1 + nw + 8, y: cy + fs, "font-size": fs - 1.5, fill: ink2 }, tg);
       el("rect", { x: x1 - 2, y: t.y - 2, width: R + nw, height: Math.max(t.h, fs * 2.4) + 4, fill: "transparent" }, tg);
-      t2.textContent = narrow ? `${vtxt}${t.sub ? " · " + t.sub : ""}` : (t.sub || "");
+      t2.textContent = narrow ? `${vtxt.replace(/\s*㎥/, "")}${t.sub ? " · " + t.sub : ""}` : (t.sub || "");
     });
   }
 

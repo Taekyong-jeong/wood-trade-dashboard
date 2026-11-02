@@ -620,3 +620,26 @@ table.pm-t td em { display: block; font-size: 10.5px; margin: 0; }
 
 .rw-spec { line-height: 1.6; margin-top: 4px; }
 .rw-spec b { color: var(--ink); }
+
+/* ── 모바일 보기 (2026-11-02) ─────────────────────────── */
+@media (max-width: 640px) {
+  html { overflow-x: clip; }
+  header.top { position: static; }
+  .brand .sub.one-line { white-space: normal; font-size: 11px; line-height: 1.35; }
+  .sec-title { flex-wrap: wrap; row-gap: 2px; }
+  .sec-title h2 { white-space: nowrap; }
+  .sec-title .hint { white-space: normal; flex: 1 1 100%; line-height: 1.4; }
+  .sec-title .seg { margin-left: 0; }
+  details.fold > summary { flex-wrap: wrap; row-gap: 4px; }
+  details.fold > summary .hint { flex: 1 1 100%; white-space: normal; line-height: 1.4; }
+  .card-head .hint, .hint { white-space: normal; }
+  .card { padding: 14px 12px; }
+  .badge { white-space: nowrap; }
+  .kpi .label.one-line { white-space: normal; }
+  .brand { flex: 1 1 100%; }
+  .tbl-wrap { -webkit-overflow-scrolling: touch; }
+  .tbl-wrap table th:first-child, .tbl-wrap table td:first-child { position: sticky; left: 0; z-index: 1; background: var(--surface); }
+  .swipe-hint { display: block; }
+}
+.swipe-hint { display: none; font-size: 11.5px; color: var(--muted); margin: 0 0 4px; }
+.vc-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }

@@ -301,11 +301,11 @@
         `<button type="button" class="dp-chip dp-all" data-k="*">${hl.size ? "강조 해제" : "6개 제품 강조"}</button>`;
       chips.querySelectorAll(".dp-chip").forEach((b) => b.onclick = () => { const k = b.dataset.k;
         if (k === "*") S.dph = hl.size ? new Set() : new Set(DSER.filter((s) => s.long).map((s) => s.key)); else hl.has(k) ? hl.delete(k) : hl.add(k); drawDep(); });
-      const W = Math.max(600, box.clientWidth || 1100), H = 300, L = 40, R = 120, T = 10, B = 26;
+      const W = Math.max(300, box.clientWidth || 1100), nar = W < 560, H = nar ? 260 : 300, L = nar ? 32 : 40, R = nar ? 92 : 120, T = 10, B = 26;
       const x = (i) => L + (i / (depYrs.length - 1)) * (W - L - R), y = (v) => T + (1 - v / 100) * (H - T - B);
       const path = (s) => { let d = "", pen = false; s.v.forEach((v, i) => { if (v == null) { pen = false; return; } d += (pen ? "L" : "M") + x(i).toFixed(1) + "," + y(v).toFixed(1); pen = true; }); return d; };
       const grid = [0, 25, 50, 75, 100].map((g) => `<line x1="${L}" x2="${W - R}" y1="${y(g)}" y2="${y(g)}" class="dp-grid"/><text x="${L - 6}" y="${y(g) + 4}" class="dp-ax" text-anchor="end">${g}%</text>`).join("") +
-        depYrs.map((yy, i) => `<text x="${x(i)}" y="${H - 6}" class="dp-ax" text-anchor="middle">${yy}</text>`).join("");
+        depYrs.map((yy, i) => nar && i % 2 ? "" : `<text x="${x(i)}" y="${H - 6}" class="dp-ax" text-anchor="middle">${nar ? "’" + String(yy).slice(2) : yy}</text>`).join("");
       const bg = DSER.filter((s) => !hl.has(s.key)).map((s) => `<path d="${path(s)}" class="dp-bg" data-k="${s.key}"/>`).join("");
       const fg = DSER.filter((s) => hl.has(s.key)).map((s) => `<path d="${path(s)}" class="dp-fg" style="stroke:${pal[s.key]}"/>` +
         s.v.map((v, i) => v == null ? "" : `<circle cx="${x(i)}" cy="${y(v)}" r="2.6" style="fill:${pal[s.key]}"/>`).join("")).join("");
@@ -431,7 +431,7 @@
       const cnt = {}; cols[0].forEach((n) => { const k = n.grp; n.c = SH[k][Math.min(cnt[k] = (cnt[k] || 0) + 1, SH[k].length) - 1]; });
       cols[1].forEach((n) => { n.c = SH[n.grp][0]; });
       cols[2].forEach((n) => { n.c = n.grp === "by" ? VC_COL.na : n.a != null ? (n.a >= n.b ? VC_COL.dom : VC_COL.imp) : "#6b7785"; });
-      const W = Math.max(box.clientWidth || 560, 520), mx = Math.max(...cols.map((c) => c.length));
+      const nar = (box.clientWidth || 560) < 600, W = nar ? 640 : Math.max(box.clientWidth || 560, 520), mx = Math.max(...cols.map((c) => c.length));
       const H = Math.max(380, Math.min(600, 40 + mx * 32)), L = 200, R = 220, nw = 10, gap = 6;
       const xs = [L, (L + W - R) / 2 - nw / 2, W - R - nw];
       const sc = (H - 8 - gap * (mx - 1)) / tot;
@@ -447,7 +447,8 @@
         const over = ys.length ? ys[ys.length - 1].y - (H - 6) : 0; if (over > 0) { ys[ys.length - 1].y -= over; for (let i = ys.length - 2; i >= 0; i--) if (ys[i + 1].y - ys[i].y < gapL) ys[i].y = ys[i + 1].y - gapL; }
         ys.forEach((o) => { o.n.ly = o.y; }); };
       lay(cols[0], 14); lay(cols[1], 16); lay(cols[2], 14);
-      let svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}" class="vc">`;
+      box.classList.toggle("vc-scroll", nar);
+      let svg = `<svg viewBox="0 0 ${W} ${H}" width="${nar ? W : "100%"}" height="${H}" class="vc">`;
       links.forEach((l) => { const a = N[l.s], b = N[l.t]; if (!a || !b) return; const h = l.v * sc, x0 = xs[a.col] + nw, x1 = xs[b.col], y0 = a.y + a.oo + h / 2, y1 = b.y + b.io + h / 2; a.oo += h; b.io += h;
         const xm = (x0 + x1) / 2;
         svg += `<path d="M${x0},${y0} C${xm},${y0} ${xm},${y1} ${x1},${y1}" stroke="${LC[a.grp] || LC.na}" stroke-width="${Math.max(h, 0.8)}" fill="none" stroke-opacity=".42" class="vc-l"><title>${vcShort(a.label)} → ${vcShort(b.label)}: ${fmt(l.v)}${b.col === 2 && uPct ? " (용도별 생산 비율로 나눈 값)" : ""}</title></path>`; });
@@ -461,7 +462,7 @@
         else if (n.grp === "prod") svg += `<text x="${xs[2] + nw + 6}" y="${ty - 8}" class="vc-t b">${lab}</text><text x="${xs[2] + nw + 6}" y="${ty + 9}" class="vc-s">투입 ${fmt(n.v)}</text>${prodTxt ? `<text x="${xs[2] + nw + 6}" y="${ty + 25}" class="vc-s">${prodTxt}</text>` : ""}`;
         else svg += `<text x="${xs[2] + nw + 6}" y="${ty}" class="vc-t">${lab} <tspan class="vc-s">${val}</tspan></text>`;
       }));
-      box.innerHTML = svg + `</svg>`;
+      box.innerHTML = (nar ? `<div class="swipe-hint">← 좌우로 밀어서 보기 →</div>` : "") + svg + `</svg>`;
       // 머리말·설명
       const c1 = cols[1].filter((n) => n.v / tot >= 0.01).map((n) => `${vcShort(n.label)} ${nf(n.v / tot * 100, 0)}%`).join(" · ");
       let lead;
@@ -582,8 +583,8 @@
       const fx = (x) => `${short(x.c.label)} ${x.r >= 1 ? nf(x.r + 1, 0) + "배" : (x.r > 0 ? "+" : "") + nf(x.r * 100, 0) + "%"}`;
       ld.innerHTML = cs.length ? ([down.length ? `설비 감소 ${down.slice(0, 3).map(fx).join(" · ")}` : "", up.length ? `증가 ${up.slice(0, 2).map(fx).join(" · ")}` : ""].filter(Boolean).join(" / ") || "선택 제품 설비 변화 ±15% 이내") : "";
       if (!cs.length) { grid.innerHTML = `<div class="empty" style="grid-column:1/-1;height:300px">왼쪽에서 제품을 켜면 표시</div>`; return; }
-      const cols = cs.length <= 1 ? 1 : cs.length <= 4 ? 2 : 3, nr = Math.ceil(cs.length / cols);
-      const h = nr === 1 ? 300 : nr === 2 ? 150 : nr === 3 ? 100 : 80;
+      const narC = grid.clientWidth < 520, cols = cs.length <= 1 ? 1 : (cs.length <= 4 || narC) ? 2 : 3, nr = Math.ceil(cs.length / cols);
+      const h = narC ? (nr === 1 ? 220 : 130) : nr === 1 ? 300 : nr === 2 ? 150 : nr === 3 ? 100 : 80;
       grid.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
       grid.innerHTML = cs.map((c, i) => { const f0 = c.firms[0], f1 = c.firms[c.firms.length - 1];
         return `<div class="cap-m"><div class="cap-t one-line"><i class="cap-dot" style="background:${pal[c.key]}"></i><b>${short(c.label)}</b> <span class="sub">${c.derived ? "<b>산출</b> · " : f0 != null ? `업체 ${f0 === f1 ? f1 : `${f0}→${f1}`}개 · ` : ""}${Math.max(...c.capacity) >= 1e5 ? "만 " : ""}${c.unit === "t" ? "톤" : "㎥"}</span></div><div id="cap-${i}"></div></div>`; }).join("") +
