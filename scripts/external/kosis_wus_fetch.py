@@ -21,8 +21,18 @@ for term in TERMS:
     for x in d:
         if str(x.get("TBL_ID", "")).startswith("DT_136034_2024_"):
             tbls[x["TBL_ID"]] = x.get("TBL_NM")
+# 검색어로 안 잡히는 표를 ID로 직접 추가 (2026-11-02: 가치사슬 용도 연결용 — 제품별 용도별 생산량·판매량, 유통채널·부산물)
+EXTRA = {"B021": "합판 용도별 제품생산량 및 판매량", "C022": "섬유판 용도별 제품생산량 및 판매량", "D017": "파티클보드 용도별 제품생산량 및 판매량",
+         "J018": "집성재 생산업체 생산량 및 판매량", "J019": "집성재 생산량 및 판매량", "L020": "목재펠릿 생산업체 생산량 및 판매량",
+         "K023": "목재칩 유통채널별 판매량", "K036": "수입 목재칩 판매량", "G004": "방부목재 유통 형태",
+         "B024": "합판 생산업체 부산물 발생량 및 판매량", "C026": "섬유판 생산업체 부산물 발생량 및 판매량",
+         "D020": "파티클보드 생산업체 부산물 발생량 및 판매량", "K022": "목재칩 생산업체 부산물 발생량 및 판매량"}
+for k, v in EXTRA.items():
+    tbls.setdefault("DT_136034_2024_" + k, v)
 print(f"표 {len(tbls)}개")
-out = {}
+# 기존 결과에 덧붙임 (이전에 받은 표 유지)
+_old = Path("data/external/kosis_wus_raw.json")
+out = json.loads(_old.read_text(encoding="utf-8")) if _old.exists() else {}
 for tid, nm in sorted(tbls.items()):
     try:
         meta = get("https://kosis.kr/openapi/statisticsData.do", {"method": "getMeta", "type": "ITM", "orgId": "136", "tblId": tid})
