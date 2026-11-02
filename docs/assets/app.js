@@ -999,6 +999,7 @@
     if (!I) { host.innerHTML = `<div class="loading">목재산업 자료 준비 중</div>`; return; }
     const yrs = Object.keys(I.by_year || {}).sort(), Y = yrs.includes(S.iy) ? S.iy : yrs[yrs.length - 1];
     const jo = (v) => nf(v / 1e4, 1) + "조";
+    const short = (s) => String(s).replace("배향성스트랜드보드(OSB)", "OSB").replace("목재플라스틱복합재", "목재플라스틱복합재(WPC)");
     host.innerHTML =
       `<div class="sec-title" style="margin-top:14px"><h2>목재산업</h2><span class="hint">규모 · 제품별 구조 · 생산업체 — 산림청·한국임업진흥원 목재이용실태조사 (목재생산업 등록업체)</span></div>` +
       indStrip(true) +
