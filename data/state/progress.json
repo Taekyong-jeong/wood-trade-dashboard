@@ -772,5 +772,11 @@
   "countries": 243,
   "fetched_at": "2026-10-21T03:34:31+09:00",
   "rows": 1057
+ },
+ "202610": {
+  "complete": true,
+  "countries": 243,
+  "fetched_at": "2026-11-16T16:56:40+09:00",
+  "rows": 1100
  }
 }
