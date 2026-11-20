@@ -709,74 +709,86 @@
  },
  "202511": {
   "complete": true,
-  "countries": 243,
-  "fetched_at": "2026-10-21T03:47:00+09:00",
+  "countries": 163,
+  "fetched_at": "2026-11-20T11:44:27+09:00",
+  "refreshed_for": "202610",
   "rows": 1072
  },
  "202512": {
   "complete": true,
-  "countries": 243,
-  "fetched_at": "2026-10-21T03:45:45+09:00",
+  "countries": 163,
+  "fetched_at": "2026-11-20T11:43:26+09:00",
+  "refreshed_for": "202610",
   "rows": 1082
  },
  "202601": {
   "complete": true,
-  "countries": 243,
-  "fetched_at": "2026-10-21T03:44:30+09:00",
+  "countries": 163,
+  "fetched_at": "2026-11-20T11:42:26+09:00",
+  "refreshed_for": "202610",
   "rows": 1011
  },
  "202602": {
   "complete": true,
-  "countries": 243,
-  "fetched_at": "2026-10-21T03:43:15+09:00",
+  "countries": 163,
+  "fetched_at": "2026-11-20T11:41:26+09:00",
+  "refreshed_for": "202610",
   "rows": 993
  },
  "202603": {
   "complete": true,
-  "countries": 243,
-  "fetched_at": "2026-10-21T03:42:01+09:00",
+  "countries": 163,
+  "fetched_at": "2026-11-20T11:40:26+09:00",
+  "refreshed_for": "202610",
   "rows": 1055
  },
  "202604": {
   "complete": true,
-  "countries": 243,
-  "fetched_at": "2026-10-21T03:40:45+09:00",
+  "countries": 163,
+  "fetched_at": "2026-11-20T11:39:23+09:00",
+  "refreshed_for": "202610",
   "rows": 1106
  },
  "202605": {
   "complete": true,
-  "countries": 243,
-  "fetched_at": "2026-10-21T03:39:30+09:00",
+  "countries": 163,
+  "fetched_at": "2026-11-20T11:38:28+09:00",
+  "refreshed_for": "202610",
   "rows": 1052
  },
  "202606": {
   "complete": true,
-  "countries": 243,
-  "fetched_at": "2026-10-21T03:38:16+09:00",
+  "countries": 163,
+  "fetched_at": "2026-11-20T11:37:33+09:00",
+  "refreshed_for": "202610",
   "rows": 1134
  },
  "202607": {
   "complete": true,
-  "countries": 243,
-  "fetched_at": "2026-10-21T03:37:01+09:00",
+  "countries": 163,
+  "fetched_at": "2026-11-20T11:36:38+09:00",
+  "refreshed_for": "202610",
   "rows": 1068
  },
  "202608": {
   "complete": true,
-  "countries": 243,
-  "fetched_at": "2026-10-21T03:35:45+09:00",
+  "countries": 163,
+  "fetched_at": "2026-11-20T11:35:42+09:00",
+  "refreshed_for": "202610",
   "rows": 1070
  },
  "202609": {
   "complete": true,
-  "countries": 243,
-  "fetched_at": "2026-10-21T03:34:31+09:00",
-  "rows": 1057
+  "countries": 163,
+  "fetched_at": "2026-11-20T11:34:48+09:00",
+  "refreshed_for": "202610",
+  "rows": 1058
  },
  "202610": {
   "complete": true,
   "countries": 243,
-  "fetched_at": "2026-11-16T16:56:40+09:00",
+  "fetched_at": "2026-11-20T11:33:52+09:00",
+  "refreshed_for": "202610",
   "rows": 1100
  }
 }
